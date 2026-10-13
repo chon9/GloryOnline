@@ -1,0 +1,147 @@
+{
+ "assets": [
+  {
+   "name": "KayKit Character Pack: Adventurers 1.0 (official repo)",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0 (LICENSE.txt verified)",
+   "purpose": "player characters + basic weapons",
+   "style": "Chibi / stylized-cute low-poly, big heads, hand-painted gradient texture",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_adv (5.9 MB zip)",
+   "contents_summary": "Already laid out as a Godot addon (addons/kaykit_character_pack_adventures). Characters/gltf/: Barbarian, Knight, Mage, Rogue, Rogue_Hooded .glb, each rigged (1 skin) with 76 embedded animations: Idle, Running_A/B, Running_Strafe_L/R, Walking_*, Jump_Start/Idle/Land/Full_*, 1H/2H/Dualwield melee attacks (Chop/Slice/Stab/Spin), 1H/2H ranged Aiming/Shoot/Reload, Spellcast_Raise/Shoot/Long/Spellcasting, Block*, Dodge_F/B/L/R, Hit_A/B, Death_A/B, Throw, Cheer, etc. Rig bones include handslot.l / handslot.r for attaching weapons. Assets/gltf/: sword_1handed/2handed, axe 1h/2h, dagger, staff, wand, crossbow 1h/2h, shields, spellbook, smokebomb, arrows (.gltf+.bin).",
+   "notes": "Free 1.0 version. The 76 animations are baked into every character, so this works with no extra steps. Its rig is the same bone hierarchy as the 2.0 Rig_Medium."
+  },
+  {
+   "name": "KayKit Character Pack: Skeletons 1.0 (official repo)",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0",
+   "purpose": "enemies (PVE trash mobs)",
+   "style": "Chibi stylized, same art style as the Adventurers pack",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_skel (6.4 MB zip)",
+   "contents_summary": "Skeleton_Mage, Skeleton_Minion, Skeleton_Rogue, Skeleton_Warrior .glb, rigged with 95 embedded animations (all of the player set plus Spawn_Ground/Air, Skeletons_Awaken_*, Death_C_Skeletons_Resurrect, Taunt, Idle_Combat, Spellcast_Summon, 1H_Melee_Attack_Jump_Chop). Weapons: Skeleton_Axe, Blade, Crossbow, Staff, shields, arrows (.gltf). Uses the same bone names as the players (handslot.l/r).",
+   "notes": "Bone list matches the Adventurers rig exactly, so the player and enemy animation sets can be shared."
+  },
+  {
+   "name": "KayKit Dungeon Remastered 1.0 (official repo)",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0",
+   "purpose": "environment: dungeon / raid instance + arena building blocks",
+   "style": "Stylized low-poly, matches KayKit characters",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_dung (6.1 MB zip)",
+   "contents_summary": "203 .glb and 208 .obj modular pieces: walls, floors, stairs, pillars, doors, banners, torches, chests, barrels, props. 1 shared texture atlas. Godot addon layout.",
+   "notes": "Use this if you only want the official repos. The 1.1 version in the mirror below has more pieces (283 gltf)."
+  },
+  {
+   "name": "The Complete KayKit Collection v6, characters (GitHub mirror: Adventurers 2.0, Character Animations 1.1, Skeletons 1.1, Mystery Monthly Series 4-6)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0 (the collection's own license file says CC0 and is included). This is an unofficial mirror of the paid 'Complete KayKit Collection'. CC0 legally allows redistribution, but buying it on itch.io or supporting the author's Patreon is the cleaner choice for a published game.",
+   "purpose": "player characters (many Glory-like classes), animation library, enemies, raid bosses",
+   "style": "Chibi / stylized-cute, all in one consistent art style",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-characters/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_characters (188 MB zip, 2091 files; deep paths, so use \\\\?\\ long-path access or extract to a short root)",
+   "contents_summary": "Shared 23-bone rig in two sizes (root, hips, spine, chest, upperarm/lowerarm/wrist/hand/handslot .l/.r, head, legs). Character .glb files have no animations; they are driven by separate animation-library GLBs in character-animations-1.1/Animations/gltf/. Rig_Medium has CombatMelee (22), CombatRanged (20: Bow Draw/Release, Magic Raise/Shoot/Spellcasting/Summon, 1H/2H gun Aim/Shoot/Reload), General (15: Idle, Hit, Death, Spawn, Throw), MovementBasic (11: Run, Walk, Jump), MovementAdvanced (13: Dodge x4, Strafe, Running_HoldingBow/Rifle, Crouch), Special, Simulation, Tools. Rig_Large has CombatMelee (16: 1H Slash, 2H Slam, Unarmed Smash, Dualwield SlashCombo), General, MovementBasic. MEDIUM-rig characters: Knight, Barbarian, Mage, Rogue, Rogue_Hooded, Ranger, Druid, Engineer, Paladin, Cleric, Witch (comes with Broom.gltf), MagicalGirl, Marksman (Marksman_Rifle), CombatMech (CombatMech_Minigun), AvianSwordsman, Ninja (Ninja_Katana; FBX/gltf), Vampire, Tiefling, Superhero, Lorekeeper, Protagonist_A/B, Necromancer, Skeleton_Minion/Warrior/Rogue/Mage, Werewolf_Man/Wolf. LARGE-rig characters (boss scale, hips at 1.04 vs 0.41): FrostGolem (+FrostGolem_Axe), OrcBrute, BlackKnight, Monstrosity, Skeleton_Golem, Clanker, 4GTN/4GTN_Forgotten (21 bones), Barbarian_Large. Formats: glb, fbx, plus .blend source.",
+   "notes": "This is the best single source for this game. Every humanoid uses the same bone names, so one AnimationLibrary works for all Medium characters and one for all Large bosses. In Godot, attach weapons with a BoneAttachment3D on handslot.r/handslot.l. The animation names differ from 1.0 (for example Melee_1H_Attack_Chop instead of 1H_Melee_Attack_Chop)."
+  },
+  {
+   "name": "The Complete KayKit Collection v6, props (GitHub mirror: Fantasy Weapons Bits 1.0, Prototype Bits 1.1, RPG Tools, Halloween, etc.)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0 (KayKit-CC0-License.txt included); same unofficial-mirror caveat as above",
+   "purpose": "weapons (Glory weapon mapping) + props",
+   "style": "Stylized low-poly, matches the characters",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-props/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_props (190 MB zip, 7823 files)",
+   "contents_summary": "fantasy-weapons-bits-1.0/Assets/gltf: sword_A-G, axe_A-D, hammer_A-D, halberd, scythe, spear_A/B, staff_A-D, wand_A/B, dagger_A-C, bow_A-C (with/without string), arrows, fistweapon_A/B/C (left/right/stacked), shield_A-D. All .gltf+.bin sharing one weapons_bits_texture.png; fbx/obj/blend also included. prototype-bits-1.1: Gun_Pistol, Gun_Rifle, Gun_Sniper (gltf).",
+   "notes": "Covers almost every Glory weapon category: swords for Knight/Berserker/Blade Master, fist weapons for Qi Master/Striker/Grappler, scythe for Assassin, spear/halberd for Battle Mage, staff/wand for Elementalist/Summoner, pistol for Spitfire, sniper for Sharpshooter. Katana, rifle, minigun (Launcher) and broom (Witch) come from the characters mirror. There is no umbrella-lance (Myriad Manifestations Umbrella) or cleric cross; build those from parts or model them."
+  },
+  {
+   "name": "The Complete KayKit Collection v6, environments (GitHub mirror: Dungeon Remastered 1.1, Forest Nature Pack, Medieval Hexagon, Platformer, City Builder, Space Base)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0; same unofficial-mirror caveat",
+   "purpose": "environment: dungeon raid + outdoor/PVP arena",
+   "style": "Stylized low-poly, matches the characters",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-environments/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_environments (275 MB zip, 18388 files)",
+   "contents_summary": "dungeon-remastered-1.1 (283 gltf: 84 banners, 76 walls, 68 floors, 30 stairs, scaffolds, pillars, torches, chests, plus Samples scenes and Source .blend). forest-nature-pack-1.0 (1588 gltf: trees, rocks, grass, cliffs, 239 MB). platformer-pack-1.0 (525 gltf, colored team-variant blocks that work for arena platforms). medieval-hexagon-pack (404 gltf), city-builder, space-base.",
+   "notes": "Recommended: build the dungeon raid from dungeon-remastered-1.1, and the PVP arena from the dungeon floors, walls and pillars plus forest-nature rocks and cliffs. If disk space matters, only copy those subfolders into the Godot project."
+  },
+  {
+   "name": "Kenney Mini Characters",
+   "author": "Kenney",
+   "license": "CC0 1.0 (License.txt verified)",
+   "purpose": "alternative player characters (fallback only)",
+   "style": "Very simple blocky mini figures",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/mini-characters/bfc7e272b4-1774770718/kenney_mini-characters.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_minichar",
+   "contents_summary": "12 characters (male/female a-f) in GLB, FBX and OBJ. 7-bone rig, 32 embedded animations (idle, walk, sprint, jump, die, attack-melee-left/right, holding-*-shoot, kick...).",
+   "notes": "Not recommended as the main characters: the 7-bone rig is too simple for class combat and has no hand-slot bones. Kenney's direct zip URLs work but carry a version hash that changes when the pack is updated."
+  },
+  {
+   "name": "Kenney Particle Pack",
+   "author": "Kenney",
+   "license": "CC0 1.0",
+   "purpose": "vfx",
+   "style": "Clean flat-shaded particle sprites",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/particle-pack/f8fe0f8cb8-1677578741/kenney_particle-pack.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_particle",
+   "contents_summary": "193 PNGs (transparent and black-background sets): circle, fire, flame, flare, light, magic, muzzle, scorch, slash, smoke, spark, star, symbol, trace, twirl, window.",
+   "notes": "Use for skill VFX in Godot GPUParticles3D billboards (slashes, fireballs, heals, muzzle flashes)."
+  },
+  {
+   "name": "Kenney UI Pack: RPG Expansion",
+   "author": "Kenney",
+   "license": "CC0 1.0",
+   "purpose": "ui",
+   "style": "Fantasy RPG panels, bars, buttons",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/ui-pack-rpg-expansion/7ec4a46657-1677661824/kenney_ui-pack-rpg-expansion.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_uirpg",
+   "contents_summary": "90 PNGs plus a spritesheet XML: panels, HP/MP bars, buttons, arrows, cursors.",
+   "notes": "For the HP/MP bars, party frames and skill bar."
+  },
+  {
+   "name": "Kenney RPG Audio + Impact Sounds",
+   "author": "Kenney",
+   "license": "CC0 1.0",
+   "purpose": "audio",
+   "style": "Game SFX",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip ; https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_rpgaudio and kn_impact",
+   "contents_summary": "RPG Audio: 52 .ogg (blade draws, chops, cloth, footsteps, metal clicks, coins, doors). Impact Sounds: 130 .ogg (punches, metal and plate hits, footsteps on various surfaces).",
+   "notes": "Godot imports .ogg natively."
+  },
+  {
+   "name": "Quaternius Universal Animation Library (Standard, glTF mirror)",
+   "author": "Quaternius; mirrored by J-Ponzo",
+   "license": "CC0 1.0",
+   "purpose": "animations (alternative, not recommended)",
+   "style": "Realistic-proportion mannequin rig",
+   "direct_download_url": "https://github.com/J-Ponzo/gltf-universal-animation-library/archive/refs/heads/main.zip",
+   "verified_download": false,
+   "contents_summary": "Single glTF/AnimationLibrary_Godot_Standard.gltf (2.4 MB) using Quaternius' humanoid rig (Godot-named bones).",
+   "notes": "Checked with the GitHub API but not downloaded. It uses a different, realistic-proportion rig than KayKit, so it would need retargeting. Only worth it if you switch to Quaternius humanoids."
+  },
+  {
+   "name": "Quaternius packs (showcase mirror: Modular Dungeon, Medieval Weapons, Sci-Fi Guns, Animated Knight, Easy Enemy, RPG Items, Modular Men/Women)",
+   "author": "Quaternius; mirrored by trebeljahr",
+   "license": "CC0 1.0 per its LICENSES.md (the repo's MIT license covers only the showcase code)",
+   "purpose": "backup weapons, guns, dungeon",
+   "style": "Low-poly stylized, a less chibi look than KayKit",
+   "direct_download_url": "https://github.com/trebeljahr/quaternius-showcase/archive/refs/heads/main.zip",
+   "verified_download": false,
+   "contents_summary": "public/glb/: 1545 .glb across 33 packs, including modular_sci_fi_guns_pack (78), medieval_weapons_pack (24), modular_dungeon (48+41), rpg_items_pack (106), single_knight_pack, easy_enemies_pack, modular_men/women.",
+   "notes": "Tree listed with the GitHub API; the 166 MB repo was not downloaded. Quaternius' own site uses Google Drive and itch, so there is no direct URL there. This is only a backup source, for example for extra guns. Mixing its art style with KayKit is not recommended."
+  }
+ ],
+ "recommendation": "I recommend building almost everything on KayKit by Kay Lousberg (CC0). Every humanoid in it uses the same 23-bone rig with handslot.l and handslot.r bones, so animations are shared and weapons attach in Godot with a BoneAttachment3D. All candidates below were downloaded and checked (zips total about 689 MB, under the 1.5 GB budget) into C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/. I read the GLB files only and ran nothing from the downloads. Expand-Archive fails on Windows' 260-character path limit here, so I extracted with C:/Windows/System32/tar.exe into short folder names.\n\nAbout the mirror: the best content (Adventurers 2.0, Character Animations 1.1, the Mystery Monthly characters, Fantasy Weapons, Dungeon 1.1) only exists on GitHub through a third-party mirror (GeorgeQLe) of Kay's paid \"Complete KayKit Collection v6\". The collection's own license file says CC0, so redistributing it is legal. For a shipped game, buying the collection on itch.io or backing his Patreon is still the fair choice. If you want official repos only, use the 1.0 packs listed under Option B.\n\nPLAYERS (one shared rig): use the Medium-rig characters from the characters mirror, kkm_characters/.../adventurers-2.0 and mystery-monthly-series-4/5/6. Drive them all with the Rig_Medium AnimationLibraries in character-animations-1.1/Animations/gltf/Rig_Medium/: CombatMelee, CombatRanged, General, MovementBasic and MovementAdvanced. Suggested 榮耀 class mapping:\n- Knight (騎士): Paladin or Knight\n- Berserker (狂劍士): Barbarian\n- Blade Master (劍客): AvianSwordsman or Ninja with a katana\n- Ghostblade (鬼劍士): Vampire or Tiefling\n- Assassin (刺客): Rogue_Hooded with a scythe\n- Qi Master (氣功師) and Striker (拳法家): Superhero or Protagonist with fist weapons\n- Grappler (散打): Caveman\n- Battle Mage (戰鬥法師): Protagonist with a spear or halberd\n- Elementalist (元素法師): Mage\n- Witch (魔道學者): Witch, which comes with a broom\n- Summoner (召喚師): Druid or Lorekeeper\n- Cleric (牧師): Cleric\n- Spitfire (神槍手): Marksman with a pistol\n- Sharpshooter (神射手): Ranger with the sniper rifle\n- Launcher (彈藥專家): CombatMech with the minigun\n- Mechanic (機械師): Engineer\n- Magical Girl can be an extra or alternate caster skin.\nOption B, official repo only: KayKit Adventurers 1.0, where the 5 characters already contain 76 animations each.\n\nENEMIES: use the Skeletons (Minion, Warrior, Rogue, Mage, Necromancer) from the skeletons-1.1 folder of the characters mirror, or the official KayKit-Character-Pack-Skeletons-1.0 repo, which has 95 animations each, including spawn and resurrect. Werewolf, OrcBrute and Monstrosity can be elite mobs.\n\nBOSS: use the Large-rig characters, animated by the Rig_Large AnimationLibraries (CombatMelee has 2H_Slam, Unarmed_Smash and Dualwield_SlashCombo):\n- FrostGolem with its axe\n- BlackKnight\n- OrcBrute\n- Skeleton_Golem\n- Monstrosity\n- 4GTN (21-bone variant)\nScale them up 1.5 to 2x for raid bosses.\n\nWEAPONS: KayKit Fantasy Weapons Bits 1.0 from the props mirror: swords A-G, axes, hammers, halberd, scythe, spears, staffs, wands, daggers, bows and fist weapons. Add Prototype Bits Gun_Pistol, Gun_Rifle and Gun_Sniper, plus the character-specific Ninja_Katana, Marksman_Rifle, CombatMech_Minigun and Witch Broom. Nothing free covers 葉修's umbrella (千機傘) or a cleric cross; build those from parts or model them.\n\nARENA ENVIRONMENT: KayKit Dungeon Remastered 1.1 floors, walls, pillars and banners, plus Forest Nature Pack rocks and cliffs, all from the environments mirror. Platformer-pack colored blocks work for team-colored PVP arenas.\n\nDUNGEON ENVIRONMENT: KayKit Dungeon Remastered 1.1 from the environments mirror (283 glTF pieces with sample scenes). The official 1.0 repo is the fallback.\n\nVFX / UI / SFX: Kenney Particle Pack, UI Pack RPG Expansion, RPG Audio and Impact Sounds, all CC0 and verified.\n\nSkip as primary sources: Kenney Mini Characters (only a 7-bone rig with no hand slots), and Quaternius UAL and its packs (different realistic-proportion rig and art style; keep them as a backup only).\n\nGodot tips:\n- Prefer the .glb and .gltf files, and copy only the subfolders you need, because the mirrors include fbx, obj and blend duplicates.\n- Import one Rig_Medium character, save its AnimationLibraries as .res files, and share them across all Medium characters. Do the same for Rig_Large.\n- The 2.0 animation names differ from the 1.0 names, for example Melee_1H_Attack_Chop instead of 1H_Melee_Attack_Chop."
+}

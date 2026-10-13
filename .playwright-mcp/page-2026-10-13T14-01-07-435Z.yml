@@ -1,0 +1,153 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "跳转到正文 / Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#mw-content-text"
+    - generic [ref=e5]:
+      - main [ref=e7]:
+        - generic [ref=e8]:
+          - article [ref=e10]:
+            - generic [ref=e11]:
+              - generic [ref=e13]:
+                - navigation [ref=e15]:
+                  - list [ref=e16]:
+                    - listitem [ref=e17]:
+                      - link "页面" [ref=e18] [cursor=pointer]:
+                        - /url: /index.php?title=%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2&action=edit&redlink=1
+                    - listitem [ref=e19]:
+                      - link "讨论" [ref=e20] [cursor=pointer]:
+                        - /url: /index.php?title=Talk:%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2&action=edit&redlink=1
+                - generic [ref=e21]:
+                  - generic [ref=e22]: 清除页面缓存
+                  - navigation [ref=e26]:
+                    - button "简体" [ref=e27] [cursor=pointer]
+              - generic [ref=e29]:
+                - heading "荣耀:剑客" [level=1] [ref=e31]
+                - generic [ref=e32]: 萌娘百科，万物皆可萌的百科全书！转载请标注来源页面的网页链接，并声明引自萌娘百科。内容不可商用。
+            - generic [ref=e38]:
+              - paragraph [ref=e39]
+              - paragraph [ref=e43]: 萌百娘找不到这个页面
+              - paragraph [ref=e44]:
+                - text: 您可以
+                - link "搜索本页标题" [ref=e45] [cursor=pointer]:
+                  - /url: /Special:%E6%90%9C%E7%B4%A2/%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2
+                - text: 或
+                - link "搜索相关日志" [ref=e46] [cursor=pointer]:
+                  - /url: https://zh.moegirl.org.cn/index.php?title=Special:%E6%97%A5%E5%BF%97&page=%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2
+                - text: 。
+              - paragraph [ref=e47]:
+                - text: 但您目前没有权限创建本页面，
+                - link "登录" [ref=e49] [cursor=pointer]:
+                  - /url: https://zh.moegirl.org.cn/index.php?title=Special:%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95&returnto=%25E8%258D%25A3%25E8%2580%2580%3A%25E5%2589%2591%25E5%25AE%25A2&returntoquery=variant%3D%25E8%258D%25A3%25E8%2580%2580%3A%25E5%2589%2591%25E5%25AE%25A2
+                - text: 后或许您可以获得编辑权限。
+              - paragraph [ref=e50]:
+                - text: 没有账户？点这里
+                - link "注册一个账户" [ref=e52] [cursor=pointer]:
+                  - /url: https://zh.moegirl.org.cn/index.php?title=Special:%E5%88%9B%E5%BB%BA%E8%B4%A6%E6%88%B7&returnto=%25E8%258D%25A3%25E8%2580%2580%3A%25E5%2589%2591%25E5%25AE%25A2&returntoquery=variant%3D%25E8%258D%25A3%25E8%2580%2580%3A%25E5%2589%2591%25E5%25AE%25A2
+                - text: ，加入萌娘百科！
+              - separator [ref=e53]
+              - paragraph [ref=e54]: 如您曾通过一个URL链接跳转至此却找不到页面，这往往是由于链接出现问题所造成的。请尝试在下方输入正确的条目名以搜索条目：
+              - generic [ref=e56]:
+                - textbox "搜索萌娘百科" [ref=e58]
+                - button "搜索标题" [ref=e59]
+              - paragraph
+          - navigation:
+            - generic [ref=e62]:
+              - generic [ref=e63] [cursor=pointer]
+              - link [ref=e65] [cursor=pointer]:
+                - /url: "#"
+              - link [ref=e70] [cursor=pointer]:
+                - /url: "#"
+        - complementary
+      - banner [ref=e75]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - button [ref=e80] [cursor=pointer]
+            - generic:
+              - link "Wiki logo":
+                - /url: https://zh.moegirl.org.cn/
+                - img "Wiki logo"
+            - generic [ref=e84]:
+              - button "新 商务合作" [ref=e85] [cursor=pointer]:
+                - superscript [ref=e88]:
+                  - generic [ref=e89]: 新
+                - generic [ref=e90]: 商务合作
+              - link "新 下载最新版APP，体验条目角色扮演！下载最新版APP，体验条目角色扮演！" [ref=e94] [cursor=pointer]:
+                - /url: https://app.moegirl.org.cn/?utm_source=moeskin_header&utm_medium=primary_button_click
+                - superscript [ref=e97]:
+                  - generic [ref=e98]: 新
+                - generic [ref=e99]: 下载最新版APP，体验条目角色扮演！下载最新版APP，体验条目角色扮演！
+          - button [ref=e103]:
+            - generic [ref=e111]:
+              - searchbox "搜索萌娘百科 (Ctrl+K)" [ref=e112]
+              - generic: 搜索萌娘百科 (Ctrl+K)
+          - generic [ref=e115]:
+            - button [ref=e117] [cursor=pointer]
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e123] [cursor=pointer]
+                - superscript [ref=e126]
+              - generic [ref=e128]: 会员
+            - button "创建" [ref=e129] [cursor=pointer]
+      - contentinfo [ref=e134]:
+        - generic [ref=e138]:
+          - generic [ref=e139]:
+            - link "萌娘百科:关于" [ref=e142] [cursor=pointer]:
+              - /url: /%E8%90%8C%E5%A8%98%E7%99%BE%E7%A7%91:%E5%85%B3%E4%BA%8E
+            - generic [ref=e144]:
+              - link "帮助" [ref=e145] [cursor=pointer]:
+                - /url: https://zh.moegirl.org.cn/Category:%E5%B8%AE%E5%8A%A9
+              - link "商务合作" [ref=e146] [cursor=pointer]:
+                - /url: https://app.moegirl.org.cn/contact/?from=moeskin_footer
+              - link "下载App" [ref=e147] [cursor=pointer]:
+                - /url: https://app.moegirl.org.cn/?from=moeskin_footer
+          - paragraph [ref=e148]:
+            - text: 本站全部内容禁止商业使用。文本内容除另有声明外，均在
+            - link "知识共享 署名-非商业性使用-相同方式共享 4.0（CC BY-NC-SA 4.0）许可协议" [ref=e149] [cursor=pointer]:
+              - /url: https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans
+            - text: 下提供，附加条款亦可能应用，详细信息参见
+            - link "萌娘百科:著作权信息" [ref=e150] [cursor=pointer]:
+              - /url: /%E8%90%8C%E5%A8%98%E7%99%BE%E7%A7%91:%E8%91%97%E4%BD%9C%E6%9D%83%E4%BF%A1%E6%81%AF
+            - text: 。其他类型作品著作权归属于其著作权人，如有授权遵照授权协议使用。
+          - generic [ref=e151]:
+            - separator [ref=e152]
+            - paragraph [ref=e153]: 萌娘百科®、Moegirlpedia®是注册商标
+            - paragraph [ref=e154]:
+              - link "隐私权政策" [ref=e155] [cursor=pointer]:
+                - /url: /%E8%90%8C%E5%A8%98%E7%99%BE%E7%A7%91:%E9%9A%90%E7%A7%81%E6%9D%83%E6%94%BF%E7%AD%96
+              - text: "|"
+              - link "关于萌娘百科" [ref=e156] [cursor=pointer]:
+                - /url: /%E8%90%8C%E5%A8%98%E7%99%BE%E7%A7%91:%E5%85%B3%E4%BA%8E
+              - text: "|"
+              - link "免责声明" [ref=e157] [cursor=pointer]:
+                - /url: /%E8%90%8C%E5%A8%98%E7%99%BE%E7%A7%91:%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E
+      - navigation [ref=e158]:
+        - list [ref=e160]:
+          - listitem [ref=e161]:
+            - link "上传文件" [ref=e162] [cursor=pointer]:
+              - /url: https://commons.moegirl.org.cn/Special:%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6
+          - listitem [ref=e163]:
+            - link "特殊页面" [ref=e164] [cursor=pointer]:
+              - /url: /Special:%E7%89%B9%E6%AE%8A%E9%A1%B5%E9%9D%A2
+          - listitem [ref=e165]:
+            - link "打印版本" [ref=e166] [cursor=pointer]:
+              - /url: javascript:print();
+          - listitem [ref=e167]:
+            - link "页面信息" [ref=e168] [cursor=pointer]:
+              - /url: /index.php?title=%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2&action=info
+          - listitem [ref=e169]:
+            - link "链入页面" [ref=e170] [cursor=pointer]:
+              - /url: /Special:%E9%93%BE%E5%85%A5%E9%A1%B5%E9%9D%A2/%E8%8D%A3%E8%80%80:%E5%89%91%E5%AE%A2
+        - button [ref=e172] [cursor=pointer]
+  - generic [ref=e178]:
+    - generic [ref=e185]:
+      - text: 订阅萌娘百科推送服务，热门ACG资讯率先掌握~
+      - button "添加订阅" [ref=e186] [cursor=pointer]
+    - button "close" [ref=e188] [cursor=pointer]
+  - generic [ref=e196]:
+    - button "close" [ref=e204] [cursor=pointer]
+    - generic [ref=e210]:
+      - generic [ref=e211]: 有新的未读公告
+      - generic [ref=e212]:
+        - generic [ref=e213]: 提示：全站公告已移动到右上角的头像菜单中。
+        - button "查看公告" [ref=e215] [cursor=pointer]
+  - generic [ref=e217]: 阅读更多：荣耀:剑客（https://zh.moegirl.org.cn/%E8%8D%A3%E8%80%80%3A%E5%89%91%E5%AE%A2 ） 本文引自萌娘百科(https://zh.moegirl.org.cn )，文字内容默认使用《知识共享 署名-非商业性使用-相同方式共享 4.0》协议。

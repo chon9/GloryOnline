@@ -1,0 +1,1355 @@
+{
+ "groups": [
+  {
+   "base_cn": "法师系（魔法师）",
+   "base_en": "Mage",
+   "classes": [
+    {
+     "cn": "战斗法师",
+     "en": "Battle Mage",
+     "confidence": "high (class, weapon, skill list from Moegirl table + KA fandom wiki)",
+     "weapon_cn": "战矛（也可用棍/法杖）",
+     "weapon_en": "Battle Lance / Spear (also Pole/Staff)",
+     "weapon_visual": "Long spear about 2.2m: thin dark shaft (cylinder r=0.025), metal ferrule butt cap, broad leaf-shaped blade head (flattened elongated diamond 0.35m) with small crossguard lugs (two short horizontal prongs). Que Xie (却邪) is drawn with a silver/white head and a red tassel under the blade.",
+     "role": "melee DPS / brawler, high combo pressure",
+     "range_profile": "melee-long (2-3m reach); Furious Dragon pierce reaches ~5 units; Dragon Breaks the Ranks is a long dash",
+     "notable_players": "叶秋/叶修 Ye Xiu then 孙翔 Sun Xiang - 一叶之秋 One Autumn Leaf ('斗神' Battle God) - silver lance 却邪 Evil Annihilation (Qie Xie). 唐柔 Tang Rou - 寒烟柔 Soft Mist - silver lance 'Dancing Fire Flowing Flame'.",
+     "skills": [
+      {
+       "cn": "天击",
+       "en": "Sky Strike",
+       "mechanic": "Lv1 launcher: forward thrust that sweeps diagonally upward, LAUNCH (float) target, melee ~2.5m. Starts most juggles."
+      },
+      {
+       "cn": "龙牙",
+       "en": "Dragon Tooth",
+       "mechanic": "Lv5 fast forward stab, brief STUN, high priority (beats Blade Master Lunge, can be used to block/clash). ~2.5-3m. Triggers Neutral chaser."
+      },
+      {
+       "cn": "连突",
+       "en": "Double Stab",
+       "mechanic": "Lv10 two quick stabs; hidden 50% bleed if both hit the same spot. Triggers Ice chaser (slow + brief stun)."
+      },
+      {
+       "cn": "落花掌",
+       "en": "Falling Flower Palm",
+       "mechanic": "Lv15 palm blast of petals, BLOW-AWAY knockback, stronger vs airborne target, chargeable, can slide forward; ~4s CD. Juggle ender. Triggers Fire chaser."
+      },
+      {
+       "cn": "圆舞棍",
+       "en": "Circle Swing",
+       "mechanic": "Lv20 360-degree sweep, AoE KNOCKDOWN, extra damage if arc >180 deg; grab-type property after the shaft connects: ignores super armor and prevents quick recovery (受身). Triggers Shadow chaser."
+      },
+      {
+       "cn": "炫纹",
+       "en": "Chasers (Neutral/Ice/Fire/Light/Shadow)",
+       "mechanic": "Battle Mage resource: specific skills spawn elemental orbs orbiting the user for 30s (max 7); fire them as auto-homing magic projectiles; on hit grant a 20s buff (speed/def/STR/atk speed). CN term 炫纹 is from DNF and widely used; individual Chinese chaser names not verified."
+      },
+      {
+       "cn": "怒龙穿心",
+       "en": "Furious Dragon Strikes the Heart",
+       "mechanic": "Lv55 high-level: spear-shaped lightning bolt released forward, piercing, range ~5 units, low start/end lag for a big skill."
+      },
+      {
+       "cn": "豪龙破军",
+       "en": "Dragon Breaks the Ranks",
+       "mechanic": "Lv65 strongest physical hit: long forward charge ending in a light beam from the spear tip; can be cancelled mid-animation without end lag."
+      },
+      {
+       "cn": "伏龙翔天",
+       "en": "Rising Dragon Soars the Sky",
+       "mechanic": "Lv70 two-stage AoE (physical x2 + magic explosion with grab effect), long end lag. Ye Xiu's signature technique 龙抬头 'Dragon Raises Its Head' is a manual variant of it (spear flick that pops target up)."
+      },
+      {
+       "cn": "斗者意志",
+       "en": "Battle Spirit",
+       "mechanic": "Lv50 awakening passive: combo-count stages (10/20/.../120 hits) grant attack speed, move speed, STR; resets on miss. Weak in PvP, strong in PvE."
+      }
+     ]
+    },
+    {
+     "cn": "元素法师",
+     "en": "Elementalist",
+     "confidence": "high",
+     "weapon_cn": "法杖 / 魔杖",
+     "weapon_en": "Magic Staff / Wand",
+     "weapon_visual": "Staff ~1.6m: slim wooden or dark-metal shaft topped by a claw/crescent cradle holding a glowing sphere crystal (emissive sphere r=0.08). Wand variant: 0.35m rod with small gem tip.",
+     "role": "ranged magic DPS / AoE and control",
+     "range_profile": "long range caster (10-20m), weak up close; only class that can move while casting (Mobile Cast)",
+     "notable_players": "楚云秀 Chu Yunxiu - 风城烟雨 Windy Rain (Misty Rain team) - silver staff 'Ravaging Wind' (CN name not verified)",
+     "skills": [
+      {
+       "cn": "元素之力",
+       "en": "Elemental Power",
+       "mechanic": "Lv1 launcher: slow-cast large-area knock-up field, long duration; the field object can be destroyed."
+      },
+      {
+       "cn": "火焰爆弹",
+       "en": "Flame Explosion / Fire Ball",
+       "mechanic": "Fire projectile ball, straight line, explodes on hit (small AoE)."
+      },
+      {
+       "cn": "烈焰冲击",
+       "en": "Raging Flames",
+       "mechanic": "Lv20 erupting fire column ~3m tall at target point, LAUNCHES target, high burst AoE."
+      },
+      {
+       "cn": "暴风雪",
+       "en": "Blizzard",
+       "mechanic": "Lv20 hail and snow fall in an area every second for 4s, slow; persistent AoE zone."
+      },
+      {
+       "cn": "冰线",
+       "en": "Ice Line",
+       "mechanic": "3s channel drawing lines of ice on the ground/air for 12s; touching a line freezes for 4s. Zone denial."
+      },
+      {
+       "cn": "雷电贯穿",
+       "en": "Piercing Lightning",
+       "mechanic": "Fast-cast straight-line lightning bolt, very fast projectile."
+      },
+      {
+       "cn": "瞬间移动",
+       "en": "Teleport",
+       "mechanic": "Lv60 blink to a target location (escape)."
+      },
+      {
+       "cn": "天雷地火",
+       "en": "Heavenly Lightning Earthen Fire",
+       "mechanic": "Lv70 ultimate: lightning from the sky and flames from the ground over a large area, random but can be manually steered."
+      },
+      {
+       "cn": "绝对零度",
+       "en": "Absolute Zero",
+       "mechanic": "Lv75 ice skill with the longest freeze in the game (up to 8s)."
+      }
+     ]
+    },
+    {
+     "cn": "魔道学者",
+     "en": "Witch",
+     "confidence": "high",
+     "weapon_cn": "扫把（专属；也可用法杖/魔杖）",
+     "weapon_en": "Broom (Witch-exclusive; also Staff/Wand)",
+     "weapon_visual": "Witch's broom ~1.5m: straight wooden handle, bound bristle head (cone/frustum of straw with a band ring). Rider sits on it for flight. Stardust Extermination is drawn with a starry/gem-studded binding.",
+     "role": "hybrid mage: mobile skirmisher, debuff/control with items, aerial combat",
+     "range_profile": "mid-range items/projectiles plus weak melee sweeps; 3D aerial mobility via broom flight",
+     "notable_players": "王杰希 Wang Jiexi (former 林杰 Lin Jie) - 王不留行 Vaccaria ('魔术师' The Magician) - silver broom 灭绝星尘 Stardust Extermination",
+     "skills": [
+      {
+       "cn": "清扫",
+       "en": "Sweep",
+       "mechanic": "Lv1 broom sweep launcher, weakest knock-up of all classes."
+      },
+      {
+       "cn": "修鲁鲁",
+       "en": "Doll Shururu",
+       "mechanic": "Place a ragdoll that TAUNTS enemies within 2m for up to 20s or until destroyed; 30s CD (cannot taunt bosses unless upgraded)."
+      },
+      {
+       "cn": "暗影斗篷",
+       "en": "Shadow Cloak",
+       "mechanic": "High-priority GRAB: throws a black mist cloak that wraps/binds targets in a wide area; used to interrupt."
+      },
+      {
+       "cn": "驱散粉",
+       "en": "Disperse Powder",
+       "mechanic": "Lv20 thrown powder: lowers attack, move and cast speed and removes all buffs, up to 10s."
+      },
+      {
+       "cn": "扫把掌握",
+       "en": "Broom Mastery",
+       "mechanic": "Lv25 passive: fly on broom and attack while airborne; limited flight altitude/distance."
+      },
+      {
+       "cn": "星星射线",
+       "en": "Star Ray (Magic Ray)",
+       "mechanic": "Summons a star that shoots fast light rays; very hard to dodge. Variant 星星折射 Star Refraction bounces off objects/projectiles."
+      },
+      {
+       "cn": "熔岩烧瓶",
+       "en": "Lava Flask",
+       "mechanic": "Thrown red potion; explosion leaves a burning lava pool (ground DoT zone)."
+      },
+      {
+       "cn": "扫把旋风",
+       "en": "Broom Tornado",
+       "mechanic": "Wide storm of broom strikes that lifts targets up then slams them down (launch + knockdown)."
+      }
+     ]
+    },
+    {
+     "cn": "召唤师",
+     "en": "Summoner",
+     "confidence": "high",
+     "weapon_cn": "法杖 / 魔杖",
+     "weapon_en": "Staff / Wand",
+     "weapon_visual": "Staff ~1.6m with ornate ring/halo head and a hanging charm; wand variant short rod. Summons: goblin, four elemental spirits (small floating orbs/wisps), spirit cat, frost wolf, thunder eagle, small wyvern, undead knight with spear+shield, giant carnivorous flower.",
+     "role": "summoner / pet controller, zone pressure",
+     "range_profile": "long range via pets; body is fragile; summons placed before fights",
+     "notable_players": "罗辑 Luo Ji (Happy) - 昧光 Concealed Light; 李远 Li Yuan, 朱效平 Zhu Xiaoping",
+     "skills": [
+      {
+       "cn": "藤刺",
+       "en": "Thorn",
+       "mechanic": "Lv1 launcher: thorn erupts from the ground at target location, knock-up."
+      },
+      {
+       "cn": "哥布林",
+       "en": "Goblin",
+       "mechanic": "Summon goblin pet; rock-throw projectile 20% stun."
+      },
+      {
+       "cn": "跟随 / 印记",
+       "en": "Follow / Mark",
+       "mechanic": "Cheap pet commands: pets regroup to the user / attack the marked location or target."
+      },
+      {
+       "cn": "鞭挞",
+       "en": "Lash",
+       "mechanic": "Buff a summon's move and attack speed."
+      },
+      {
+       "cn": "交替",
+       "en": "Switch",
+       "mechanic": "Instantly swap positions with one of your summons (escape/reposition)."
+      },
+      {
+       "cn": "精灵召唤",
+       "en": "Spirit summons (Thunder/Fire/Ice/Dark)",
+       "mechanic": "Summon elemental spirits whose attacks can stun (thunder), burn (fire), etc."
+      },
+      {
+       "cn": "魔界之花",
+       "en": "Demon World Flowers",
+       "mechanic": "Static flower turret: poison pollen, root attacks from underground, vine bind; one at a time."
+      },
+      {
+       "cn": "精灵献祭",
+       "en": "Spirit Sacrifice",
+       "mechanic": "Lv75 ultimate: detonate all spirits in a big AoE; damage scales with spirit count, HP, remaining time. Also 兽王四元素阵 Elemental Beast King Formation buffs the four beasts (灵猫 Spirit Cat, frost wolf, 雷鹰 Thunder Eagle, wyvern)."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "base_cn": "剑士系",
+   "base_en": "Swordsman",
+   "classes": [
+    {
+     "cn": "剑客",
+     "en": "Blade Master",
+     "confidence": "high",
+     "weapon_cn": "光剑（剑客专属）/ 太刀 / 短剑 / 大剑 / 阔剑",
+     "weapon_en": "Lightsaber (Blade Master exclusive) / Tachi / Short Sword / Greatsword / Broadsword",
+     "weapon_visual": "Lightsaber: cylindrical metal hilt 0.3m with small guard, glowing straight energy blade ~1m (emissive thin box/cylinder, Ice Rain is pale blue-white). Tachi alternative: slightly curved single-edge katana-like blade.",
+     "role": "melee DPS / duelist, most popular class",
+     "range_profile": "melee 1.5-3m, gap closers (Triple Slash, Lunge), sword-qi extends reach a little",
+     "notable_players": "黄少天 Huang Shaotian (Blue Rain) - 夜雨声烦 Troubling Rain ('剑圣' Sword Saint) - silver lightsaber 冰雨 Ice Rain; 刘小别 Liu Xiaobie (Tiny Herb) - 飞刀剑 'Flying Sword' - lightsaber 'Chasing Spirits'",
+     "skills": [
+      {
+       "cn": "上挑",
+       "en": "Upward Slash",
+       "mechanic": "Lv1 rising slash launcher (float)."
+      },
+      {
+       "cn": "格挡",
+       "en": "Guard",
+       "mechanic": "Lv5 raise blade to BLOCK: reduces damage and blow-away of physical skills; does not block magic."
+      },
+      {
+       "cn": "连突刺",
+       "en": "Lunge",
+       "mechanic": "Lv5 forward dash multi-stab, knockback; more stabs with more points."
+      },
+      {
+       "cn": "拔刀斩",
+       "en": "Sword Draw",
+       "mechanic": "Iaido draw-slash in a circular arc releasing a sword aura that extends range (~3-4m)."
+      },
+      {
+       "cn": "三段斩",
+       "en": "Triple Slash",
+       "mechanic": "Three consecutive dashing slashes; can change direction between slashes; mobility tool."
+      },
+      {
+       "cn": "银光落刃",
+       "en": "Falling Light Blade",
+       "mechanic": "Air-to-ground plunge releasing sword light; height increases damage and shockwave size."
+      },
+      {
+       "cn": "升龙斩 / 落凤斩",
+       "en": "Rising Dragon Slash / Falling Phoenix Slash",
+       "mechanic": "Leap-up slash that launches, then air down-slash that slams target to ground (KNOCKDOWN). Classic combo."
+      },
+      {
+       "cn": "剑影步",
+       "en": "Shadow Steps",
+       "mechanic": "Flicker creating up to 7 non-damageable afterimages to confuse the opponent."
+      },
+      {
+       "cn": "幻影无形剑",
+       "en": "Formless Phantom Blade (Mirage Blade)",
+       "mechanic": "Lv70 ultimate: flurry whose damage scales with combo count; final hit strong blow-away; ~1s end stun."
+      }
+     ]
+    },
+    {
+     "cn": "狂剑士",
+     "en": "Berserker",
+     "confidence": "high (some CN-EN pairings by elimination flagged)",
+     "weapon_cn": "大剑 / 阔剑（亦可太刀）",
+     "weapon_en": "Greatsword / Broadsword (also Tachi)",
+     "weapon_visual": "Huge greatsword ~1.6m: wide thick blade (box 1.3m x 0.22m x 0.04m) with blood-red fuller, heavy square crossguard, long two-hand grip and round pommel. Carried on shoulder.",
+     "role": "melee DPS / bruiser, trades HP for damage",
+     "range_profile": "melee 2-3m, heavy slow hits with high priority; Blood Sword gives a short ranged poke; Crimson Grip pulls in AoE",
+     "notable_players": "孙哲平 Sun Zheping, later 于锋 Yu Feng (Hundred Blossoms) - 落花狼藉 Blossoming Chaos - greatsword 'Burial Blossoms' (CN name not verified); 楼冠宁 Lou Guanning - 斩楼兰 Loulan Slash",
+     "skills": [
+      {
+       "cn": "倒斩",
+       "en": "Backwards Slash",
+       "mechanic": "Lv1 launcher with the highest knock-up and damage of any Lv1 launcher; longer range while Berserk."
+      },
+      {
+       "cn": "崩山击",
+       "en": "Collapsing Mountain",
+       "mechanic": "Leap and slam the ground, shockwave AoE knockdown; gains super armor while Berserk."
+      },
+      {
+       "cn": "十字斩",
+       "en": "Gore Cross",
+       "mechanic": "X-shaped double slash, inflicts BLEED."
+      },
+      {
+       "cn": "冲撞刺击",
+       "en": "Colliding Stab",
+       "mechanic": "Charging forward stab with unusually long reach, knockback."
+      },
+      {
+       "cn": "暴走",
+       "en": "Enrage (Berserk)",
+       "mechanic": "Lv25 self-buff for 20s: +STR, attack speed, move speed, status resistance; -INT and defenses."
+      },
+      {
+       "cn": "噬魂血手",
+       "en": "Soul-Devouring Crimson Grip",
+       "mechanic": "AoE blood aura that grabs and drags all enemies in range toward the user (pull)."
+      },
+      {
+       "cn": "血气唤醒",
+       "en": "Blood Awakening",
+       "mechanic": "Passive: below 50% HP, STR rises as HP drops (CN level listed as 50 on Moegirl, 20 on fandom)."
+      },
+      {
+       "cn": "怒血狂涛",
+       "en": "Crimson Storm",
+       "mechanic": "Lv70 ultimate: long wind-up, sword slammed into ground causing a big explosion (super armor)."
+      }
+     ]
+    },
+    {
+     "cn": "魔剑士",
+     "en": "Spellblade",
+     "confidence": "medium (weapon and skill set confirmed; some CN-EN skill pairings inferred)",
+     "weapon_cn": "短剑 / 太刀",
+     "weapon_en": "Short Sword / Tachi",
+     "weapon_visual": "Short sword ~0.8m straight double-edge blade with rune engravings glowing faintly (emissive stripe), round guard. Divine Chain is drawn with a chain-link motif on the guard.",
+     "role": "mid-range AoE caster-fighter (wave swords)",
+     "range_profile": "mid range 5-15m via wave swords and wave formations; weaker point-blank",
+     "notable_players": "江波涛 Jiang Botao (Samsara) - 无浪 Empty Waves - short sword 'Divine Chain' (CN name not verified); 刘皓 Liu Hao",
+     "skills": [
+      {
+       "cn": "地裂波动剑",
+       "en": "Earthquake Sword (Earth Wave)",
+       "mechanic": "Lv5 upward two-hand swing that sends a ground crack/shockwave with flying rocks toward the target (line AoE)."
+      },
+      {
+       "cn": "裂波斩",
+       "en": "Wave Wheel Slasher",
+       "mechanic": "GRAB: blade tip locks target in a spell array, a spinning wave wheel cuts it repeatedly then explodes, blowing target away; breaks super armor. (CN-EN pairing inferred from DNF lineage.)"
+      },
+      {
+       "cn": "杀意波动",
+       "en": "Killing Intent Wave",
+       "mechanic": "Lv20 buff that empowers all wave skills."
+      },
+      {
+       "cn": "电光波动阵",
+       "en": "Electric Wave Formation",
+       "mechanic": "Chanted formation: lightning sphere zone up to 15 units; can't be dodged once inside, can be interrupted while chanting."
+      },
+      {
+       "cn": "冰霜波动阵",
+       "en": "Ice Wave Formation",
+       "mechanic": "Chanted ice AoE at location, high freeze chance."
+      },
+      {
+       "cn": "烈焰波动剑",
+       "en": "Fire Wave Sword",
+       "mechanic": "Instant fire wave, high damage, strong knockback."
+      },
+      {
+       "cn": "圆旋波动剑",
+       "en": "Waltzing Wave Slash",
+       "mechanic": "Slash wave that arcs around and returns to hit from behind."
+      },
+      {
+       "cn": "星云波动剑",
+       "en": "Nebula Wave Slash",
+       "mechanic": "Lv75: waves of magic in random (or player-controlled) shapes, high priority."
+      }
+     ]
+    },
+    {
+     "cn": "鬼剑士",
+     "en": "Ghostblade",
+     "confidence": "high",
+     "weapon_cn": "太刀",
+     "weapon_en": "Tachi (katana)",
+     "weapon_visual": "Curved single-edged tachi ~1.1m with long wrapped hilt, round tsuba; purple ghostly mist trailing the blade. User has a bandaged/ghost arm aesthetic. Boundaries are glowing circular rune rings on the ground (r~4-5m) colored by type.",
+     "role": "Phantom Demon 阵鬼 = zone/support (boundaries); Sword Demon 斩鬼 = magic melee DPS",
+     "range_profile": "melee-mid (Ghost Slash wave ~5m); boundaries are fixed-area zones",
+     "notable_players": "李轩 Li Xuan (Void) - 逢山鬼泣 Crying Devil ('first Phantom Demon') - tachis 'Four Heavenly Wheels'/'Ghost Killer Seal'; 吴羽策 Wu Yuce - 鬼刻 Carved Ghost - tachi 'Heavenly Crimson Lotus'; 乔一帆 Qiao Yifan (Happy) - 一寸灰 One Inch Ash - tachi 'Snow Stripe'",
+     "skills": [
+      {
+       "cn": "鬼爪",
+       "en": "Ghost Claw",
+       "mechanic": "Lv1 launcher (ghost hand knocks up)."
+      },
+      {
+       "cn": "鬼斩",
+       "en": "Ghost Slash",
+       "mechanic": "Lv5 dark slash releasing a purple crescent wave, long reach knockback, high damage but long end lag."
+      },
+      {
+       "cn": "刀阵（刀魂）",
+       "en": "Sword Boundary (Sword Soul)",
+       "mechanic": "Lv10 boundary zone: allies inside gain STR/INT for 20s; 30s CD."
+      },
+      {
+       "cn": "月光斩 / 满月斩",
+       "en": "Moonlight Slash / Full Moonlight Slash",
+       "mechanic": "Lv15 knock-up slash / Lv20 big blow-away slash."
+      },
+      {
+       "cn": "冰阵",
+       "en": "Ice Boundary",
+       "mechanic": "Lv30 chanted zone: ice damage + slow, chance to freeze."
+      },
+      {
+       "cn": "灰阵 / 瘟阵 / 暗阵 / 炎阵",
+       "en": "Ash / Plague / Dark / Flame Boundaries",
+       "mechanic": "Debuff zones: Ash = equipment weight up (up to 2x, slows), Plague = defense down, Dark = blind, Flame = ghost-fire DoT."
+      },
+      {
+       "cn": "静寂之阵",
+       "en": "Silence Boundary",
+       "mechanic": "Long-cast zone that seals (silences) enemy skills and reduces visibility."
+      },
+      {
+       "cn": "鬼神盛宴",
+       "en": "Ghost Feast",
+       "mechanic": "Lv70: detonate all your active boundaries for AoE damage."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "base_cn": "枪手系",
+   "base_en": "Gunner",
+   "classes": [
+    {
+     "cn": "神枪手",
+     "en": "Sharpshooter",
+     "confidence": "high",
+     "weapon_cn": "左轮手枪（可双持）",
+     "weapon_en": "Revolver(s), dual-wield",
+     "weapon_visual": "Two long-barrel revolvers: grip + cylinder drum (short cylinder r=0.03 rotated 90 deg) + long barrel (0.25m cylinder), Wildfire red-orange accents, Shattered Frost icy blue-white.",
+     "role": "ranged physical DPS with gun-fu close combat",
+     "range_profile": "mid-long range (15-25m) shooting + close range kicks; Barrett snipe very long",
+     "notable_players": "周泽楷 Zhou Zekai (Samsara, former user 张益玮) - 一枪穿云 Cloud Piercer ('枪王' Great Gunner) - silver revolvers 荒火 Wildfire (right) / 碎霜 Shattered Frost (left)",
+     "skills": [
+      {
+       "cn": "膝击",
+       "en": "Knee Strike",
+       "mechanic": "Lv1 close knee hit that pops target up; usable while firing; super armor during it."
+      },
+      {
+       "cn": "滑铲",
+       "en": "Slide Kick",
+       "mechanic": "Sliding gap-closer kick, can trip target (knockdown) if timed."
+      },
+      {
+       "cn": "踏射",
+       "en": "Punisher",
+       "mechanic": "Step on a downed enemy and shoot repeatedly; negates quick recovery (OTG)."
+      },
+      {
+       "cn": "速射 / 暴射 / 曲射",
+       "en": "Rapid Firing / Burst Firing / Curve Firing",
+       "mechanic": "Gun buffs: attack speed up / crit up / bullets curve (default arc or manual)."
+      },
+      {
+       "cn": "回旋踢",
+       "en": "Roundhouse Kick",
+       "mechanic": "Semicircle kick, melee knockback."
+      },
+      {
+       "cn": "枪炮武术（枪体术）",
+       "en": "Firearm Martial Arts (Gun Fu)",
+       "mechanic": "Mixed body strikes with point-blank shots, hard to dodge."
+      },
+      {
+       "cn": "乱射",
+       "en": "Random Firing",
+       "mechanic": "Lv60 bullets in random directions (AoE); experts focus it on one target."
+      },
+      {
+       "cn": "巴雷特狙击",
+       "en": "Barrett Snipe",
+       "mechanic": "Lv70 ultimate: summon sniper rifle, aim and fire a penetrating round; headshot double damage."
+      }
+     ]
+    },
+    {
+     "cn": "弹药专家",
+     "en": "Spitfire (Demolitionist)",
+     "confidence": "high",
+     "weapon_cn": "自动手枪（副手投掷手雷）",
+     "weapon_en": "Automatic Pistol / Handgun, off-hand grenades",
+     "weapon_visual": "Compact automatic pistol (box body + short barrel + magazine) in one hand; belt of various colored grenades (spheres with pin ring; stick grenade variant) on hips. Effects: colorful flower-like explosions (Zhang Jiale's 百花式打法 'hundred blossoms' light show).",
+     "role": "ranged AoE / control artillery skirmisher",
+     "range_profile": "mid-long range thrown arcs (10-20m) and pistol; poor in melee",
+     "notable_players": "张佳乐 Zhang Jiale (Hundred Blossoms -> Tyranny) - 百花缭乱 Dazzling Hundred Blossoms - silver pistol 猎寻 Hunting Seeker; 邹远 Zou Yuan - 花繁似锦 Bright Blossoms",
+     "skills": [
+      {
+       "cn": "浮空弹",
+       "en": "Floating Bullet",
+       "mechanic": "Bullet with strong knock-up (launch) at range; smaller gun = faster bullet."
+      },
+      {
+       "cn": "撞击式手雷",
+       "en": "Grenade (impact)",
+       "mechanic": "Low-CD thrown grenade, small AoE, knockback; spammable."
+      },
+      {
+       "cn": "僵直弹",
+       "en": "Stun Bullet",
+       "mechanic": "Slow, distinctive bullet with strong STUN, 10s CD."
+      },
+      {
+       "cn": "爆缩式手雷",
+       "en": "Burst Grenade",
+       "mechanic": "Knockback so strong it ignores super armor. (CN-EN pairing inferred.)"
+      },
+      {
+       "cn": "定时式手雷 / 遥控式手雷",
+       "en": "Timed Grenade / Remote Control Grenade",
+       "mechanic": "Explode after a chosen delay (up to 8s) / steer with a remote."
+      },
+      {
+       "cn": "冰弹",
+       "en": "Ice Bullet",
+       "mechanic": "Lv30 slow pale-blue bullet, freeze chance."
+      },
+      {
+       "cn": "闪光弹 / 烟雾弹 / 燃烧弹",
+       "en": "Flash / Smoke / Incendiary rounds",
+       "mechanic": "Blind, vision-blocking smoke cloud, burn DoT."
+      },
+      {
+       "cn": "乱雷",
+       "en": "Chaotic Thunder ('天女散花' Goddess Scattering Flowers)",
+       "mechanic": "Ultimate: throw a fistful of mixed grenades at once, big multi-effect AoE barrage."
+      }
+     ]
+    },
+    {
+     "cn": "枪炮师",
+     "en": "Launcher",
+     "confidence": "high",
+     "weapon_cn": "手炮",
+     "weapon_en": "Hand Cannon",
+     "weapon_visual": "Bulky shoulder cannon ~1.2m: wide barrel (cylinder r=0.1) with muzzle brake ring, side handle grip, rear box breech with glowing core; Devouring Sun (吞日) styled orange-gold.",
+     "role": "ranged burst / artillery, longest range class",
+     "range_profile": "longest range in game (20-30m+ with Artillery Mastery); almost no close combat",
+     "notable_players": "苏沐橙 Su Mucheng (Excellent Era -> Happy; original creator 苏沐秋) - 沐雨橙风 Dancing Rain - silver cannon 吞日 Devouring Sun; 陈果 Chen Guo - 逐烟霞 Chasing Haze",
+     "skills": [
+      {
+       "cn": "拔击",
+       "en": "Swing",
+       "mechanic": "Lv1 cannon-swing launcher (melee knock-up)."
+      },
+      {
+       "cn": "格林机枪",
+       "en": "Gatling Gun",
+       "mechanic": "Stream of machine-gun bullets; 'gun shake' spreads to multiple targets."
+      },
+      {
+       "cn": "BBQ",
+       "en": "BBQ",
+       "mechanic": "Bullets that keep knocking target back without forced knockdown; basis of 押枪 Delivery Gun (pushing enemies where you want)."
+      },
+      {
+       "cn": "反坦克炮",
+       "en": "Anti-Tank Missile",
+       "mechanic": "Three shells in a line, slight knockback + brief stun; 'Tri-Shot' spreads them."
+      },
+      {
+       "cn": "激光炮",
+       "en": "Laser Rifle",
+       "mechanic": "Lv30 chargeable beam (+40% charged), longest attack range in Glory; recoil flips the user unless they step back."
+      },
+      {
+       "cn": "热感飞弹",
+       "en": "Heat-Seeking Missile",
+       "mechanic": "Finger-snap reticle; slow missile to reticle position, wide explosion."
+      },
+      {
+       "cn": "卫星射线",
+       "en": "Satellite Beam",
+       "mechanic": "Lv70 ultimate: orbital beam splitting into six rotating beams, huge AoE."
+      },
+      {
+       "cn": "稳定炮架",
+       "en": "Mounted Gun",
+       "mechanic": "Lv75 root yourself: big attack and defense up, super armor, uninterruptible attacks."
+      }
+     ]
+    },
+    {
+     "cn": "机械师",
+     "en": "Mechanic",
+     "confidence": "high (Moegirl table labels it 机械专家 once; canonical 机械师)",
+     "weapon_cn": "步枪 / 自动手枪 + 机械箱",
+     "weapon_en": "Rifle / Automatic Pistol + Mechanical Box",
+     "weapon_visual": "Rifle ~1m (long barrel, stock, scope) plus a metal toolbox (box with handle and panel lights) worn at the hip that deploys gadgets: small wheeled seeker robots, mines, drone 'melon' bombers, rotor backpack, drill arm.",
+     "role": "gadgeteer / pseudo-summoner, traps and drones",
+     "range_profile": "mid-long range via drones and mines; some melee (drill, rocket punch)",
+     "notable_players": "肖时钦 Xiao Shiqin (Thunderclap -> Excellent Era) - 生灵灭 Life Extinguisher - silver rifle 'Flashing Shadow' (CN name not verified)",
+     "skills": [
+      {
+       "cn": "机械追踪",
+       "en": "Mechanical Seeker",
+       "mechanic": "Lv5 kamikaze robot that hunts the target and explodes."
+      },
+      {
+       "cn": "机械旋翼",
+       "en": "Rotor Wings",
+       "mechanic": "Lv15 helicopter rotor from the box: fly for limited time (aerial mobility/escape)."
+      },
+      {
+       "cn": "火箭拳",
+       "en": "Rocket Punch",
+       "mechanic": "Rocket-propelled mechanical fist punch (short dash/knockback)."
+      },
+      {
+       "cn": "空气压缩机",
+       "en": "Air Compressor",
+       "mechanic": "Thrown device that blasts enemies far away (huge blow-away, low damage)."
+      },
+      {
+       "cn": "跳雷",
+       "en": "Bouncing Mine",
+       "mechanic": "Mine that pops up when stepped on: knock-up + shrapnel. (CN name from novel memory, not verified on wiki.)"
+      },
+      {
+       "cn": "磁场线圈",
+       "en": "Electromagnetic Coil",
+       "mechanic": "Trap: area that increases enemy weight (slow), like Ash Boundary."
+      },
+      {
+       "cn": "电子眼",
+       "en": "Electron Eye",
+       "mechanic": "Floating scouting camera giving remote vision."
+      },
+      {
+       "cn": "机械空投",
+       "en": "Air Drops",
+       "mechanic": "Two small melon-shaped drones follow a target and drop bombs."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "base_cn": "格斗系（格斗家）",
+   "base_en": "Fighter",
+   "classes": [
+    {
+     "cn": "拳法家",
+     "en": "Striker",
+     "confidence": "high",
+     "weapon_cn": "拳套",
+     "weapon_en": "Gloves / Gauntlets (fists, boxing gloves)",
+     "weapon_visual": "Pair of armored gauntlets covering fist and forearm (rounded box fists + cylinder bracers); Flame Fists drawn red with flame motifs.",
+     "role": "melee bruiser / frontline, super armor brawler",
+     "range_profile": "shortest melee range (~1.5m), strong gap-closers and plunges",
+     "notable_players": "韩文清 Han Wenqing (Tyranny) - 大漠孤烟 Desert Dust ('拳皇' King of Fighting) - silver gloves 烈焰红拳 Flame Fists (CN name per common usage)",
+     "skills": [
+      {
+       "cn": "高踢",
+       "en": "Launching Kick",
+       "mechanic": "Lv1 high kick launcher."
+      },
+      {
+       "cn": "冲拳",
+       "en": "Straight Punch",
+       "mechanic": "Dashing punch that closes distance and knocks back."
+      },
+      {
+       "cn": "鹰踏",
+       "en": "Eagle Stamp",
+       "mechanic": "Jump and stomp downward; height increases damage/shockwave; chain up to 5 stomps; high priority vs aerial attacks."
+      },
+      {
+       "cn": "钢筋铁骨",
+       "en": "Reinforced Iron Bones",
+       "mechanic": "Lv15 self-buff 20s: SUPER ARMOR (immune to knockback/launch/stun) + slight physical defense."
+      },
+      {
+       "cn": "崩拳",
+       "en": "Collapsing Fist",
+       "mechanic": "Punch that blows away enemies at the sides while striking the target."
+      },
+      {
+       "cn": "空手入白刃",
+       "en": "Empty-Handed Blade Block",
+       "mechanic": "Lv30 parry/counter: on successful block of a melee strike, guaranteed counter."
+      },
+      {
+       "cn": "霸皇拳",
+       "en": "Emperor's Fist",
+       "mechanic": "Horse-stance mega punch, wind pressure hits even when dodged; long CD."
+      },
+      {
+       "cn": "猛虎乱舞",
+       "en": "Ferocious Tiger Flurry",
+       "mechanic": "Lv70 ultimate rush of controllable punches. Also 伏虎腾翔 Soaring Tiger flying kick (Lv75 per Moegirl, 60 per fandom)."
+      }
+     ]
+    },
+    {
+     "cn": "气功师",
+     "en": "Qi Master",
+     "confidence": "high",
+     "weapon_cn": "拳套 / 手套",
+     "weapon_en": "Gloves",
+     "weapon_visual": "Light cloth wraps or fingerless gloves; blue-white qi glow effects (translucent spheres, dragon-shaped energy ribbon).",
+     "role": "mid-range magic DPS / support-control hybrid",
+     "range_profile": "mid range 5-12m qi projectiles and AoE; weak point-blank",
+     "notable_players": "方锐 Fang Rui (Happy; former 赵杨 Zhao Yang) - 海无量 Boundless Sea - silver glove 'Mirrored Moon'; 吴雪峰 Wu Xuefeng - 'Qi Breaker'",
+     "skills": [
+      {
+       "cn": "逆流",
+       "en": "Countercurrent",
+       "mechanic": "Lv1 launcher with the longest range of any Lv1 knock-up; delayed but uninterruptible once active."
+      },
+      {
+       "cn": "气波弹",
+       "en": "Qi Bullet",
+       "mechanic": "Slow magic projectile."
+      },
+      {
+       "cn": "念龙波",
+       "en": "Dragon Wave",
+       "mechanic": "Steerable qi dragon: hits enemy = damage + attack/speed debuff; hits self/ally = STR buff."
+      },
+      {
+       "cn": "捉云手",
+       "en": "Cloud Grasping Fist",
+       "mechanic": "Long-range GRAB that pulls/carries a target from distance, no damage."
+      },
+      {
+       "cn": "念气罩",
+       "en": "Nen Guard",
+       "mechanic": "Qi barrier absorbing damage, 30s."
+      },
+      {
+       "cn": "护体真气",
+       "en": "True Qi Protection",
+       "mechanic": "Passive: defense scales with current mana."
+      },
+      {
+       "cn": "气贯长虹",
+       "en": "Spirit Reaches to the Rainbow",
+       "mechanic": "Lv55 qi-charged body dash that blasts forward through enemies."
+      },
+      {
+       "cn": "气功爆破",
+       "en": "Qi Blast",
+       "mechanic": "Lv70 steady damage then big knockback. Also 截脉 Pulse Break (Lv75) lowers a chosen stat."
+      }
+     ]
+    },
+    {
+     "cn": "柔道",
+     "en": "Grappler",
+     "confidence": "medium-high (weapon: Moegirl lists 东方棍 for the Fighter line; fandom gives Tonfa for Grappler)",
+     "weapon_cn": "东方棍",
+     "weapon_en": "Tonfa",
+     "weapon_visual": "Pair of tonfas: 0.55m rods with a perpendicular side handle near one end (two cylinders), often worn with judo gi aesthetic.",
+     "role": "grab specialist / control, anti-super-armor",
+     "range_profile": "very close range (grab distance ~1m), throws relocate enemies",
+     "notable_players": "李亦辉 Li Yihui (Tiny Herb) - 沾衣乱飞 Flying Drops (later dismantled); 吕泊远 Lu Boyuan - 云山乱 Chaotic Cloudy Mountains",
+     "skills": [
+      {
+       "cn": "背摔",
+       "en": "Back Throw",
+       "mechanic": "GRAB + knockdown with landing shockwave; breaks super armor, prevents quick recovery."
+      },
+      {
+       "cn": "抛投",
+       "en": "Toss",
+       "mechanic": "Throw target away."
+      },
+      {
+       "cn": "接投",
+       "en": "Receiving Throw",
+       "mechanic": "Counter-grab: shoulder lift and slam behind."
+      },
+      {
+       "cn": "旋投",
+       "en": "Spinning Throw",
+       "mechanic": "Spin target around in a circle and release."
+      },
+      {
+       "cn": "双手飞",
+       "en": "Flying Hands",
+       "mechanic": "Knockdown grab with one hand; skilled players grab a second enemy with the other ('Double Flying Hands')."
+      },
+      {
+       "cn": "空绞杀",
+       "en": "Aerial Twist",
+       "mechanic": "Airborne leg-scissor grab into knockdown."
+      },
+      {
+       "cn": "空中灌篮",
+       "en": "Air Dunk",
+       "mechanic": "Grab airborne target and slam downward (Moegirl list only; description inferred from name, uncertain)."
+      }
+     ]
+    },
+    {
+     "cn": "流氓",
+     "en": "Brawler",
+     "confidence": "high",
+     "weapon_cn": "爪（亦可东方棍）",
+     "weapon_en": "Claws (also Tonfa)",
+     "weapon_visual": "Metal claw gauntlet: hand guard with three curved blades (thin bent boxes) over knuckles; street-thug look; brick prop for Brick Buster.",
+     "role": "melee control / dirty-play debuffer",
+     "range_profile": "melee 1-2m plus short throws (brick, sand, molotov)",
+     "notable_players": "唐昊 Tang Hao (Wind Howl; former 林敬言 Lin Jingyan) - 唐三打 Demon Subduer - silver claw 'Blood Vanishing Soul'; 包荣兴 Bao Rongxing (Happy) - 包子入侵 Steamed Bun Invasion",
+     "skills": [
+      {
+       "cn": "勾拳",
+       "en": "Uppercut",
+       "mechanic": "Lv1 launcher."
+      },
+      {
+       "cn": "耳光",
+       "en": "Slap",
+       "mechanic": "Lv5 double slap that moves the enemy; aggro tool."
+      },
+      {
+       "cn": "锁喉",
+       "en": "Strangle",
+       "mechanic": "Lv15 GRAB hold on neck 2s+; hidden: target defense and attack halved."
+      },
+      {
+       "cn": "砖袭",
+       "en": "Brick Buster",
+       "mechanic": "Lv20 brick smash or throw; 50% DIZZY 3s on head hit (100%/4s from behind); thrown = half effect."
+      },
+      {
+       "cn": "抛沙",
+       "en": "Sand Toss",
+       "mechanic": "Lv20 thrown sand; BLIND if it hits the eyes (up to 8s)."
+      },
+      {
+       "cn": "涂毒 / 毒针",
+       "en": "Apply Poison / Inject Poison",
+       "mechanic": "Weapon poison (bonus defense-ignoring hit) / bleed + break super armor 5-10s."
+      },
+      {
+       "cn": "霸王连拳",
+       "en": "Tyrannical Chain Punch",
+       "mechanic": "Lv60 pin opponent to the ground and flurry punches."
+      },
+      {
+       "cn": "以牙还牙",
+       "en": "Tooth for Tooth",
+       "mechanic": "Lv75: copy a skill you were hit by into your slot (2x mana cost)."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "base_cn": "暗夜系（暗夜使者）",
+   "base_en": "Night Walker (Shadow)",
+   "classes": [
+    {
+     "cn": "刺客",
+     "en": "Assassin",
+     "confidence": "high",
+     "weapon_cn": "匕首 / 双剑",
+     "weapon_en": "Daggers / Dual Swords",
+     "weapon_visual": "Two short blades: reverse-grip daggers 0.35m or twin short swords 0.6m, dark steel; dark leather outfit.",
+     "role": "melee burst DPS / assassin, high APM",
+     "range_profile": "melee 1-2m with fast blinks and dashes (Shining Cut up to 9 units)",
+     "notable_players": "杨聪 Yang Cong (301 Degrees) - 风景杀 Scene Killer - dual swords 'Dancing Shadows'; 季冷 Ji Leng (Tyranny); 乔一帆 earlier 'Gray Month'",
+     "skills": [
+      {
+       "cn": "跳刀",
+       "en": "Leaping Blade",
+       "mechanic": "Lv1 jumping slash launcher."
+      },
+      {
+       "cn": "空跃",
+       "en": "Air Jump",
+       "mechanic": "Lv15 double jump."
+      },
+      {
+       "cn": "割喉",
+       "en": "Cut Throat",
+       "mechanic": "Must hit from behind; ignores super armor, neck slash."
+      },
+      {
+       "cn": "弧光闪",
+       "en": "Shining Cut",
+       "mechanic": "Two crossing sword auras; very fast dash up to 9 units, hard to predict."
+      },
+      {
+       "cn": "瞬身刺",
+       "en": "Teleporting Stab",
+       "mechanic": "Instantly blink to a nearby enemy and stab."
+      },
+      {
+       "cn": "碎踝",
+       "en": "Ankle Break",
+       "mechanic": "Low damage, 30% slow for 5s."
+      },
+      {
+       "cn": "刺刃风暴",
+       "en": "Blade Storm",
+       "mechanic": "Many rapid stabs pushing target back; long end lag."
+      },
+      {
+       "cn": "舍命一击",
+       "en": "Life-Risking Strike",
+       "mechanic": "Lv50 sacrifice own HP to deal equal true damage (ignores defense, no mana, no weapon needed). Lv75 combo 裂/杀/闪/瞬/灭 Rend-Kill-Dodge-Flash-Exterminate gives bonus damage if chained in order."
+      }
+     ]
+    },
+    {
+     "cn": "忍者",
+     "en": "Ninja",
+     "confidence": "high",
+     "weapon_cn": "忍刀",
+     "weapon_en": "Ninjato",
+     "weapon_visual": "Straight short ninjato 0.7m with square tsuba and hollow sheath (used as snorkel underground); long rope tied to hilt; shuriken (4-point star) and kunai props.",
+     "role": "melee/mid hybrid skirmisher, trickster",
+     "range_profile": "melee + mid-range shuriken; teleports, clones, underground travel",
+     "notable_players": "李华 Li Hua (Misty Rain) - 林暗草惊 Dark Forest - ninjato 'Sixteen Nights'; 莫凡 Mo Fan (Happy) - 毁人不倦 Deception - ninjato 'Sixteen Leaves'",
+     "skills": [
+      {
+       "cn": "忍法·断灭",
+       "en": "Annihilation",
+       "mechanic": "Lv1 launcher."
+      },
+      {
+       "cn": "手里剑",
+       "en": "Shuriken",
+       "mechanic": "Lv5 thrown star, low damage, brief STUN; 疾风手里剑 Storm Shuriken is a spread volley."
+      },
+      {
+       "cn": "忍法·影分身",
+       "en": "Shadow Clone Technique",
+       "mechanic": "Lv10 instant relocation leaving a stationary decoy clone with low HP."
+      },
+      {
+       "cn": "忍具·烟玉",
+       "en": "Smoke Bomb",
+       "mechanic": "Lv15 small smoke cloud, blocks vision (escape)."
+      },
+      {
+       "cn": "忍法·地心斩首术",
+       "en": "Underground Tunneling Technique",
+       "mechanic": "Lv35 dive underground to dodge or ambush from below."
+      },
+      {
+       "cn": "忍法·替身草人",
+       "en": "Body Replacement Technique",
+       "mechanic": "Swap with a scarecrow when hit (escape)."
+      },
+      {
+       "cn": "忍具·撒菱",
+       "en": "Caltrops",
+       "mechanic": "Scatter spikes on the floor: low damage, heavy slow."
+      },
+      {
+       "cn": "忍法·樱杀碎月",
+       "en": "Moon-Slaying Sakura",
+       "mechanic": "Lv75: blade dissolves into cherry-blossom petals flying in a direction, cutting through. Also 忍法·爆炎龙 Explosive Flame Dragon fire breath."
+      }
+     ]
+    },
+    {
+     "cn": "盗贼",
+     "en": "Thief",
+     "confidence": "medium (skills confirmed; canonical weapon type not found in sources)",
+     "weapon_cn": "未明确（推测匕首）",
+     "weapon_en": "Not stated in sources (dagger assumed)",
+     "weapon_visual": "Suggested: a short dagger plus a utility belt of trap discs (flat cylinders with spikes); crouch/roll animation set. Treat weapon as a design choice, canon does not specify.",
+     "role": "trapper / control, stealth ambusher",
+     "range_profile": "short range, area denial via ground traps",
+     "notable_players": "方锐 Fang Rui (Wind Howl, former) then 林枫 Lin Feng - 鬼迷神疑 Doubtful Demon",
+     "skills": [
+      {
+       "cn": "陷阱扣",
+       "en": "Spike Trap",
+       "mechanic": "Ground trap: steel spikes root target in place."
+      },
+      {
+       "cn": "毒云陷阱",
+       "en": "Poison Gas Trap",
+       "mechanic": "Poison cloud DoT + brief stun interrupt."
+      },
+      {
+       "cn": "火焰陷阱",
+       "en": "Inferno Trap",
+       "mechanic": "Flame DoT while standing on it."
+      },
+      {
+       "cn": "暗影陷阱",
+       "en": "Shadow Trap",
+       "mechanic": "Teleports the thief to this trap's location."
+      },
+      {
+       "cn": "沙暴陷阱",
+       "en": "Sandstorm Trap",
+       "mechanic": "Damage + BLIND (3s at rank 1)."
+      },
+      {
+       "cn": "潜行",
+       "en": "Stealth",
+       "mechanic": "Invisibility at 60-85% speed; broken by contact or attacks; with 陷阱精通 Trap Proficiency can place traps while stealthed."
+      },
+      {
+       "cn": "偷袭",
+       "en": "Ambush",
+       "mechanic": "Double damage + 3s stun, best from stealth."
+      },
+      {
+       "cn": "脱逃",
+       "en": "Escape",
+       "mechanic": "Chance (100% at max) to nullify the next incoming attack."
+      }
+     ]
+    },
+    {
+     "cn": "术士",
+     "en": "Warlock",
+     "confidence": "high",
+     "weapon_cn": "手杖 / 权杖",
+     "weapon_en": "Cane / Sceptre (Staff)",
+     "weapon_visual": "Dark sceptre ~1.2m: black shaft, skull or claw head clutching a purple orb, small chains. Effects: purple-black curse runes, hexagram light prison.",
+     "role": "control / curse caster, team shot-caller class",
+     "range_profile": "mid-long range 10-15m curses and zones",
+     "notable_players": "喻文州 Yu Wenzhou (Blue Rain; former 魏琛 Wei Chen, 方世镜) - 索克萨尔 Swoksaar - silver cane 灭神的诅咒 Curse of Destruction (earlier 死亡之手 Death's Hand); 魏琛 later 迎风布阵 Windward Formation (Happy)",
+     "skills": [
+      {
+       "cn": "诅咒之箭",
+       "en": "Curse Arrow",
+       "mechanic": "Chargeable dark orb that releases 13-26 homing-ish curse arrows."
+      },
+      {
+       "cn": "束缚术",
+       "en": "Bind Spell",
+       "mechanic": "Instant root, no damage."
+      },
+      {
+       "cn": "六星光牢",
+       "en": "Hexagram Prison",
+       "mechanic": "Seal targets touching the purple-black lattice up to 9s; not a status so not dispellable."
+      },
+      {
+       "cn": "击魂术",
+       "en": "Soul Strike",
+       "mechanic": "Interrupt skill (cast breaker)."
+      },
+      {
+       "cn": "混乱之雨",
+       "en": "Chaotic Rain",
+       "mechanic": "AoE rain inflicting CONFUSION."
+      },
+      {
+       "cn": "鬼影缠身",
+       "en": "Grasping Ghosts",
+       "mechanic": "Ghost travels forward damaging enemies, returns and heals caster 33% of damage."
+      },
+      {
+       "cn": "魔镜",
+       "en": "Magic Mirror",
+       "mechanic": "Mirror that reflects magic attacks."
+      },
+      {
+       "cn": "死亡之门",
+       "en": "Death's Door",
+       "mechanic": "Lv70 long-cast tentacle gate: heavy burst + pull-in then explode; cancelled if caster takes damage."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "base_cn": "圣职系（圣职者；萌娘百科作圣言系）",
+   "base_en": "Priest",
+   "classes": [
+    {
+     "cn": "骑士",
+     "en": "Knight",
+     "confidence": "medium-high (shield certain; main-hand: umbrella's priest form is 'Knight's Sword', fandom also lists Axe)",
+     "weapon_cn": "盾牌（板盾）+ 骑士剑",
+     "weapon_en": "Plate Shield + Knight's Sword (axe also possible)",
+     "weapon_visual": "Large kite/tower plate shield (thick box 0.9m x 0.6m, raised boss and cross emblem) on left arm; one-handed straight sword. Heavy plate armor.",
+     "role": "main tank (highest defense), peel/aggro",
+     "range_profile": "melee 1.5-2m; charge gap-closer; leap AoE",
+     "notable_players": "许斌 Xu Bin (former 邓复升 Deng Fusheng, Tiny Herb) - 独活 Angelica ('first Knight') - plate shield 'Wall of Sigh'; 叶修 used knight skills via umbrella",
+     "skills": [
+      {
+       "cn": "击退",
+       "en": "Repel",
+       "mechanic": "Knockback shove."
+      },
+      {
+       "cn": "盾击",
+       "en": "Shield Attack",
+       "mechanic": "Shield bash, DIZZY chance."
+      },
+      {
+       "cn": "[荣誉]挑衅",
+       "en": "Provoke (Glorious Provocation)",
+       "mechanic": "Single-target taunt 3s (5s with Knight's Spirit)."
+      },
+      {
+       "cn": "[牺牲]吼叫",
+       "en": "Roar (Sacrificial Roar)",
+       "mechanic": "AoE taunt with no time limit until target hits the knight once."
+      },
+      {
+       "cn": "[英勇]冲锋",
+       "en": "Charge (Heroic Charge)",
+       "mechanic": "Shield-first dash knockback; can arc (Arc Charge) and curve in air if jumping."
+      },
+      {
+       "cn": "盾反 / 法术反射",
+       "en": "Shield Counter / Spell Reflect",
+       "mechanic": "Redirect a portion of an incoming physical/magic attack back to the attacker."
+      },
+      {
+       "cn": "[公正的]英勇跳跃",
+       "en": "Heroic Leap",
+       "mechanic": "Leap smash: big single-target damage + shockwave AoE + stun."
+      },
+      {
+       "cn": "骑士精神 / 十字军审判",
+       "en": "Knight's Spirit / Crusader's Trial",
+       "mechanic": "Lv50 awakening: refresh all Knight CDs and empower skills; Lv70 Crusader's Trial = 3-8 rapid escalating strikes."
+      }
+     ]
+    },
+    {
+     "cn": "驱魔师",
+     "en": "Exorcist",
+     "confidence": "high",
+     "weapon_cn": "战镰 / 巨斧",
+     "weapon_en": "War Scythe / Great Axe",
+     "weapon_visual": "Large scythe ~1.8m: long dark shaft, big curved crescent blade (bent flat box arc) at top, paper talismans (yellow rectangles with red glyphs) stuck to blade and floating.",
+     "role": "control / mid-range utility, anti-Unspecialized (Seal Talisman)",
+     "range_profile": "melee scythe + mid range via thrown scythe and talismans (~10m)",
+     "notable_players": "田森 Tian Sen (Royal Style; former 郭明宇, 鲁良) - 扫地焚香 Peaceful Hermit - silver scythe 即死领悟 Death Savvy (attack speed 10)",
+     "skills": [
+      {
+       "cn": "升天阵",
+       "en": "Rising Emblem",
+       "mechanic": "AoE knock-up magic circle on the ground."
+      },
+      {
+       "cn": "勾魂",
+       "en": "Hook",
+       "mechanic": "Scythe hook that grabs/pulls the opponent."
+      },
+      {
+       "cn": "星落",
+       "en": "Star Fall",
+       "mechanic": "Toss weapon up, falls as a star causing a small quake AoE."
+      },
+      {
+       "cn": "魂御",
+       "en": "Spirit Guidance",
+       "mechanic": "Throw the scythe remotely (not dropped, can be recalled); talismans attached to it fire at its location."
+      },
+      {
+       "cn": "落雷符 / 寒冰符 / 烈焰符",
+       "en": "Lightning / Ice / Fire Talisman",
+       "mechanic": "Pre-stored talisman spells: AoE lightning, expanding ice ring (slow/freeze), burning DoT; destroying the paper cancels the spell."
+      },
+      {
+       "cn": "定身符 / 硬身符 / 加速符",
+       "en": "Immobilizing / Hardening / Speed Talisman",
+       "mechanic": "Root enemy / self super armor + defense / movement speed."
+      },
+      {
+       "cn": "封禁符",
+       "en": "Seal Talisman",
+       "mechanic": "Lv75: seals one piece of target equipment for 60s (stats removed); 7 min CD. Counters the Myriad Manifestation Umbrella."
+      },
+      {
+       "cn": "飞火流星",
+       "en": "Flying Meteorite",
+       "mechanic": "Talisman calls a meteor from the sky (AoE)."
+      }
+     ]
+    },
+    {
+     "cn": "牧师",
+     "en": "Cleric",
+     "confidence": "high",
+     "weapon_cn": "十字架",
+     "weapon_en": "Cross",
+     "weapon_visual": "Handheld large cross ~0.9m (two crossed boxes, longer vertical arm) with ornate end caps and central gem; Immovable Rock's is a black-light cross. White robes.",
+     "role": "healer / support",
+     "range_profile": "long range heals (15m+), weak offense",
+     "notable_players": "张新杰 Zhang Xinjie (Tyranny) - 石不转 Immovable Rock - silver cross 'Blacklight Cross' (CN name not verified); 安文逸 An Wenyi (Happy) - 小手冰凉 Little Cold Hands - cross 'Holy Contract'",
+     "skills": [
+      {
+       "cn": "治愈术（小/大/圣）",
+       "en": "Heal (Small/Great/Holy)",
+       "mechanic": "Cast-time heal, longer cast = bigger heal. (Which of 治愈术/回复术 maps to Heal vs Cure is not confirmed.)"
+      },
+      {
+       "cn": "回复术（小/大/圣）",
+       "en": "Cure (Small/Great/Holy)",
+       "mechanic": "Instant emergency heal with long cooldown."
+      },
+      {
+       "cn": "神圣之火",
+       "en": "Sacred Fire",
+       "mechanic": "Lv30 white-flame DoT 5s; persists on ground; SILENCES hit enemies 3s."
+      },
+      {
+       "cn": "催眠",
+       "en": "Hypnosis",
+       "mechanic": "Sleep status; must face the target."
+      },
+      {
+       "cn": "圣诫之光",
+       "en": "Holy Commandment Light",
+       "mechanic": "Target takes +30% damage for 6s."
+      },
+      {
+       "cn": "天使之翼",
+       "en": "Angel Wings",
+       "mechanic": "Light wings: float/hover at limited height."
+      },
+      {
+       "cn": "复活术",
+       "en": "Revive",
+       "mechanic": "Lv70 revive fallen ally with low HP/MP; 30 min CD (PvE)."
+      }
+     ]
+    },
+    {
+     "cn": "守护天使",
+     "en": "Paladin (Guardian Angel)",
+     "confidence": "medium (skills confirmed on Moegirl; weapon only from fandom)",
+     "weapon_cn": "巨斧（据英文wiki；中文资料未确认）",
+     "weapon_en": "Axe (two-handed, per fandom; Chinese canon not confirmed)",
+     "weapon_visual": "Two-hand axe ~1.4m with single broad crescent head and gold trim; heavy plate armor, light-wing halo effects. If canon conflict arises, a cross/shield variant is acceptable.",
+     "role": "off-tank / hybrid healer",
+     "range_profile": "melee 1.5-2m + self/ally heals",
+     "notable_players": "徐景熙 Xu Jingxi (Samsara) - 灵魂语者 Soul Speaker; 方士谦 Fang Shiqian, 任俊驰 Ren Junchi",
+     "skills": [
+      {
+       "cn": "圣盾术",
+       "en": "Holy Shield",
+       "mechanic": "Golden shield that blocks all damage briefly."
+      },
+      {
+       "cn": "生命激活",
+       "en": "Life Activation",
+       "mechanic": "Raises HP regeneration (pre-tank buff)."
+      },
+      {
+       "cn": "恢复术",
+       "en": "Recovery",
+       "mechanic": "HoT: heals every 3s over 18s."
+      },
+      {
+       "cn": "圣光打",
+       "en": "Holy Light Strike",
+       "mechanic": "Melee hit dealing physical + magic damage."
+      },
+      {
+       "cn": "天使威光",
+       "en": "Angel's Might",
+       "mechanic": "360-degree light aura pushing enemies back, ignores super armor."
+      },
+      {
+       "cn": "净化",
+       "en": "Purify",
+       "mechanic": "Cleanse debuffs (Moegirl list only; effect inferred from name)."
+      },
+      {
+       "cn": "极限生存",
+       "en": "Extreme Survival",
+       "mechanic": "Emergency survival skill (Moegirl list only; exact effect not documented)."
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "unspecialized": "散人 Unspecialized is a character that never changes class at Lv20. It learns every skill of Lv20 or below from all 24 classes, about 120 skills, but gets no class awakening. Its stats grow evenly (3 per level in each stat). On normal servers it is capped at Lv50, so it has to clear the Heavenly Domain Challenge to keep leveling. Its normal weakness is that each skill set needs the matching weapon type, and switching weapons has a cooldown. Ye Xiu (叶修) plays 君莫笑 Lord Grim (Team Happy 兴欣), an account first built by Su Muqiu (苏沐秋). Its silver weapon, 千机伞 the Myriad Manifestation Umbrella (also called Kaleidoscope Parasol), changes form instantly with no switch cooldown, which makes Lord Grim a 'true Unspecialized'. Su Muqiu designed it, Ye Xiu kept developing it, and from Lv70 Guan Rongfei (关榕飞) of Happy also worked on it. Final forms: 12 weapon forms plus a Mechanical Box. Fighter: claw, tonfa. Gunner: gatling/gun, mechanical box. Mage: magic staff, battle lance. Night Walker: staff (warlock), ninjato, dual swords. Priest: war scythe, shield (the open canopy), knight's sword. Swordsman: tachi, broadsword. Dual swords, broadsword and claw were added in the Lv80 upgrade. Visual: a black umbrella with a long straight shaft about 1m and a pointed metal ferrule tip. Closed, the folded canopy forms a spear or lance head. Opened, it becomes a round shield and can be used to glide. Shown in the anime as dark with silver ribs. Each transformation reshapes the shaft and canopy into the target weapon. At umbrella Lv70, each form grants +1 skill point, so Lord Grim can take one higher-level skill per form (no awakening skills). The 驱魔师 Exorcist's Lv75 封禁符 Seal Talisman can seal it for 60s. Ye Xiu countered this by carrying a spare Lv5 umbrella.",
+ "core_mechanics": [
+  "Perspective and controls: Glory is a 3D action MMO played in first person (Moegirl compares it to a first-person 3D Diablo). Its classes and skills borrow heavily from DNF. Play uses keyboard and mouse, and skill is measured by APM (hand speed) and 'effective speed' (useful actions). Pros play at roughly 300-500+ APM.",
+  "Stats: STR (physical attack/defense, carry weight), INT (magic attack/defense, mana), VIT (HP and stamina), Spirit (status resistance). Each character has HP and MP. Skills cost MP and have cooldowns. There are no potions in pro league matches (the Challenger League allowed one use). 'Red blood' means 10% HP, when bosses typically enrage.",
+  "Weapon-gated skills: a skill needs the matching weapon type equipped, and switching weapons has a cooldown. Every class can learn any skill of Lv20 or below before changing class at Lv20. The level cap was 70, raised to 75 in the S9 update. Skill points cap at about 4200 for normal players, about 4700 for pros, and 5500 after the Lv75 update. Equipment tiers are white, green, blue, purple, orange, then silver (self-made in the equipment editor, unique, named by the system). God-level accounts carry many silver pieces. Equipment weight affects move speed, attack speed and jump height.",
+  "Launch / float (浮空): every class's Lv1 skill is a knock-up. Airborne targets can be juggled with air combos. Some skills do more damage to airborne targets (Falling Flower Palm), and some carry the attacker up with the target (Rising Dragon Slash into Falling Phoenix Slash).",
+  "Knockdown (倒地) and quick recovery (受身 'Quick Recover'): a downed character can tech-roll to rise early. Grab skills and certain knockdowns (Circle Swing, Back Throw, Punisher) negate quick recovery. Off-the-ground attacks (Punisher) can hit downed targets. Glory has a system protection that stops infinite juggles; the novel references it as 系统保护, but the exact numbers are not stated, so implement it as hitstun decay plus a forced invulnerable recovery after a combo-count or time threshold.",
+  "Hitstun (硬直) and stagger: hits interrupt actions. Skills have start-up and recovery lag (前摇/后摇), and pros cancel recovery with movement or other skills. Some skills have long end lag that leaves openings (Ghost Slash, Blade Storm).",
+  "Priority (判定/优先级): when two attacks collide, the higher-priority skill wins. Examples: Dragon Tooth beats Lunge, Eagle Stamp beats the Assassin's Diving Arrow, and Berserker skills have generally high priority. A 'false combo' is a string the target could have dodged.",
+  "Super armor (霸体): immune to knock-up, knockdown, knockback and stun, but still takes damage and status effects. Grab skills ignore super armor. Armor Break removes it (Inject Poison, Wave Wheel Slasher). Sources include Reinforced Iron Bones, Hardening Talisman, Mounted Gun, Bloodthirsty Fight, and bosses at red blood.",
+  "Grab (抓取/投技): grabs ignore super armor and prevent quick recovery. Grapplers specialize in them. Others include Shadow Cloak, Cloud Grasping Fist, Strangle and the Exorcist Hook. A grab can be beaten by striking first (Circle Swing's grab only applies after the shaft connects).",
+  "Block / guard (格挡) and counters: the Blade Master's Guard blocks physical damage and knockback but not magic. Knight and Paladin shields absorb hits and resist knockback/stun once the hit is blocked. Parry-counters include Empty-Handed Blade Block, Shield Counter, Spell Reflect and Magic Mirror. Blocked hits still count toward Battle Mage combo counts.",
+  "Status effects: stun, dizzy (lower accuracy), freeze, slow, root/bind, silence/seal, sleep, blind, confusion, taunt, bleed/poison/burn DoT, curse (stat down), weight increase (Ash Boundary, Electromagnetic Coil). Spirit reduces durations. Back attacks deal bonus damage (Assassination passive) and enable some skills (Cut Throat, Brick to the back of the head).",
+  "Movement tech: jump, double jump (Air Jump), roll, crouch, crawl, aerial fire (gun recoil to fly backward), Z-shake dodging, and 遮影步 vanishing step (exploiting first-person blind spots). There are also class-specific flight (broom, rotor wings, angel wings, small wyvern), stealth, teleport and underground travel. Terrain height adds damage to plunge attacks.",
+  "Gunner techniques: 押枪 Delivery Gun (keep shooting to push an enemy into position), gun shake (spread fire), 枪体术 gun-fu (mixing kicks with shots), Tri-Shot missiles.",
+  "Aggro and PvE roles: MT/OT tanks, healers, DPS. Aggro comes from damage, healing and taunts. Bosses have an aggro radius, enrage at red blood (often gaining super armor), and include hidden bosses that spawn under conditions.",
+  "Dungeons (副本): 5-person parties, with leaderboard records for fastest clears that guilds compete over. Normal-server dungeons include 格林之森 Green Forest, 蜘蛛洞穴 Spider Cave, 骷髅墓地 Skeleton Graveyard, 冰霜森林 Frost Forest, 埋骨之地 Boneyard, 流离之地 and 一线峡谷. Heavenly Domain (神之领域) dungeons include 迷罗古城, 空中陵墓 and 列屏群山. Example bosses: Goblin Emperor Frost Thain (teleport, ice whirlwind), Spider Emperor (spawns eggs, super armor at red blood), Vampire Knight Logue (bat swarm, lifesteal).",
+  "Wild bosses (野图BOSS): open-world bosses on a respawn timer, contested by big guild raids in mass PvP-while-PvE scrambles over drops of rare silver-weapon materials. Examples: 哥布林商人 Goblin Merchant (throws firecrackers, grenades, molotovs, bricks, wine bottles), 血枪手亚葛, 岩之浪人奥磐, 炎女巫卡修, 蓝晶骑士, 落日猎人. From Lv55-70 each map has a wild boss.",
+  "Death penalty outside the arena: lose XP and possibly items in the open world, plus a red-name PK flag. The arena and pro matches have no penalty.",
+  "Pro League regular season (fandom): 个人赛 Individual = three 1v1 duels, 1 point each. 擂台赛 Group/Arena = 3 players per side in fixed order; the winner stays on with remaining HP and MP and faces the next opponent; the last team standing earns 2 points (5 players and 5 points in the playoffs). 团体赛 Team = 5v5 with 1 substitute (6th player) who enters from the exchange area after a death (or on a voluntary swap in the playoffs); the surviving team earns 5 points (6 in the playoffs). The regular season's 10 points total are 3 + 2 + 5.",
+  "Maps: the home team picks the map, and it is hidden from the away team until the match starts. Maps are 3D arenas with terrain (high ground, pillars, water, narrow canyons, ruins). Early individual matches had a 5-minute limit with the higher-HP player winning, later removed. Team tactics include Box-1/Box-2 (delaying aces), Screen Cannon (a Launcher covering the field) and the Spinning Spiderweb Formation.",
+  "Account cards: each character lives on a physical card that holds the account and its gear; pros sign their character cards to the club. God-level and all-star accounts carry titles such as 斗神 Battle God, 剑圣 Sword Saint, 枪王 Great Gunner, 拳皇 King of Fighting and 魔术师 The Magician."
+ ],
+ "sources": [
+  "https://the-kings-avatar.fandom.com/wiki/Classes (wikitext via the MediaWiki API, plus each class page: Battle_Mage, Elementalist, Witch, Summoner, Blade_Master, Berserker, Spellblade, Ghostblade, Sharpshooter, Spitfire, Launcher, Mechanic, Striker, Qi_Master, Grappler, Brawler, Assassin, Ninja, Thief, Warlock, Knight, Exorcist, Cleric, Paladin, Unspecialized)",
+  "https://the-kings-avatar.fandom.com/wiki/Myriad_Manifestation_Umbrella",
+  "https://the-kings-avatar.fandom.com/wiki/God-Level_Account and https://the-kings-avatar.fandom.com/wiki/All-Star_Account",
+  "https://the-kings-avatar.fandom.com/wiki/Silver_Equipment",
+  "https://the-kings-avatar.fandom.com/wiki/Terminology",
+  "https://the-kings-avatar.fandom.com/wiki/Glory_Professional_Alliance (match formats)",
+  "https://the-kings-avatar.fandom.com/wiki/Area and https://the-kings-avatar.fandom.com/wiki/Glory",
+  "https://zh.moegirl.org.cn/荣耀 (Chinese class table with full skill lists, account cards, dungeons, wild bosses, silver-weapon navbox)",
+  "https://zh.moegirl.org.cn/荣耀:刺客, 荣耀:鬼剑士, 荣耀:流氓, 荣耀:盗贼, 荣耀:术士, 荣耀:驱魔师 (search-result snippets: weapon types and skills)",
+  "https://zh.moegirl.org.cn/一叶之秋 , https://zh.moegirl.org.cn/夜雨声烦 , https://zh.moegirl.org.cn/千机伞 , https://zh.moegirl.org.cn/索克萨尔 (snippets)",
+  "https://gl.ali213.net/html/2024-8/1473253.html (24 classes with representative players)",
+  "https://m.qidian.com/ask/qospedynjgt and https://m.hongxiu.com/ask/qrhclyckgsk (class list cross-check)",
+  "Search snippet citing Baidu Baike 荣耀 entry (https://baike.baidu.com/item/荣耀/15413116): 吞日, 猎寻 silver weapons; 手炮 for 枪炮师, 战矛 for 战斗法师, 扫把 for 魔道学者, 法杖 for 召唤师"
+ ]
+}

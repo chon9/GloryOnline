@@ -1,0 +1,137 @@
+{
+ "assets": [
+  {
+   "name": "KayKit Character Animations 1.1, Rig_Medium + Rig_Large animation libraries (Complete KayKit Collection v6 mirror)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0. Verified in LICENSES/KayKit-CC0-License.txt: 'The Complete KayKit Collection v6 ... License: (Creative Commons Zero, CC0) ... free to use in personal, educational and commercial projects'. This is an unofficial mirror of a paid bundle, so buying it or backing the author is the fair choice.",
+   "purpose": "animations (shared by all players, enemies and bosses)",
+   "style": "Chibi KayKit",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-characters/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_characters/assets-kaykit-3d-characters-main/assets/kaykit/character-animations-1.1/Animations/gltf/  (Rig_Medium/Rig_Medium_{MovementBasic,MovementAdvanced,General,CombatMelee,CombatRanged,Special}.glb ; Rig_Large/Rig_Large_{MovementBasic,MovementAdvanced,General,CombatMelee}.glb)",
+   "contents_summary": "Parsed the GLB JSON chunks. Each file has 1 skin with 23 bones, and every file includes a T-Pose clip in its count. Medium counts: MovementBasic 11 (Jump_*, Running_A/B, Walking_A/B/C), MovementAdvanced 13 (Dodge x4, Running_Strafe_L/R, Running_HoldingBow/Rifle, Crouching, Sneaking, Walking_Backwards), General 15 (Idle_A/B, Hit_A/B, Death_A/B, Spawn_Air/Ground, Throw, Use_Item), CombatMelee 22 (Melee_1H/2H/Dualwield/Unarmed/Block*), CombatRanged 20 (Ranged_1H/2H Aim/Shoot/Reload, Ranged_Bow_*, Ranged_Magic_Raise/Shoot/Spellcasting/Spellcasting_Long/Summon), Special 15 (Skeletons_Awaken/Resurrect/Taunt). Also Simulation 14 and Tools 29, which are not needed. Large counts: CombatMelee 16 (Melee_1H_Slash, Melee_2H_Slam, Melee_Unarmed_Smash, Melee_Dualwield_SlashCombo, Block, Kick, Punch...), General 6 (Idle_A/B, Hit_A, Death_A), MovementBasic 3 (only Running_A and Walking_A), MovementAdvanced 5 (4 dodges, which the research missed).",
+   "notes": "Bone check: I compared bone name sets and rest translation and rotation against Rig_Medium_MovementBasic. All 23 bone names and rest poses match exactly (0.0000 difference) for every Medium character in 2.0 and Series 4-6, every Skeleton 1.1 and every 1.0 Adventurer and Skeleton. Joint order differs between files, which does not matter because Godot binds tracks by bone name. CORRECTION 1: Rig_Large has no jump, strafe, spellcast or ranged clips, so bosses are melee-only unless you borrow Medium clips. CORRECTION 2: every clip keys translation on every bone. In all Large characters (BlackKnight, FrostGolem, OrcBrute, Monstrosity, Clanker, Skeleton_Golem, Barbarian_Large, 4GTN) the head bone rests at y=1.1405, but Rig_Large clips key the head at y=1.0255, so the head sinks about 0.115 m into the body. Fix it in Godot import: on the Rig_Large animations, enable Retarget > Remove Tracks > Unimportant Positions (keep only root and hips position), or strip the non-hips position tracks with a script. Only Mannequin_Large matches the library exactly."
+  },
+  {
+   "name": "KayKit Adventurers 2.0 + Mystery Monthly Series 4/5/6 + Skeletons 1.1 characters (same mirror)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0 (same verified collection license file)",
+   "purpose": "player characters, enemies, raid bosses",
+   "style": "Chibi / stylized-cute low-poly, consistent across all packs",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-characters/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_characters/assets-kaykit-3d-characters-main/assets/kaykit/",
+   "contents_summary": "Every character .glb has skins=1 and animations=0, so it must be driven by the libraries above. Textures are embedded (Knight.glb: 1 embedded image, 334 KB). MEDIUM (hips y=0.406, 23 bones with handslot.l/.r), all verified: adventurers-2.0/Characters/gltf/{Knight,Barbarian,Mage,Rogue,Rogue_Hooded,Ranger,Druid,Engineer}.glb; mystery-monthly-series-4/{8 - February 2024 - Ninja/character/Ninja.glb, 10 - April 2024 - Paladin/characters/gltf/Paladin.glb, 4 - October 2023 - Werewolf/characters/gltf/Werewolf_Man.glb, 1 - July 2023 - Orc Raider/character/OrcRaider.glb, 7 - January 2024 - Space Ranger/character/SpaceRanger.glb}; mystery-monthly-series-5/{2 - August 2024 - Superhero/characters/Superhero.glb, 4 - October 2024 - Vampire/characters/Vampire.glb, 5 - November 2024 - Witch/characters/Witch.glb, 8 - February 2025 - Caveman/characters/Caveman.glb, 10 - April 2025 - Protagonists/characters/Protagonist_A.glb and Protagonist_B.glb, 12 - June 2025 - Tiefling/characters/Tiefling.glb, 1 - July 2024 - Combat Mech/characters/CombatMech.glb}; mystery-monthly-series-6/{3 - September 2025 - Cleric/characters/Cleric.glb, 1 - July 2025 - Lorekeeper/characters/Lorekeeper.glb, 10 - April 2026 - Marksman/characters/Marksman.glb, 11 - May 2026 - Magical Girl/characters/MagicalGirl.glb, 9 - March 2026 - Avian Swordsman/characters/AvianSwordsman.glb, 5 - November 2025 - Plant Warrior/characters/PlantWarrior.glb}; skeletons-1.1/characters/gltf/{Skeleton_Minion,Skeleton_Warrior,Skeleton_Rogue,Skeleton_Mage,Necromancer}.glb. LARGE (hips y=1.041): adventurers-2.0/Characters/gltf/Barbarian_Large.glb, series-5 BlackKnight, FrostGolem and Clanker, series-6 OrcBrute and Monstrosity, skeletons-1.1 Skeleton_Golem, plus 4GTN and 4GTN_Forgotten (21 bones, no handslot bones).",
+   "notes": "Corrections. (a) The research named 'Rig_Medium' for every character, but BlackKnight, FrostGolem, OrcBrute, Monstrosity, Clanker and Skeleton_Golem are Large-rig only. There is no Medium BlackKnight. (b) Werewolf_Wolf is on the Medium biped rig. (c) 4GTN has no handslot bones, so it can't hold weapons through BoneAttachment3D on handslot.r; attach to hand.r instead. (d) Caveman exists and is valid for Grappler; the research left it out of its contents list. (e) The paths contain spaces and long names, so copy the selected files into short res:// folders in the Godot project. The 2.0 and 1.0 Adventurer characters also share an identical core rig: the 1.0 files add 18 IK/control bones (kneeIK, handIK and so on), which the 2.0 clips simply don't key, so 2.0 libraries also drive the 1.0 characters."
+  },
+  {
+   "name": "KayKit Fantasy Weapons Bits 1.0 + Prototype Bits 1.1 guns + character-specific weapons",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0 (assets-kaykit-3d-props-main/LICENSES/KayKit-CC0-License.txt verified, same text)",
+   "purpose": "weapons",
+   "style": "Stylized low-poly, matches the characters",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-props/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_props/assets-kaykit-3d-props-main/assets/kaykit/fantasy-weapons-bits-1.0/Assets/gltf/  and  .../prototype-bits-1.1/Assets/gltf/Gun_Pistol.gltf, Gun_Rifle.gltf, Gun_Sniper.gltf",
+   "contents_summary": "Confirmed 49 .gltf in fantasy-weapons-bits-1.0/Assets/gltf: arrow_A-C, axe_A-D, bow_A-C (+_withString), dagger_A-C, fistweapon_A/B (+_stacked), fistweapon_C_left/right/stacked, halberd, hammer_A-D, scythe, shield_A-D, spear_A/B, staff_A-D, sword_A-G, wand_A/B. I checked the buffer and image URIs of all 49 plus the 3 guns and 10 character weapons: 62 files, 0 missing. Character-pack weapons confirmed: series-4 Ninja_Katana.gltf, series-5 CombatMech_Minigun.gltf, Broom.gltf, FrostGolem_Axe(_Large).gltf, Tiefling_Sword.gltf, Vampire_Sword.gltf, BlackKnight_Sword_Large.gltf, series-6 Marksman_Rifle.gltf, MagicalGirl_Wand.gltf, Lorekeeper_Staff.gltf, Cleric_Shield.gltf, 4GTN_Katana.gltf, AvianSwordsman_Sword.gltf, skeletons-1.1 Skeleton_Scythe.gltf, Skeleton_Staff.gltf, Skeleton_Golem_Axe_Large.gltf. adventurers-2.0/Assets/gltf has sword_1handed/2handed, axe, crossbow, staff, wand, bow and shields.",
+   "notes": "The weapon-category claims check out. There is still no umbrella (千機傘) and no cleric cross. Use the _Large variants of axes, swords and shields on Large-rig bosses."
+  },
+  {
+   "name": "KayKit Dungeon Remastered 1.1 + Forest Nature + Platformer (environments mirror)",
+   "author": "Kay Lousberg (KayKit); mirrored by GeorgeQLe",
+   "license": "CC0 1.0 (assets-kaykit-3d-environments-main/LICENSES/KayKit-CC0-License.txt verified)",
+   "purpose": "environment (raid dungeon + PVP arena)",
+   "style": "Stylized low-poly, matches the characters",
+   "direct_download_url": "https://github.com/GeorgeQLe/assets-kaykit-3d-environments/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_environments/assets-kaykit-3d-environments-main/assets/kaykit/dungeon-remastered-1.1/Assets/gltf/  (+ forest-nature-pack-1.0, platformer-pack-1.0)",
+   "contents_summary": "Counts confirmed: dungeon-remastered-1.1 has 283 .gltf, all in one Assets/gltf folder, with 0 missing buffer or texture references. forest-nature-pack-1.0 has 1588 .gltf (221 MB on disk). platformer-pack-1.0 has 525 .gltf, medieval-hexagon 404, city-builder 73, space-base 69.",
+   "notes": "The claims are accurate. Copy only the pieces you use, because the forest pack alone is 221 MB."
+  },
+  {
+   "name": "KayKit Character Pack: Adventurers 1.0 (official repo) - fallback",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0 (addons/kaykit_character_pack_adventures/LICENSE.txt verified)",
+   "purpose": "player characters (official-only fallback)",
+   "style": "Chibi KayKit",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_adv/KayKit-Character-Pack-Adventures-1.0-main/addons/kaykit_character_pack_adventures/Characters/gltf/{Barbarian,Knight,Mage,Rogue,Rogue_Hooded}.glb",
+   "contents_summary": "Confirmed: 5 GLBs, each with skins=1 and 76 embedded animations using 1.0 names (1H_Melee_Attack_Chop, Spellcast_Shoot, Block, Dodge_*, Unarmed_Melee_Attack_Punch_B...).",
+   "notes": "CORRECTION: the rig has 41 bones, not 23. The 23 core bones match Rig_Medium 2.0 exactly in name and rest pose, and there are 18 extra IK/control bones. So animations can be shared, but the hierarchy is not literally identical. Only needed if you refuse the mirror."
+  },
+  {
+   "name": "KayKit Character Pack: Skeletons 1.0 (official repo)",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0 (LICENSE.txt verified)",
+   "purpose": "enemies (fallback / extra skeleton animations)",
+   "style": "Chibi KayKit",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_skel/KayKit-Character-Pack-Skeletons-1.0-main/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_{Mage,Minion,Rogue,Warrior}.glb",
+   "contents_summary": "Confirmed: 4 GLBs, skins=1, 95 animations each. That is the 76 player clips plus 19 extras: Spawn_Air/Ground, Skeletons_Awaken_*, Death_C_Skeletons_Resurrect, Taunt, Idle_Combat, Spellcast_Summon, 1H_Melee_Attack_Jump_Chop, Running_C, Walking_D_Skeletons.",
+   "notes": "The bone set is identical to the Adventurers 1.0 rig (41 bones), so the claim is confirmed. The mirror's skeletons-1.1 has no embedded clips and uses Rig_Medium_Special for the same skeleton moves, so 1.0 is optional."
+  },
+  {
+   "name": "KayKit Dungeon Remastered 1.0 (official repo) - fallback",
+   "author": "Kay Lousberg (KayKit)",
+   "license": "CC0 1.0 (Assets/LICENSE.txt verified)",
+   "purpose": "environment fallback",
+   "style": "Stylized low-poly",
+   "direct_download_url": "https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/archive/refs/heads/main.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kk_dung/KayKit-Dungeon-Remastered-1.0-main/addons/kaykit_dungeon_remastered/",
+   "contents_summary": "Confirmed 203 .glb and 208 .obj.",
+   "notes": "Superseded by 1.1 above."
+  },
+  {
+   "name": "Kenney Particle Pack 1.1",
+   "author": "Kenney",
+   "license": "CC0 1.0 (License.txt verified)",
+   "purpose": "vfx",
+   "style": "Flat particle sprites",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/particle-pack/f8fe0f8cb8-1677578741/kenney_particle-pack.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_particle",
+   "contents_summary": "193 PNGs confirmed.",
+   "notes": "OK"
+  },
+  {
+   "name": "Kenney UI Pack: RPG Expansion",
+   "author": "Kenney",
+   "license": "CC0 1.0 (license.txt verified)",
+   "purpose": "ui",
+   "style": "Fantasy RPG panels/bars",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/ui-pack-rpg-expansion/7ec4a46657-1677661824/kenney_ui-pack-rpg-expansion.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_uirpg",
+   "contents_summary": "90 PNGs confirmed.",
+   "notes": "OK"
+  },
+  {
+   "name": "Kenney RPG Audio + Impact Sounds",
+   "author": "Kenney",
+   "license": "CC0 1.0 (License.txt present in both folders)",
+   "purpose": "audio",
+   "style": "Game SFX",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip ; https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_rpgaudio ; C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_impact",
+   "contents_summary": "52 .ogg and 130 .ogg confirmed.",
+   "notes": "OK"
+  },
+  {
+   "name": "Kenney Mini Characters (not recommended)",
+   "author": "Kenney",
+   "license": "CC0 1.0 (License.txt present)",
+   "purpose": "player characters (rejected)",
+   "style": "Blocky minis",
+   "direct_download_url": "https://kenney.nl/media/pages/assets/mini-characters/bfc7e272b4-1774770718/kenney_mini-characters.zip",
+   "verified_download": true,
+   "local_path": "C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kn_minichar",
+   "contents_summary": "Rig and animation not re-inspected, because it is not recommended.",
+   "notes": "Skip."
+  }
+ ],
+ "recommendation": "VERDICT: The research holds up. Licenses, file presence and rigging are confirmed, with 4 corrections.\n\nWHAT I VERIFIED\n- Licenses: I read all 3 mirror licenses (KayKit-CC0-License.txt, \"The Complete KayKit Collection v6\", CC0, commercial use OK), the 3 official KayKit LICENSE.txt files and the Kenney license.txt files. All are CC0.\n- Rigging: I parsed the GLB JSON of 110 GLB files, reading only the files and executing nothing from the downloads. Every character has 1 skin. The 2.0 and mirror characters have 0 embedded animations. The 1.0 Adventurers have 76 each and the 1.0 Skeletons 95 each.\n- glTF references: I checked every buffer and texture URI in 62 weapon .gltf files and 283 dungeon .gltf files. None are missing.\n\nSKELETON COMPATIBILITY\n- Medium rig: every Medium character has exactly the same 23 bone names and rest transforms as Rig_Medium_*.glb (0.0000 difference). That includes Adventurers 2.0, Series 4-6, Skeletons 1.1, Adventurers 1.0 and Skeletons 1.0.\n- Joint order: it differs between files, but Godot binds tracks by bone name, so that is harmless.\n- Result: one shared AnimationLibrary set works for all players and trash mobs.\n\nCORRECTIONS\n1. The 1.0 rig has 41 bones: the 23 core bones plus 18 IK/control bones. It is compatible with the 2.0 clips but not literally the same hierarchy.\n2. Large-rig bosses have a head offset problem. These are BlackKnight, FrostGolem, OrcBrute, Monstrosity, Clanker, Skeleton_Golem, Barbarian_Large and 4GTN.\n   - Their head bone rests at y=1.1405.\n   - Rig_Large clips key the head translation at a constant 1.0255.\n   - Played as-is, the head sinks about 0.115 m into the body.\n   - Fix in Godot import: Retarget > Remove Tracks > Unimportant Positions, or strip position tracks except root and hips.\n   - Only Mannequin_Large matches the library exactly.\n3. Rig_Large has only these clips:\n   - CombatMelee: 16\n   - General: 6\n   - MovementBasic: 3 (Running_A and Walking_A only)\n   - MovementAdvanced: 5 dodges\n   - It has no jump, cast or ranged clips. Boss skills need VFX-driven attacks or custom clips.\n4. 4GTN has no handslot bones. Attach its weapons to hand.r.\n\nAlso note: BlackKnight, FrostGolem, OrcBrute and Monstrosity exist only on the Large rig. Caveman, which the research left out of its contents list, does exist on the Medium rig.\n\nFINAL IMPORT LIST\nCopy these to short res:// folders. Paths are relative to these roots:\n- C = C:/Users/AlexChon9/AppData/Local/Temp/claude/k--Project-RONGYAO/02f9dec6-8b63-40c7-a40a-2badcaa879c0/scratchpad/assets/kkm_characters/assets-kaykit-3d-characters-main/assets/kaykit\n- P = .../scratchpad/assets/kkm_props/assets-kaykit-3d-props-main/assets/kaykit\n- E = .../scratchpad/assets/kkm_environments/assets-kaykit-3d-environments-main/assets/kaykit\n\nANIMATIONS\n- C/character-animations-1.1/Animations/gltf/Rig_Medium/: Rig_Medium_MovementBasic.glb, Rig_Medium_MovementAdvanced.glb, Rig_Medium_General.glb, Rig_Medium_CombatMelee.glb, Rig_Medium_CombatRanged.glb, Rig_Medium_Special.glb\n- C/character-animations-1.1/Animations/gltf/Rig_Large/: Rig_Large_MovementBasic.glb, Rig_Large_MovementAdvanced.glb, Rig_Large_General.glb, Rig_Large_CombatMelee.glb\n\nPLAYERS (Medium rig), by 榮耀 class\n| Class | Character file | Weapon file |\n|---|---|---|\n| Knight 騎士 | mystery-monthly-series-4/10 - April 2024 - Paladin/characters/gltf/Paladin.glb, or adventurers-2.0/Characters/gltf/Knight.glb | sword_1handed + shield_square |\n| Berserker 狂劍士 | adventurers-2.0/Characters/gltf/Barbarian.glb | P/fantasy-weapons-bits-1.0/Assets/gltf/sword_E.gltf, or C/adventurers-2.0/Assets/gltf/sword_2handed.gltf |\n| Blade Master 劍客 | mystery-monthly-series-6/9 - March 2026 - Avian Swordsman/characters/AvianSwordsman.glb | AvianSwordsman_Sword.gltf |\n| Ghostblade 鬼劍士 | mystery-monthly-series-5/12 - June 2025 - Tiefling/characters/Tiefling.glb | Tiefling_Sword.gltf |\n| Assassin 刺客 | adventurers-2.0/Characters/gltf/Rogue_Hooded.glb | P/.../scythe.gltf, or skeletons-1.1/assets/gltf/Skeleton_Scythe.gltf |\n| Ninja 忍者 | mystery-monthly-series-4/8 - February 2024 - Ninja/character/Ninja.glb | Ninja_Katana.gltf |\n| Qi Master 氣功師 | mystery-monthly-series-5/10 - April 2025 - Protagonists/characters/Protagonist_A.glb | fistweapon_B.gltf |\n| Striker 拳法家 | mystery-monthly-series-5/2 - August 2024 - Superhero/characters/Superhero.glb | fistweapon_C_left.gltf and fistweapon_C_right.gltf |\n| Grappler 散打 | mystery-monthly-series-5/8 - February 2025 - Caveman/characters/Caveman.glb | fistweapon_A.gltf |\n| Battle Mage 戰鬥法師 | Protagonist_B.glb (same Protagonists folder) | spear_A.gltf or halberd.gltf |\n| Elementalist 元素法師 | adventurers-2.0/Characters/gltf/Mage.glb | staff_A.gltf |\n| Warlock 魔道學者 | mystery-monthly-series-5/5 - November 2024 - Witch/characters/Witch.glb | Broom.gltf |\n| Summoner 召喚師 | adventurers-2.0/Characters/gltf/Druid.glb, or the Lorekeeper.glb in series-6 | druid_staff.gltf or Lorekeeper_Staff.gltf |\n| Cleric 牧師 | mystery-monthly-series-6/3 - September 2025 - Cleric/characters/Cleric.glb | wand_A.gltf + Cleric_Shield.gltf |\n| Sharpshooter 神槍手 | mystery-monthly-series-6/10 - April 2026 - Marksman/characters/Marksman.glb | prototype-bits-1.1 Gun_Pistol.gltf (dual pistols) |\n| Spitfire 神射手 / Sniper | adventurers-2.0/Characters/gltf/Ranger.glb | Gun_Sniper.gltf or Marksman_Rifle.gltf |\n| Launcher 彈藥專家 | mystery-monthly-series-5/1 - July 2024 - Combat Mech/characters/CombatMech.glb | CombatMech_Minigun.gltf |\n| Mechanic 機械師 | adventurers-2.0/Characters/gltf/Engineer.glb | Gun_Rifle.gltf |\n| Spare caster skin | mystery-monthly-series-6/11 - May 2026 - Magical Girl/characters/MagicalGirl.glb | MagicalGirl_Wand.gltf |\n\nENEMIES (Medium rig)\n- C/skeletons-1.1/characters/gltf/: Skeleton_Minion, Skeleton_Warrior, Skeleton_Rogue, Skeleton_Mage and Necromancer .glb\n- C/skeletons-1.1/assets/gltf/: Skeleton_Axe, Skeleton_Staff and Skeleton_Crossbow .gltf, plus the shields\n- Elites: mystery-monthly-series-4/4 - October 2023 - Werewolf/characters/gltf/Werewolf_Man.glb, and mystery-monthly-series-4/1 - July 2023 - Orc Raider/character/OrcRaider.glb\n\nBOSSES (Large rig, apply the head-track fix)\n- mystery-monthly-series-5/3 - September 2024 - Black Knight/characters/BlackKnight.glb, with BlackKnight_Sword_Large.gltf and BlackKnight_Shield_Large.gltf\n- mystery-monthly-series-5/7 - January 2025 - FrostGolem/characters/FrostGolem.glb, with FrostGolem_Axe_Large.gltf\n- mystery-monthly-series-6/2 - August 2025 - Orc Brute/characters/OrcBrute.glb, with Orc_Axe_Large.gltf\n- mystery-monthly-series-6/4 - October 2025 - Monstrosity/characters/Monstrosity.glb\n- skeletons-1.1/characters/gltf/Skeleton_Golem.glb, with Skeleton_Golem_Axe_Large.gltf\n\nWEAPONS\n- P/fantasy-weapons-bits-1.0/Assets/gltf/: all 49 files, each .gltf with its .bin, plus the shared texture png in the same folder\n- P/prototype-bits-1.1/Assets/gltf/: Gun_Pistol.gltf, Gun_Rifle.gltf, Gun_Sniper.gltf\n\nENVIRONMENT\n- E/dungeon-remastered-1.1/Assets/gltf/ (283 pieces), for the raid dungeon and arena walls and floors\n- Selected rocks and cliffs from E/forest-nature-pack-1.0\n- Team-colored blocks from E/platformer-pack-1.0\n\nVFX / UI / SFX (all under scratchpad/assets/)\n- kn_particle (VFX)\n- kn_uirpg (UI)\n- kn_rpgaudio and kn_impact (SFX)\n\nFALLBACK, official repos only\n- kk_adv/.../Characters/gltf/*.glb and kk_skel/.../Characters/gltf/*.glb. Their animations are embedded, and the 2.0 libraries also work on them.\n- kk_dung for the dungeon.\n\nSKIP\n- Kenney Mini Characters\n- Quaternius (different rig and art style; not downloaded or verified)\n\nGODOT NOTES\n- Import one Rig_Medium character, then save each Rig_Medium_*.glb's animations as AnimationLibrary .res files and add them to one AnimationPlayer per character.\n- Weapons attach with BoneAttachment3D on handslot.r and handslot.l.\n- The 2.0 clip names are Melee_1H_Attack_Chop, Ranged_Magic_Shoot and so on. Every file contains a T-Pose clip; ignore it.\n- Credit \"Kay Lousberg, www.kaylousberg.com\". It is optional but appreciated, and buying the collection on itch.io is the fair choice because the mirror is unofficial.\n\nHelper scripts I wrote are in .../scratchpad/tools/: glbsum.ps1 and rest.ps1, plus their JSON outputs kkm_characters.json, kk_adv.json and kk_skel.json."
+}
