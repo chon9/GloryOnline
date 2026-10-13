@@ -1,0 +1,119 @@
+{
+ "_doc": "Spec for lookdev/tools/icon_painter.py (see lookdev/ICON_STYLE.md). kind: skill | ultimate | passive | buff | debuff | cc (decides frame/badge). element: for skills a TONE of the class key (CLASS_KEYS[class].tones), for status icons a STATUS_PAL entry. comp: the composition function (comp_<name> skills, st_<name> status). All art is original, drawn in code.",
+ "class": "battle_mage",
+ "icons": [
+  {
+   "id": "battle_mage_lance_1",
+   "name": "突刺",
+   "kind": "skill",
+   "element": "white",
+   "comp": "thrust",
+   "key": "LMB"
+  },
+  {
+   "id": "battle_mage_sky_strike",
+   "name": "天击",
+   "kind": "skill",
+   "element": "gold",
+   "comp": "sky_strike",
+   "key": "1"
+  },
+  {
+   "id": "battle_mage_dragon_tooth",
+   "name": "龙牙",
+   "kind": "skill",
+   "element": "ember",
+   "comp": "dragon_tooth",
+   "key": "2"
+  },
+  {
+   "id": "battle_mage_falling_flower_palm",
+   "name": "落花掌",
+   "kind": "skill",
+   "element": "crimson",
+   "comp": "falling_flower_palm",
+   "key": "3"
+  },
+  {
+   "id": "battle_mage_circle_swing",
+   "name": "圆舞棍",
+   "kind": "skill",
+   "element": "gold",
+   "comp": "circle_swing",
+   "key": "4"
+  },
+  {
+   "id": "battle_mage_furious_dragon",
+   "name": "怒龙穿心",
+   "kind": "skill",
+   "element": "crimson",
+   "comp": "furious_dragon",
+   "key": "Q"
+  },
+  {
+   "id": "battle_mage_dragon_breaks_ranks",
+   "name": "豪龙破军",
+   "kind": "skill",
+   "element": "ember",
+   "comp": "dragon_breaks_ranks",
+   "key": "E"
+  },
+  {
+   "id": "battle_mage_rising_dragon",
+   "name": "伏龙翔天",
+   "kind": "ultimate",
+   "element": "gold",
+   "comp": "rising_dragon",
+   "key": "R"
+  },
+  {
+   "id": "status_atk_up",
+   "name": "攻击提升",
+   "kind": "buff",
+   "element": "crimson",
+   "comp": "atk_up"
+  },
+  {
+   "id": "status_haste",
+   "name": "加速",
+   "kind": "buff",
+   "element": "wind",
+   "comp": "haste"
+  },
+  {
+   "id": "status_super_armor",
+   "name": "霸体",
+   "kind": "buff",
+   "element": "gold",
+   "comp": "super_armor"
+  },
+  {
+   "id": "status_burn",
+   "name": "灼烧",
+   "kind": "debuff",
+   "element": "fire",
+   "comp": "burn"
+  },
+  {
+   "id": "status_def_down",
+   "name": "破防",
+   "kind": "debuff",
+   "element": "steel",
+   "comp": "def_down"
+  },
+  {
+   "id": "status_slow",
+   "name": "减速",
+   "kind": "debuff",
+   "element": "ice",
+   "comp": "slow"
+  },
+  {
+   "id": "status_stun",
+   "name": "眩晕",
+   "kind": "cc",
+   "element": "cc",
+   "comp": "stun"
+  }
+ ]
+}
