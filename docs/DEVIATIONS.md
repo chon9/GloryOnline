@@ -887,3 +887,57 @@ RESOLVED (wave3): NET-HUD "RAID / AI balance: bot party cannot kill the Frost Go
 - **AI / CORE (info)**: one in ~16 concurrent headless raid runs ended in a silent crash (once at exit, once mid-run at
   the start of a new raid in the same process); not reproducible on rerun with the same seed. Watch for it in
   long multi-raid suites.
+
+## wave3 BALANCE
+- `pvp_damage_scale` stays at 0.25 (from the interrupted first BALANCE pass); average 1v1 TTK at difficulty 2 is ~78 s,
+  so all further tuning was per kit (numbers only, launch / juggle values untouched).
+- Per-kit changes this pass (on top of the committed first-pass stat edits):
+  - unspecialized: basics 0.36/0.36/0.5 -> 0.6/0.6/0.85 with cast 0.45/0.45/0.6 -> 0.34/0.34/0.48; skills x~1.35
+    (sky 1.25, tooth 1.5, missile 0.6, draw 1.2 + wave 0.7, stamp 1.4, bash 1.2, ult hits x1.4); cooldowns sky 7->5,
+    tooth 8->6, missile 11->9 (mp 70->60), draw 10->8, stamp 11->8, bash 12->9; stats hp 8000->7800, patk 700->660,
+    matk 660->620. Its multipliers were about half of every other melee kit (9% win rate).
+  - ghostblade: hp 7300->8200, pdef/mdef 380/480->440/500; basics 0.8/0.8/1.0->0.95/0.95/1.15; claw 1.1->1.3,
+    moonlight 1.4->1.7, full moon 2.2->2.5 (cast 0.7->0.55, cd 9->7); ice / silence boundary ticks 0.25/0.15->0.45/0.3,
+    cd 12/14->10/12. Slots 4-6 barely connecting is placement (boundary dropped where the target stood, it walks out),
+    not range / radius numbers.
+  - summoner: hp 5800, matk 510->470; spirit cd 6->11, life 25->18 s, spirit bolt 0.42->0.3 hitstun 0.3->0.2
+    (thunder 0.6->0.4); goblin hp 1900->1000 patk 340->300 club 0.6->0.5 hitstun 0.35->0.25; flower hp 1600->900
+    matk 380->330; spirits hp 1000->600 matk 360->320; staff bolt hitstun 0.3/0.4->0.2/0.3. Pets were soaking enemy
+    damage and hit-stunning melee for ~35% of the fight (94% win rate).
+  - ninja: hp 6800->6400; basics 0.75/1.05->0.68/0.95; shuriken cd 4->6, stun 0.6->0.4; smoke blind 2.5->1.5 s;
+    tunnel stun 1.6->1.0; shadow clone cd 12->15, clone hp 900->500, decoy taunt 1.5->1.0 s.
+  - elementalist: matk 520->450; bolt hitstun 0.3/0.4->0.2/0.3 (ranged basic chains were stun-locking melee).
+  - witch: matk 545->520; broom basics 0.7/0.95->0.62/0.85; Magic Missile cd 3->4.5.
+  - thief: hp 6800->6500; basics 0.65->0.55; poison trap poison power 1.5->1.1; ambush stun 3.0->2.0.
+  - striker: basic reach 2.0/2.2->2.4/2.5 (melee range + skill range; was the shortest melee reach in the game),
+    jab/cross arc 90->100.
+  - sharpshooter: hp 7600->8000; revolver bullets 0.25->0.35.
+  - knight: hp 11500->13000, patk 620->640, pdef/mdef 640/520->760/600 (patk kept low so the raid clear time stays
+    inside RAID's 330 s floor).
+  - cleric: hp 6200->7100, pdef 300->340.
+  - mechanic patk/matk 640/440->690/470; grappler patk 680->720; launcher patk 690->720; exorcist patk/matk
+    520/590->540/620.
+- Tests: `test_kits_priest` hp band 9600 -> 13000 (tanks); `test_kits_unspecialized` mini-fight DPS ceiling 550 -> 1000
+  (same band style as the swordsman suite); `test_ai_matrix` gained `--only=a,b` (pairings that include those kits)
+  and `--strict` skips kits with no fights.
+- Final matrix (difficulty 2, 25 kits, 300 pairings x 4 reps mirrored, before the last elementalist / cleric touch-up):
+  avg TTK 77.7 s, every kit 30-71% except elementalist 70.8% and cleric 24.0%; after matk 450 / cleric hp 7100 a
+  focused re-run (`--only=elementalist,cleric`, 188 fights) gives 67.7% / 29.2%.
+- 3v3 (`--team`, 4 support comps x 4 dps comps x 4 reps): avg resolve ~80 s (target 60-150 met) but the support comps
+  win ~80% (target 35-70% NOT met). Nerfing cleric heals (cd 6->7, cure 0.16->0.14, revive 0.4->0.3) or knight's
+  taunt (4->2.5 s) moved it by at most 5 points, so the edge is not in heal / taunt numbers; changes reverted.
+
+## Requests (wave3 BALANCE)
+- **AI (BotBrain)**: 3v3 support comps (tank + healer + dps) beat 3-dps comps ~80% of the time. Likely target choice:
+  dps bots spend their damage on the tank (taunt / nearest) while the healer is untouched. Suggest dps bots prefer
+  the healer / squishiest enemy when not taunted and only obey taunt for its duration. Re-check with
+  `test_ai_matrix.gd -- --team --reps=4` (shard with `--shard=i/n`).
+- **AI**: `test_ai_brain` "witch bot mounts the broom (double jump) to escape melee pressure" fails (0 flights) at the
+  committed HEAD too (checked on a HEAD copy of classes/), so it predates this pass; the test does not reseed
+  `Combat.rng` / `BotBrain` before it, so the duels earlier in the suite change its outcome.
+- **CORE (tests)**: `test_core_combat` (4 fails) and `test_core_skills` (3 fails) expect 1.0x damage, but they run
+  with the shipped `pvp_damage_scale` 0.25 (default since the first BALANCE pass). They should pin
+  `Game.settings.pvp_damage_scale = 1.0` (or not be in PvP mode).
+- **RAID**: test_raid_clear's 330 s floor sits right at HEAD's own Frost Forest time (5:37). The default suite passes
+  (5:34 / 6:10, 0 wipes), but over seeds 0-5 two seeds clear in 5:21-5:24 and fail the floor. A few % more trash /
+  boss hp, or a slightly lower floor, would give kit tuning room.

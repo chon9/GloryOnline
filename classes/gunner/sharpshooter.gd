@@ -27,20 +27,20 @@ func define() -> void:
 	model = "sharpshooter"
 	tint = Color(1.0, 0.45, 0.15)
 	famous = "周泽楷 Zhou Zekai / 一枪穿云 Cloud Piercer / 荒火 Wildfire + 碎霜 Shattered Frost"
-	stats = {"hp": 7600.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 700.0, "matk": 320.0,
+	stats = {"hp": 8000.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 700.0, "matk": 320.0,
 		"pdef": 340.0, "mdef": 340.0, "move_speed": 6.6, "jump_velocity": 9.5, "weight": 0.9,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 
 	# ---------------------------------------------------------------- slot 0: revolver chain (6-shot drum)
 	var shot1 := sk(0, "shot_1", "普攻·右枪", "Revolver Shot I", 0.0, 0.0, 0.42, &"shoot_1h", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.25), {"t": 0.08, "type": "sfx", "name": "shot"}],
+		[_bullet(0.08, 0.35), {"t": 0.08, "type": "sfx", "name": "shot"}],
 		{"cancel_window": 0.08, "chain": ["shot_1", "shot_2", "shot_3"],
 		"desc": "右手左轮点射。空中开枪产生后坐力上浮。 Right-hand revolver shot; firing in the air pushes you up."})
 	sk(0, "shot_2", "普攻·左枪", "Revolver Shot II", 0.0, 0.0, 0.42, &"shoot_1h", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.25, FROST), {"t": 0.08, "type": "sfx", "name": "shot"}],
+		[_bullet(0.08, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "shot"}],
 		{"cancel_window": 0.08, "desc": "左手左轮点射。 Left-hand revolver shot."})
 	sk(0, "shot_3", "普攻·双枪连射", "Twin Revolver Burst", 0.0, 0.0, 0.55, &"shoot_dual", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.25), _bullet(0.18, 0.25, FROST), {"t": 0.08, "type": "sfx", "name": "shot"},
+		[_bullet(0.08, 0.35), _bullet(0.18, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "shot"},
 		{"t": 0.18, "type": "sfx", "name": "shot"}],
 		{"cancel_window": 0.1, "desc": "双枪齐射两发。 Both revolvers fire in quick succession."})
 

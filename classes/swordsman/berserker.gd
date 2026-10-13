@@ -77,10 +77,10 @@ func define() -> void:
 		["melee", "combo", "debuff"],
 		[{"t": 0.0, "type": "sfx", "name": "slash"},
 		{"t": 0.15, "type": "melee", "range": 3.0, "arc": 120.0, "color": blood,
-		"hit": hit(0.8, {"hitstun": 0.45, "knockback": 0.5, "statuses": [st("bleed", 5.0, 1.2)]})},
+		"hit": hit(0.8, {"hitstun": 0.45, "knockback": 0.5, "statuses": [st("bleed", 5.0, 0.6)]})},
 		{"t": 0.32, "type": "anim", "anim": "attack_slam"},
 		{"t": 0.32, "type": "melee", "range": 3.0, "arc": 120.0, "color": blood,
-		"hit": hit(0.9, {"hitstun": 0.5, "knockback": 3.0, "statuses": [st("bleed", 5.0, 1.2)]})}],
+		"hit": hit(0.9, {"hitstun": 0.5, "knockback": 3.0, "statuses": [st("bleed", 5.0, 0.6)]})}],
 		{"cancel_window": 0.2, "desc": "X形十字斩，造成流血 X-shaped slash that inflicts Bleed."})
 
 	# ------------------------------------------------------------ 4: Blood Sword (ranged poke)

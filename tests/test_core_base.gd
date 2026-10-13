@@ -20,7 +20,11 @@ func _main() -> void:
 	await process_frame
 	Combat.deterministic = true
 	Combat.seed_rng(12345)
-	kit = (load(KIT_PATH) as Script).new()
+	# CORE suites check raw 1.0x damage formulas; the shipped PvP default scale (BALANCE) is pinned off here.
+	var game := root.get_node_or_null("Game")
+	if game != null and game.get("settings") is Dictionary:
+		(game.get("settings") as Dictionary)["pvp_damage_scale"] = 1.0
+	kit =(load(KIT_PATH) as Script).new()
 	var reg := root.get_node_or_null("Registry")
 	if reg == null:
 		print("FAIL: Registry autoload missing")

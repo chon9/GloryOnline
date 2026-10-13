@@ -20,20 +20,20 @@ func define() -> void:
 	model = "ninja"
 	tint = Color(0.45, 0.55, 0.85)
 	famous = "莫凡 Mo Fan / 毁人不倦 Deception / 忍刀 Sixteen Leaves"
-	stats = {"hp": 6800.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 520.0, "matk": 420.0,
+	stats = {"hp": 6400.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 520.0, "matk": 420.0,
 		"pdef": 380.0, "mdef": 320.0, "move_speed": 6.7, "jump_velocity": 9.5, "crit": 0.12}
 
 	# ---------------------------------------------------------------- slot 0: basic chain
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.3, &"attack_1h_1", 2.5, ["melee", "combo"],
-		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.75, {"knockback": 0.8})},
+		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.68, {"knockback": 0.8})},
 		{"t": 0.09, "type": "sfx", "name": "slash"}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"], "desc": "忍刀横斩 Ninjato horizontal cut."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.3, &"attack_1h_2", 2.5, ["melee", "combo"],
-		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.75, {"knockback": 0.8})},
+		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.68, {"knockback": 0.8})},
 		{"t": 0.09, "type": "sfx", "name": "slash"}],
 		{"cancel_window": 0.15, "desc": "回身斩 Turning cut."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.42, &"attack_spin", 2.7, ["melee", "finisher"],
-		[{"t": 0.14, "type": "melee", "shape": "circle", "range": 2.6, "hit": hit(1.05, {"knockback": 4.0, "hitstun": 0.45})},
+		[{"t": 0.14, "type": "melee", "shape": "circle", "range": 2.6, "hit": hit(0.95, {"knockback": 4.0, "hitstun": 0.45})},
 		{"t": 0.14, "type": "sfx", "name": "slash"}],
 		{"cancel_window": 0.12, "desc": "旋身斩收招 Spinning finisher."})
 
@@ -47,10 +47,10 @@ func define() -> void:
 		{"cancel_window": 0.25, "desc": "自下而上的断灭斩，将敌人挑飞 Rising ninjato cut that launches the target."})
 
 	# ---------------------------------------------------------------- slot 2: stun star
-	var shuriken := sk(2, "shuriken", "手里剑", "Shuriken", 4.0, 25.0, 0.3, &"throw", 14.0,
+	var shuriken := sk(2, "shuriken", "手里剑", "Shuriken", 6.0, 25.0, 0.3, &"throw", 14.0,
 		["ranged", "cc", "interrupt"],
 		[{"t": 0.1, "type": "projectile", "visual": "shuriken", "speed": 30.0, "range": 16.0, "radius": 0.35, "aim": "target",
-		"color": Color(0.8, 0.85, 1.0), "sfx": "throw", "hit": hit(0.9, {"stun": 0.6, "hitstun": 0.3, "knockback": 0.5})}],
+		"color": Color(0.8, 0.85, 1.0), "sfx": "throw", "hit": hit(0.9, {"stun": 0.4, "hitstun": 0.3, "knockback": 0.5})}],
 		{"cancel_window": 0.12, "desc": "掷出手里剑，命中短暂眩晕 Throw a shuriken that briefly stuns."})
 
 	# ---------------------------------------------------------------- slot 3: spread volley
@@ -63,11 +63,11 @@ func define() -> void:
 		{"cancel_window": 0.15, "desc": "两轮扇形手里剑齐射 Two fan-shaped shuriken volleys."})
 
 	# ---------------------------------------------------------------- slot 4: decoy relocation
-	var clone := sk(4, "shadow_clone", "忍法·影分身", "Shadow Clone Technique", 12.0, 60.0, 0.25, &"cast", 6.0,
+	var clone := sk(4, "shadow_clone", "忍法·影分身", "Shadow Clone Technique", 15.0, 60.0, 0.25, &"cast", 6.0,
 		["escape", "summon", "defensive"],
 		[{"t": 0.0, "type": "summon", "summon_id": "shadow_clone", "count": 1, "duration": 6.0, "offset": 0.6, "max_active": 2},
 		{"t": 0.0, "type": "vfx", "name": "smoke"},
-		{"t": 0.02, "type": "custom", "method": "decoy_taunt", "args": {"summon_id": "shadow_clone", "radius": 8.0, "dur": 1.5}},
+		{"t": 0.02, "type": "custom", "method": "decoy_taunt", "args": {"summon_id": "shadow_clone", "radius": 8.0, "dur": 1.0}},
 		{"t": 0.03, "type": "blink", "to": "back", "distance": 6.0},
 		{"t": 0.03, "type": "buff", "target": "self", "statuses": [st("stealth", 1.5)]}],
 		{"desc": "留下吸引敌人的分身并瞬间转移、短暂隐身 Leave a decoy clone that draws enemies, relocate and vanish briefly."})
@@ -77,7 +77,7 @@ func define() -> void:
 		["escape", "debuff", "zone", "defensive"],
 		[{"t": 0.08, "type": "vfx", "name": "smoke", "scale": 2.0},
 		{"t": 0.08, "type": "sfx", "name": "debuff"},
-		{"t": 0.08, "type": "debuff", "target": "enemies", "radius": 3.5, "statuses": [st("blind", 2.5)], "fx": "smoke"},
+		{"t": 0.08, "type": "debuff", "target": "enemies", "radius": 3.5, "statuses": [st("blind", 1.5)], "fx": "smoke"},
 		{"t": 0.08, "type": "ground", "at": "self", "radius": 3.5, "duration": 4.0, "tick": 0.4, "affects": "allies",
 		"visual": "wind", "color": Color(0.55, 0.55, 0.6), "ally_effect": {"statuses": [st("stealth", 0.6)]}}],
 		{"desc": "烟雾遮蔽视野：致盲周围敌人，烟中友方隐身 Smoke blocks vision: blinds nearby enemies, allies inside are hidden."})
@@ -92,7 +92,7 @@ func define() -> void:
 		{"t": 0.6, "type": "anim", "anim": "attack_slam"},
 		{"t": 0.6, "type": "vfx", "name": "land_dust", "at": "target", "scale": 1.5},
 		{"t": 0.62, "type": "melee", "shape": "circle", "range": 2.0,
-		"hit": hit(1.3, {"stun": 1.6, "hitstun": 0.0, "knockback": 0.0, "statuses": [st("root", 2.0)]}), "fx": "hit_heavy"},
+		"hit": hit(1.3, {"stun": 1.0, "hitstun": 0.0, "knockback": 0.0, "statuses": [st("root", 2.0)]}), "fx": "hit_heavy"},
 		{"t": 0.62, "type": "sfx", "name": "earth"}],
 		{"cancel_window": 0.2, "desc": "遁入地下躲避攻击，从敌人脚下钻出将其困在地中 Dive underground, burst out under the target and bury it in place."})
 
@@ -116,7 +116,7 @@ func define() -> void:
 		"shadow_clone": {
 			"name_cn": "影分身", "name_en": "Shadow Clone", "model": "ninja", "weapon_type": "ninjato",
 			"tint": Color(0.25, 0.25, 0.4), "scale": 1.0,
-			"stats": {"hp": 900.0, "mp": 0.0, "patk": 250.0, "pdef": 150.0, "mdef": 150.0, "move_speed": 0.0},
+			"stats": {"hp": 500.0, "mp": 0.0, "patk": 250.0, "pdef": 150.0, "mdef": 150.0, "move_speed": 0.0},
 			"skills": [sk(0, "clone_slash", "分身斩", "Clone Slash", 1.2, 0.0, 0.35, &"attack_1h_1", 2.2, ["melee"],
 				[{"t": 0.12, "type": "melee", "range": 2.2, "hit": hit(0.4)}])],
 		},

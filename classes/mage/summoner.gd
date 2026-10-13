@@ -34,23 +34,23 @@ func define() -> void:
 	model = "summoner"
 	tint = Color(0.35, 0.9, 0.5)
 	famous = "罗辑 Luo Ji / 昧光 Concealed Light"
-	stats = {"hp": 6200.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 450.0, "matk": 510.0,
+	stats = {"hp": 5800.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 450.0, "matk": 470.0,
 		"pdef": 300.0, "mdef": 420.0, "move_speed": 6.2, "jump_velocity": 9.0, "weight": 1.0,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 
 	# ---------------------------------------------------------------- slot 0: staff bolts
 	var b1 := sk(0, "staff_1", "普攻·法弹", "Staff Bolt", 0.0, 0.0, 0.35, &"cast", 15.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 24.0, "range": 16.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.3, "knockback": 0.8})}],
+			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		{"cancel_window": 0.05, "chain": ["staff_1", "staff_2", "staff_3"],
 		"desc": "法杖三段魔法弹 Three-shot staff bolt chain."})
 	sk(0, "staff_2", "普攻·法弹二", "Staff Bolt II", 0.0, 0.0, 0.35, &"attack_1h_2", 15.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 24.0, "range": 16.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.3, "knockback": 0.8})}],
+			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		{"cancel_window": 0.05, "desc": "第二发魔法弹 Second bolt."})
 	sk(0, "staff_3", "普攻·法杖重击", "Staff Smite", 0.0, 0.0, 0.45, &"cast", 15.0, ["ranged", "finisher"],
 		[{"t": 0.15, "type": "projectile", "speed": 22.0, "range": 16.0, "radius": 0.45, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "scale": 1.3, "sfx": "magic", "hit": hit(0.55, {"type": "magic", "hitstun": 0.4, "knockback": 3.5})}],
+			"color": C_NATURE, "scale": 1.3, "sfx": "magic", "hit": hit(0.55, {"type": "magic", "hitstun": 0.3, "knockback": 3.5})}],
 		{"cancel_window": 0.15, "desc": "较强的第三发法弹 Stronger third bolt with knockback."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -70,9 +70,9 @@ func define() -> void:
 
 	# ---------------------------------------------------------------- slot 3: elemental spirits (rotation)
 	var spirit := sk(3, "elemental_spirit", "雷精灵 / 火精灵 / 冰精灵 / 暗精灵", "Thunder / Fire / Ice / Dark Spirit",
-		6.0, 60.0, 0.4, &"summon", 12.0, ["summon", "ranged"],
+		11.0, 60.0, 0.4, &"summon", 12.0, ["summon", "ranged"],
 		[{"t": 0.0, "type": "vfx", "name": "cast_glow"},
-		{"t": 0.2, "type": "custom", "method": "summon_spirit", "args": {"duration": 25.0}},
+		{"t": 0.2, "type": "custom", "method": "summon_spirit", "args": {"duration": 18.0}},
 		{"t": 0.2, "type": "sfx", "name": "summon"}],
 		{"desc": "依次召唤雷/火/冰/暗精灵：眩晕、灼烧、减速、破防 Summons the next spirit in the cycle: Thunder (stagger), Fire (burn), Ice (slow), Dark (defense down)."})
 
@@ -118,13 +118,13 @@ func define() -> void:
 		"goblin": {
 			"name_cn": "哥布林", "name_en": "Goblin", "model": "orc_raider", "weapon_type": "orc_axe", "offhand": "",
 			"tint": Color(0.5, 0.8, 0.3), "scale": 0.65,
-			"stats": {"hp": 1900.0, "mp": 0.0, "patk": 340.0, "matk": 200.0, "pdef": 320.0, "mdef": 250.0, "move_speed": 6.6},
+			"stats": {"hp": 1000.0, "mp": 0.0, "patk": 300.0, "matk": 200.0, "pdef": 320.0, "mdef": 250.0, "move_speed": 6.6},
 			"skills": [sk(0, "goblin_club", "哥布林重击", "Goblin Club", 1.5, 0.0, 0.45, &"attack_1h_1", 2.0, ["melee"],
-				[{"t": 0.2, "type": "melee", "range": 2.0, "hit": hit(0.6, {"hitstun": 0.35, "knockback": 1.0})}],
+				[{"t": 0.2, "type": "melee", "range": 2.0, "hit": hit(0.5, {"hitstun": 0.25, "knockback": 1.0})}],
 				{"desc": "棍棒击打 Club strike."})],
 		},
 		"thunder_spirit": _spirit_def("雷精灵", "Thunder Spirit", "thunder_spirit", "lightning",
-			{"hitstun": 0.6, "element": "lightning"}),
+			{"hitstun": 0.4, "element": "lightning"}),
 		"fire_spirit": _spirit_def("火精灵", "Fire Spirit", "fire_spirit", "orb",
 			{"element": "fire", "statuses": [st("burn", 3.0, 1.0)]}),
 		"ice_spirit": _spirit_def("冰精灵", "Ice Spirit", "ice_spirit", "orb",
@@ -134,7 +134,7 @@ func define() -> void:
 		"demon_flower": {
 			"name_cn": "魔界之花", "name_en": "Demon World Flower", "model": "plant_warrior", "weapon_type": "", "offhand": "",
 			"tint": Color(0.75, 0.25, 0.6), "scale": 0.8,
-			"stats": {"hp": 1600.0, "mp": 0.0, "patk": 200.0, "matk": 380.0, "pdef": 350.0, "mdef": 350.0,
+			"stats": {"hp": 900.0, "mp": 0.0, "patk": 200.0, "matk": 330.0, "pdef": 350.0, "mdef": 350.0,
 				"move_speed": 0.0, "jump_velocity": 0.0},
 			"skills": [
 				sk(0, "flower_spit", "毒液", "Poison Spit", 1.5, 0.0, 0.35, &"cast", 9.0, ["ranged"],
@@ -160,14 +160,14 @@ func define() -> void:
 
 
 func _spirit_def(cn: String, en: String, sid: String, visual: String, rider: Dictionary) -> Dictionary:
-	var h := hit(0.42, {"type": "magic", "hitstun": 0.3, "knockback": 0.5})
+	var h := hit(0.3, {"type": "magic", "hitstun": 0.2, "knockback": 0.5})
 	for k: Variant in rider:
 		h[k] = rider[k]
 	var c: Color = SPIRIT_COLORS.get(sid, tint)
 	return {
 		"name_cn": cn, "name_en": en, "model": "magical_girl", "weapon_type": "wand", "offhand": "",
 		"tint": c, "scale": 0.5,
-		"stats": {"hp": 1000.0, "mp": 0.0, "patk": 200.0, "matk": 360.0, "pdef": 220.0, "mdef": 300.0, "move_speed": 7.0},
+		"stats": {"hp": 600.0, "mp": 0.0, "patk": 200.0, "matk": 320.0, "pdef": 220.0, "mdef": 300.0, "move_speed": 7.0},
 		"skills": [sk(0, sid + "_bolt", cn + "弹", en + " Bolt", 1.8, 0.0, 0.35, &"cast", 10.0, ["ranged"],
 			[{"t": 0.15, "type": "projectile", "speed": 24.0, "range": 11.0, "radius": 0.35, "aim": "target",
 				"visual": visual, "color": c, "scale": 0.7, "sfx": "magic", "hit": h}],

@@ -26,8 +26,8 @@ func define() -> void:
 	model = "knight"
 	tint = Color(0.45, 0.65, 1.0)
 	famous = "独活 Angelica (微草 Tiny Herb) / 叹息之墙 Wall of Sigh"
-	stats = {"hp": 11500.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 620.0, "matk": 480.0,
-		"pdef": 640.0, "mdef": 520.0, "move_speed": 5.6, "jump_velocity": 8.6, "weight": 1.3,
+	stats = {"hp": 13000.0, "mp": 1200.0, "mp_regen": 20.0, "patk": 640.0, "matk": 480.0,
+		"pdef": 760.0, "mdef": 600.0, "move_speed": 5.6, "jump_velocity": 8.6, "weight": 1.3,
 		"cast_speed": 1.0, "atk_speed": 0.95}
 
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)

@@ -6,6 +6,7 @@ extends "res://tests/test_ai_base.gd"
 ## Team mode (--team) fights 3v3 comps instead: support comps (tank + healer + dps) vs 3-dps comps, both sides:
 ##   TEAMRES|a1,a2,a3|b1,b2,b3|winner|time|swap
 ## User args (after `--`): --diff=N --cap=S --reps=N --kits=a,b,c --shard=i/n (pairing index % n == i) --scale=X
+## --only=a,b (keep only pairings that include one of these kits; for quick re-checks of tuned kits)
 ## (sets Game.settings.pvp_damage_scale for this run) --team --strict (fail when the §6 balance targets are missed;
 ## only meaningful for an unsharded full run). Env fallbacks: AI_MATRIX_DIFF, AI_MATRIX_CAP, AI_MATRIX_KITS.
 
@@ -30,6 +31,7 @@ var _shard: int = 0
 var _shards: int = 1
 var _strict: bool = false
 var _team: bool = false
+var _only: PackedStringArray = PackedStringArray()
 
 
 func _parse_args() -> Array[String]:
@@ -62,6 +64,8 @@ func _parse_args() -> Array[String]:
 			var g := root.get_node_or_null("Game")
 			if g != null:
 				(g.get("settings") as Dictionary)["pvp_damage_scale"] = float(a.get_slice("=", 1))
+		elif a.begins_with("--only="):
+			_only = a.get_slice("=", 1).split(",", false)
 		elif a == "--strict":
 			_strict = true
 		elif a == "--team":
@@ -87,6 +91,8 @@ func run_tests() -> void:
 	var idx := 0
 	for i in n:
 		for j in range(i + 1, n):
+			if not _only.is_empty() and not (_only.has(kits[i]) or _only.has(kits[j])):
+				continue
 			if idx % _shards == _shard:
 				pairings.append([kits[i], kits[j]])
 			idx += 1
@@ -152,6 +158,8 @@ func _check_targets(kits: Array[String], stats: Dictionary) -> void:
 	var ttk_n := 0
 	for id: String in kits:
 		var s: Dictionary = stats[id]
+		if int(s["fights"]) == 0:
+			continue
 		ttk += float(s["ttk"])
 		ttk_n += int(s["ttk_n"])
 		var wr := float(s["w"]) / maxf(1.0, float(s["fights"]))

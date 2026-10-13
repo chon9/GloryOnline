@@ -23,7 +23,7 @@ func define() -> void:
 	model = "elementalist"
 	tint = Color(1.0, 0.5, 0.15)
 	famous = "楚云秀 Chu Yunxiu / 风城烟雨 Windy Rain / 银武法杖 Ravaging Wind"
-	stats = {"hp": 6200.0, "mp": 1500.0, "mp_regen": 22.0, "patk": 450.0, "matk": 520.0,
+	stats = {"hp": 6200.0, "mp": 1500.0, "mp_regen": 22.0, "patk": 450.0, "matk": 450.0,
 		"pdef": 280.0, "mdef": 450.0, "move_speed": 6.0, "jump_velocity": 9.0, "weight": 1.0,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 
@@ -32,17 +32,17 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: staff bolts
 	var b1 := sk(0, "bolt_1", "普攻·法弹", "Staff Bolt", 0.0, 0.0, 0.35, &"cast", 16.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 26.0, "range": 17.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.3, "knockback": 0.8})}],
+			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		_x(mob, {"cancel_window": 0.05, "chain": ["bolt_1", "bolt_2", "bolt_3"],
 		"desc": "法杖三段魔法弹，可移动施放 Three-shot magic bolt chain, castable while moving."}))
 	sk(0, "bolt_2", "普攻·法弹二", "Staff Bolt II", 0.0, 0.0, 0.35, &"attack_1h_2", 16.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 26.0, "range": 17.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.3, "knockback": 0.8})}],
+			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		_x(mob, {"cancel_window": 0.05, "desc": "第二发魔法弹 Second bolt."}))
 	sk(0, "bolt_3", "普攻·爆裂法弹", "Bursting Bolt", 0.0, 0.0, 0.45, &"cast", 16.0, ["ranged", "finisher"],
 		[{"t": 0.15, "type": "projectile", "speed": 24.0, "range": 17.0, "radius": 0.45, "aim": "target", "visual": "orb",
 			"color": C_FIRE, "scale": 1.4, "sfx": "magic",
-			"hit": hit(0.6, {"type": "magic", "hitstun": 0.4, "knockback": 4.0, "element": "fire"})}],
+			"hit": hit(0.6, {"type": "magic", "hitstun": 0.3, "knockback": 4.0, "element": "fire"})}],
 		_x(mob, {"cancel_window": 0.15, "desc": "较大的爆裂法弹，击退 Bigger bursting bolt with knockback."}))
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher

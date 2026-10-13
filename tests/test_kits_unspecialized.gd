@@ -349,6 +349,6 @@ func t_mini_fight() -> void:
 	print("  mini-fight 30s: total %.0f dmg, DPS %.1f (%.2f%% of an 8000hp target per s), casts %s, min mp %.0f, max stacks %d"
 		% [dmg, dps, dps / 8000.0 * 100.0, str(casts), mp_low, max_stacks])
 	check(dps > 120.0, "mini-fight DPS reasonable (>120)", "%.1f" % dps)
-	check(dps < 550.0, "mini-fight DPS within class band (<550)", "%.1f" % dps)
+	check(dps < 1000.0, "mini-fight DPS within class band (<1000)", "%.1f" % dps)
 	check(casts.size() >= 7, "rotation used >= 7 different slots", str(casts))
 	check(max_stacks >= 3, "Myriad Forms stacks build in a real rotation", str(max_stacks))

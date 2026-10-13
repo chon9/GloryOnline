@@ -28,16 +28,16 @@ func define() -> void:
 		"pdef": 480.0, "mdef": 380.0, "move_speed": 6.2, "jump_velocity": 9.0, "atk_speed": 1.05}
 
 	# ---------------------------------------------------------------- slot 0: basic chain 普攻
-	var b1 := sk(0, "jab", "刺拳", "Basic: Jab", 0.0, 0.0, 0.28, &"punch", 2.0, ["melee", "combo"],
-		[{"t": 0.09, "type": "melee", "range": 2.0, "arc": 90.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.35, "knockback": 0.8})},
+	var b1 := sk(0, "jab", "刺拳", "Basic: Jab", 0.0, 0.0, 0.28, &"punch", 2.4, ["melee", "combo"],
+		[{"t": 0.09, "type": "melee", "range": 2.4, "arc": 100.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.35, "knockback": 0.8})},
 		{"t": 0.05, "type": "sfx", "name": "swing"}],
 		{"cancel_window": 0.14, "chain": ["jab", "cross", "spin_kick"], "desc": "左右快拳起手 Quick opening jab."})
-	sk(0, "cross", "直拳", "Basic: Cross", 0.0, 0.0, 0.3, &"punch_combo", 2.0, ["melee", "combo"],
-		[{"t": 0.1, "type": "melee", "range": 2.0, "arc": 90.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.38, "knockback": 1.0})},
+	sk(0, "cross", "直拳", "Basic: Cross", 0.0, 0.0, 0.3, &"punch_combo", 2.4, ["melee", "combo"],
+		[{"t": 0.1, "type": "melee", "range": 2.4, "arc": 100.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.38, "knockback": 1.0})},
 		{"t": 0.05, "type": "sfx", "name": "swing"}],
 		{"cancel_window": 0.15, "desc": "重直拳 Heavy cross punch."})
-	sk(0, "spin_kick", "旋身踢", "Basic: Spin Kick", 0.0, 0.0, 0.42, &"kick", 2.2, ["melee", "finisher"],
-		[{"t": 0.16, "type": "melee", "range": 2.2, "arc": 140.0, "hit": hit(0.9, {"knockback": 5.0, "hitstun": 0.5})},
+	sk(0, "spin_kick", "旋身踢", "Basic: Spin Kick", 0.0, 0.0, 0.42, &"kick", 2.5, ["melee", "finisher"],
+		[{"t": 0.16, "type": "melee", "range": 2.5, "arc": 140.0, "hit": hit(0.9, {"knockback": 5.0, "hitstun": 0.5})},
 		{"t": 0.12, "type": "sfx", "name": "hit"}],
 		{"cancel_window": 0.18, "desc": "旋身踢收尾，击退 Spinning kick finisher, knocks back."})
 
@@ -73,7 +73,7 @@ func define() -> void:
 		{"desc": "8秒霸体并提升防御 8 s super armor plus 15% defense."})
 
 	# ---------------------------------------------------------------- slot 5: Emperor's Fist
-	var emperors_fist := sk(5, "emperors_fist", "霸皇拳", "Emperor's Fist", 13.0, 90.0, 0.75, &"punch", 6.0,
+	var emperors_fist := sk(5, "emperors_fist", "霸皇拳", "Emperor's Fist", 13.0, 90.0, 0.75, &"punch", 3.0,
 		["melee", "finisher", "aoe"],
 		[{"t": 0.0, "type": "buff", "target": "self", "fx": "cast_glow", "statuses": [st("super_armor", 0.8)]},
 		{"t": 0.45, "type": "melee", "range": 2.6, "arc": 70.0, "fx": "hit_heavy",

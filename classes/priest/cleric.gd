@@ -28,8 +28,8 @@ func define() -> void:
 	model = "cleric"
 	tint = Color(1.0, 0.94, 0.6)
 	famous = "张新杰 Zhang Xinjie (霸图 Tyranny) / 石不转 Immovable Rock / 逆光十字架 Backlight Cross"
-	stats = {"hp": 6200.0, "mp": 1500.0, "mp_regen": 22.0, "patk": 430.0, "matk": 620.0,
-		"pdef": 300.0, "mdef": 480.0, "move_speed": 6.3, "jump_velocity": 9.2,
+	stats = {"hp": 7100.0, "mp": 1500.0, "mp_regen": 22.0, "patk": 430.0, "matk": 620.0,
+		"pdef": 340.0, "mdef": 480.0, "move_speed": 6.3, "jump_velocity": 9.2,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)

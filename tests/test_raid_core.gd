@@ -217,6 +217,8 @@ func test_raid_run() -> void:
 	var cleared: Array = []
 	match_node.encounter_started.connect(func(i: int) -> void: started.append(i))
 	match_node.encounter_cleared.connect(func(i: int) -> void: cleared.append(i))
+	var kills: Array = []
+	match_node.kill_event.connect(func(v: int, k: int) -> void: kills.append([v, k]))
 	check(match_node.party().size() == 5, "5 party members spawned")
 	var mobs0: Array = match_node.enc_mobs.get(0, [])
 	check(mobs0.size() == 5 and match_node.enc_state[0] == "idle", "encounter 1 spawned idle")
@@ -271,9 +273,14 @@ func test_raid_run() -> void:
 	if not member.is_alive():
 		member.revive(1.0)
 	await sim(0.1)
-	member.start_skill(member.get_skill(1), 1)   # test kit slot 1 = launcher (cc) -> skill_cast hook
+	var cast_ok: Variant = member.start_skill(member.get_skill(1), 1)   # test kit slot 1 = launcher (cc) -> skill_cast hook
+	var hp0 := boss.hp
+	print("  DBG member st=%s boss st=%s compute=%s shield=%s" % [str(member.status.entries.keys()), str(boss.status.entries.keys()),
+		str(Combat.compute(member, boss, Hit.normalize({"dmg": 0.05}), member.global_position)), str(boss.get("shield"))])
 	boss.receive_hit(member, {"dmg": 0.05}, member.global_position)
-	check(bb.channel.is_empty() and bb.log_events.has("channel_interrupted:frozen_heart"), "cc interrupts the channel")
+	check(bb.channel.is_empty() and bb.log_events.has("channel_interrupted:frozen_heart"), "cc interrupts the channel",
+		"cast=%s alive=%s state=%s hooked=%s last_cast=%s hp %.0f->%.0f" % [str(cast_ok), str(member.is_alive()), str(member.state),
+		str(bb._hooked.has(member.uid)), str(bb._last_cast.get(member.uid, {})), hp0, boss.hp])
 	check(bb.break_left > 0.0 and not boss.has_status(&"super_armor"), "interrupted boss is broken (no super armor)")
 	await sim(4.5)
 	check(boss.has_status(&"super_armor"), "super armor returns after the break")
@@ -281,10 +288,14 @@ func test_raid_run() -> void:
 	await sim(0.3)
 	check(bb.enraged and boss.has_status(&"atk_up"), "red blood enrage at 10%")
 	# ---- wipe -> respawn at checkpoint with encounter reset
+	kills.clear()
+	var alive_before := match_node.party_alive()
 	for f: Fighter in match_node.party():
 		f.kill(null)
 	await sim(0.1)
 	check(match_node.wipe_timer > 0.0 and match_node.wipes == 1, "wipe detected")
+	var party_kills := kills.filter(func(e: Array) -> bool: return int(e[1]) == 0)
+	check(alive_before > 0 and party_kills.size() == alive_before, "kill_event per party death (no killer -> 0)", "%d alive, %s" % [alive_before, str(kills)])
 	await sim(5.2)
 	var alive := match_node.party_alive()
 	check(alive == 5, "everyone respawned after the wipe", str(alive))
@@ -302,8 +313,12 @@ func test_raid_run() -> void:
 	await sim(0.5)
 	var results: Array = []
 	match_node.match_ended.connect(func(r: Dictionary) -> void: results.append(r))
+	var boss_uid := match_node.boss.uid
+	var killer_uid := match_node.party()[0].uid
+	kills.clear()
 	match_node.boss.kill(match_node.party()[0])
 	await sim(0.3)
+	check(kills.has([boss_uid, killer_uid]), "kill_event credits the boss kill to the authoritative killer", str(kills))
 	check(match_node.victory and match_node.ended, "boss kill ends the raid")
 	check(not results.is_empty() and int(results[0].get("winner_team", -1)) == 0 and float(results[0].get("clear_time", 0.0)) > 0.0,
 		"match_ended result has clear_time")

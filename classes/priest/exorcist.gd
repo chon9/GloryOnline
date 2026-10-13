@@ -26,7 +26,7 @@ func define() -> void:
 	model = "exorcist"
 	tint = Color(0.68, 0.45, 1.0)
 	famous = "田森 Tian Sen / 扫地焚香 Peaceful Hermit / 即死领悟 Death Savvy"
-	stats = {"hp": 7200.0, "mp": 1300.0, "mp_regen": 21.0, "patk": 520.0, "matk": 590.0,
+	stats = {"hp": 7200.0, "mp": 1300.0, "mp_regen": 21.0, "patk": 540.0, "matk": 620.0,
 		"pdef": 380.0, "mdef": 460.0, "move_speed": 6.1, "jump_velocity": 9.0,
 		"cast_speed": 1.0, "atk_speed": 0.9}
 

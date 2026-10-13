@@ -38,6 +38,7 @@ func run_tests() -> void:
 	await t_revive_when_safe()
 	await t_ranged_los()
 	await t_lava_map()
+	await t_freed_target()
 
 
 # ---------------------------------------------------------------- analysis
@@ -920,3 +921,39 @@ func t_lava_map() -> void:
 	world = null
 	map.get_parent().remove_child(map)
 	map.free()
+
+
+## Playtest fix: MatchRaid._remove_fighter (remove_child + queue_free) on a raid skip / wipe reset must not
+## leave a freed Fighter in BotBrain._target (SCRIPT ERROR in _desired_move). Covers both the
+## fighter_removed signal path and a stale reference that bypasses it.
+func t_freed_target() -> void:
+	await new_world()
+	var bot := spawn_bot("test_dummy", 0, Vector3(0, 0, 4), 2, "raid")
+	var e1 := spawn("test_dummy", 1, Vector3(0, 0, -2), PI)
+	var e2 := spawn("test_dummy", 1, Vector3(3, 0, -3), PI)
+	var b := brain_of(bot)
+	var got := await sim_until(func() -> bool: return b.get("_target") != null, 6.0)
+	check(got, "freed target: bot acquires a target")
+	# 1) removal the MatchRaid way: signal clears the reference, bot keeps working.
+	var t1: Fighter = b.get("_target")
+	var other: Fighter = e2 if t1 == e1 else e1
+	t1.get_parent().remove_child(t1)
+	t1.queue_free()
+	check(b.get("_target") == null, "freed target: fighter_removed clears _target immediately")
+	await sim(2.0)
+	check(is_instance_valid(bot) and bot.is_alive(), "freed target: bot survives a removed target")
+	var re := await sim_until(func() -> bool: return b.get("_target") == other, 6.0)
+	check(re, "freed target: bot retargets the remaining enemy")
+	# 2) a stale freed reference that bypassed the signal: the brain must drop it, not pass it on.
+	var cb := Callable(b, "_on_world_fighter_removed")
+	if world.fighter_removed.is_connected(cb):
+		world.fighter_removed.disconnect(cb)
+	other.get_parent().remove_child(other)
+	world.fighter_removed.connect(cb)  # reconnect after the emit so only the stale path is exercised
+	other.free()
+	b.set("_think_acc", 1.0)
+	b.set("_decide_left", 9.0)
+	b.think(0.1)
+	check(not is_instance_valid(b.get("_target")) and bot.input.target_uid == 0, "freed target: stale freed _target dropped in _act")
+	await sim(1.0)
+	check(is_instance_valid(bot) and bot.is_alive(), "freed target: no crash after stale reference")

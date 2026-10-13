@@ -9,6 +9,8 @@ const KU := preload("res://classes/_kit_util.gd")
 const MAX_BOUNDARIES: int = 3
 const RESONANCE_BONUS: float = 0.10
 const BOUNDARY_DUR: float = 10.0
+## Ghost Feast self-burst radius; the cast gate (can_cast_extra) uses the same number.
+const FEAST_RADIUS: float = 5.0
 
 
 func define() -> void:
@@ -26,8 +28,8 @@ func define() -> void:
 	model = "ghostblade"
 	tint = Color(0.65, 0.3, 1.0)
 	famous = "李轩 Li Xuan / 逢山鬼泣 Crying Devil / Ghost Killer Seal"
-	stats = {"hp": 7300.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 640.0, "matk": 760.0,
-		"pdef": 380.0, "mdef": 480.0, "move_speed": 6.2, "jump_velocity": 9.0, "weight": 1.0,
+	stats = {"hp": 8200.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 640.0, "matk": 760.0,
+		"pdef": 440.0, "mdef": 500.0, "move_speed": 6.2, "jump_velocity": 9.0, "weight": 1.0,
 		"cast_speed": 1.0, "atk_speed": 1.1, "crit": 0.10}
 
 	var c := tint
@@ -36,15 +38,15 @@ func define() -> void:
 	# ------------------------------------------------------------ 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.32, &"attack_1h_1", 2.7, ["melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "swing"},
-		{"t": 0.11, "type": "melee", "range": 2.7, "arc": 110.0, "color": c, "hit": hit(0.8, {"knockback": 1.0})}],
+		{"t": 0.11, "type": "melee", "range": 2.7, "arc": 110.0, "color": c, "hit": hit(0.95, {"knockback": 1.0})}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"], "desc": "太刀斩 Tachi slash."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.32, &"attack_1h_2", 2.7, ["melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "swing"},
-		{"t": 0.11, "type": "melee", "range": 2.7, "arc": 110.0, "color": c, "hit": hit(0.8, {"knockback": 1.0})}],
+		{"t": 0.11, "type": "melee", "range": 2.7, "arc": 110.0, "color": c, "hit": hit(0.95, {"knockback": 1.0})}],
 		{"cancel_window": 0.15, "desc": "回斩 Return slash."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.45, &"attack_2h", 2.9, ["melee", "finisher"],
 		[{"t": 0.0, "type": "sfx", "name": "slash"},
-		{"t": 0.16, "type": "melee", "range": 2.9, "arc": 130.0, "color": c, "hit": hit(1.0, {"knockback": 4.0, "hitstun": 0.5})}],
+		{"t": 0.16, "type": "melee", "range": 2.9, "arc": 130.0, "color": c, "hit": hit(1.15, {"knockback": 4.0, "hitstun": 0.5})}],
 		{"cancel_window": 0.18, "desc": "双手重斩 Two-handed heavy cut."})
 
 	# ------------------------------------------------------------ 1: Lv1 launcher
@@ -52,7 +54,7 @@ func define() -> void:
 		["launcher", "melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "magic"},
 		{"t": 0.15, "type": "melee", "range": 3.2, "arc": 100.0, "fx": "dark_burst", "color": c,
-		"hit": hit(1.1, {"type": "magic", "element": "dark", "launch": 10.0, "knockback": 0.3, "hitstun": 0.5})},
+		"hit": hit(1.3, {"type": "magic", "element": "dark", "launch": 10.0, "knockback": 0.3, "hitstun": 0.5})},
 		{"t": 0.15, "type": "vfx", "name": "launch_burst", "at": "target", "color": c}],
 		{"cancel_window": 0.25, "desc": "Lv1 鬼手上抓浮空 A ghostly claw rips upward and launches the target."})
 
@@ -61,33 +63,33 @@ func define() -> void:
 		["melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "slash"},
 		{"t": 0.15, "type": "melee", "range": 3.0, "arc": 140.0, "color": moon,
-		"hit": hit(1.4, {"type": "magic", "launch": 7.0, "knockback": 1.5, "hitstun": 0.5})}],
+		"hit": hit(1.7, {"type": "magic", "launch": 7.0, "knockback": 1.5, "hitstun": 0.5})}],
 		{"cancel_window": 0.2, "desc": "月牙斩将目标挑起 Crescent slash that knocks the target up."})
 
 	# ------------------------------------------------------------ 3: Full Moonlight Slash
-	var full_moon := sk(3, "full_moonlight_slash", "满月斩", "Full Moonlight Slash", 9.0, 60.0, 0.7, &"attack_spin", 3.4,
+	var full_moon := sk(3, "full_moonlight_slash", "满月斩", "Full Moonlight Slash", 7.0, 60.0, 0.55, &"attack_spin", 3.4,
 		["finisher", "aoe", "melee"],
 		[{"t": 0.0, "type": "sfx", "name": "slash"},
 		{"t": 0.25, "type": "melee", "shape": "circle", "range": 3.4, "color": moon,
-		"hit": hit(2.2, {"type": "magic", "knockback": 11.0, "launch": 5.0, "knockdown": true})},
+		"hit": hit(2.5, {"type": "magic", "knockback": 11.0, "launch": 5.0, "knockdown": true})},
 		{"t": 0.25, "type": "vfx", "name": "slash_arc", "color": moon, "scale": 1.8}],
 		{"cancel_window": 0.15, "desc": "满月回旋斩，强力击飞 Full-circle moon slash with a big blow-away."})
 
 	# ------------------------------------------------------------ 4: Ice Soul (boundary)
-	var ice_soul := sk(4, "ice_soul", "冰阵", "Ice Soul (Ice Boundary)", 12.0, 70.0, 0.6, &"cast", 9.0,
+	var ice_soul := sk(4, "ice_soul", "冰阵", "Ice Soul (Ice Boundary)", 10.0, 70.0, 0.6, &"cast", 9.0,
 		["zone", "cc", "aoe", "ranged"],
 		[{"t": 0.0, "type": "sfx", "name": "ice"},
 		{"t": 0.3, "type": "ground", "at": "target", "radius": 4.5, "duration": BOUNDARY_DUR, "tick": 1.0, "visual": "ice",
-		"color": ice, "hit": hit(0.25, {"type": "magic", "element": "ice", "hitstun": 0.0, "knockback": 0.0,
+		"color": ice, "hit": hit(0.45, {"type": "magic", "element": "ice", "hitstun": 0.0, "knockback": 0.0,
 		"juggle_cost": 3.0, "statuses": [st("slow", 1.5, 0.4)], "freeze_chance": 0.12, "freeze_dur": 1.0})}],
 		{"cancel_window": 0.15, "desc": "布下冰阵：区域内敌人减速并有几率冰冻 Ice boundary: enemies inside are slowed and may freeze."})
 
 	# ------------------------------------------------------------ 5: Silence Boundary
-	var silence := sk(5, "silence_boundary", "静寂之阵", "Silence Boundary", 14.0, 70.0, 0.6, &"cast", 9.0,
+	var silence := sk(5, "silence_boundary", "静寂之阵", "Silence Boundary", 12.0, 70.0, 0.6, &"cast", 9.0,
 		["zone", "cc", "debuff", "ranged"],
 		[{"t": 0.0, "type": "sfx", "name": "debuff"},
 		{"t": 0.3, "type": "ground", "at": "target", "radius": 4.5, "duration": BOUNDARY_DUR, "tick": 1.0, "visual": "dark",
-		"color": c, "hit": hit(0.15, {"type": "magic", "element": "dark", "hitstun": 0.0, "knockback": 0.0,
+		"color": c, "hit": hit(0.3, {"type": "magic", "element": "dark", "hitstun": 0.0, "knockback": 0.0,
 		"juggle_cost": 3.0, "statuses": [st("silence", 1.2)]})}],
 		{"cancel_window": 0.15, "desc": "布下静寂之阵：区域内敌人被沉默 Silence boundary: enemies inside cannot use skills."})
 
@@ -100,7 +102,7 @@ func define() -> void:
 		{"cancel_window": 0.15, "desc": "布下刀阵：区域内友方攻击+15% Sword boundary: allies inside gain +15% attack."})
 
 	# ------------------------------------------------------------ 7: ultimate
-	var feast := sk(7, "ghost_feast", "鬼神盛宴", "Ghost Feast", 60.0, 200.0, 1.4, &"channel", 8.0,
+	var feast := sk(7, "ghost_feast", "鬼神盛宴", "Ghost Feast", 60.0, 200.0, 1.4, &"channel", 4.5,
 		["ultimate", "aoe", "zone", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash", "color": c},
 		{"t": 0.0, "type": "sfx", "name": "ultimate"},
@@ -108,7 +110,7 @@ func define() -> void:
 		{"t": 0.6, "type": "custom", "method": "ghost_feast", "args": {
 			"boundary_hit": hit(1.2, {"type": "magic", "element": "dark", "launch": 9.0, "knockback": 4.0, "armor_break": true}),
 			"self_hit": hit(1.8, {"type": "magic", "element": "dark", "launch": 8.0, "knockback": 3.0}),
-			"self_radius": 5.0}},
+			"self_radius": FEAST_RADIUS}},
 		{"t": 0.6, "type": "sfx", "name": "explosion"}],
 		{"desc": "Lv70 大招：引爆所有鬼阵并在身边爆发鬼气 Detonates every active boundary plus a ghost burst around you."})
 
@@ -138,6 +140,24 @@ func boundaries_of(f: Fighter) -> Array[AreaEffect]:
 
 
 # ---------------------------------------------------------------- hooks
+## Ghost Feast only fires when something would be hit: an enemy inside the self burst or inside one of
+## the caster's boundaries (otherwise the 60 s ultimate whiffs; AI and players both get "kit" as the reason).
+func can_cast_extra(f: Fighter, skill: SkillDef) -> bool:
+	if str(skill.id) != full_id("ghost_feast"):
+		return true
+	var w := f.world()
+	if w == null:
+		return true
+	var list := boundaries_of(f)
+	for e: Fighter in w.enemies_of(f, true):
+		if CoreUtil.flat(e.global_position - f.global_position).length() <= FEAST_RADIUS + e.radius():
+			return true
+		for a: AreaEffect in list:
+			if a.contains(e):
+				return true
+	return false
+
+
 func on_tick(f: Fighter, _delta: float) -> void:
 	var list := boundaries_of(f)
 	while list.size() > MAX_BOUNDARIES:

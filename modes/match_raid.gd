@@ -12,6 +12,9 @@ signal encounter_started(index: int)
 signal encounter_cleared(index: int)
 signal raid_wiped(count: int)
 signal raid_cleared(clear_time: float)
+## Every peer (reliable, call_local): authoritative killer of each party / mob / boss death (summon kills
+## credited to the owner), so client kill feeds do not guess from the polled last_attacker_uid.
+signal kill_event(victim_uid: int, killer_uid: int)
 
 const WIPE_DELAY: float = 5.0
 const RECORDS_PATH: String = "user://records.json"
@@ -105,6 +108,21 @@ func begin() -> void:
 		_spawn_encounter(0)
 	send_announce("%s %s：准备出发！ Raid start!" % [map.name_cn, map.name_en], 3.0)
 	_send_score()
+
+
+## Host: World.fighter_died (via Match) -> kill_event on every peer.
+func on_fighter_died(f: Fighter, killer: Fighter) -> void:
+	if f == null or f.kind == "summon":
+		return
+	var k := killer
+	if k != null and is_instance_valid(k) and k.kind == "summon":
+		k = k.get_owner_fighter()
+	_rpc_kill.rpc(f.uid, k.uid if k != null and is_instance_valid(k) else 0)
+
+
+@rpc("authority", "call_local", "reliable")
+func _rpc_kill(victim_uid: int, killer_uid: int) -> void:
+	kill_event.emit(victim_uid, killer_uid)
 
 
 func _spawn_member(slot: Dictionary, pos: Vector3, yaw: float) -> Fighter:

@@ -30,7 +30,7 @@ func define() -> void:
 	model = "mechanic"
 	tint = STEEL
 	famous = "肖时钦 Xiao Shiqin / 生灵灭 Life Extinguisher / Flashing Shadow"
-	stats = {"hp": 7000.0, "mp": 1400.0, "mp_regen": 20.0, "patk": 640.0, "matk": 440.0,
+	stats = {"hp": 7000.0, "mp": 1400.0, "mp_regen": 20.0, "patk": 690.0, "matk": 470.0,
 		"pdef": 400.0, "mdef": 400.0, "move_speed": 6.0, "jump_velocity": 9.0, "weight": 1.0,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 

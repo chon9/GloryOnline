@@ -24,7 +24,7 @@ func define() -> void:
 	model = "grappler"
 	tint = Color(0.95, 0.85, 0.35)
 	famous = "李亦辉 Li Yihui / 沾衣乱飞 Flying Drops"
-	stats = {"hp": 9000.0, "mp": 1100.0, "mp_regen": 20.0, "patk": 680.0, "matk": 400.0,
+	stats = {"hp": 9000.0, "mp": 1100.0, "mp_regen": 20.0, "patk": 720.0, "matk": 400.0,
 		"pdef": 500.0, "mdef": 420.0, "move_speed": 6.2, "jump_velocity": 9.0, "atk_speed": 1.0}
 
 	# ---------------------------------------------------------------- slot 0: basic chain 普攻

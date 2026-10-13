@@ -124,7 +124,7 @@ func t_kit(id: String) -> void:
 	check(kit.weapon_type != "" and kit.weapon_name_cn != "" and kit.weapon_name_en != "" and kit.model != ""
 		and kit.famous != "" and kit.role != "", "[%s] weapon/model/famous/role set" % id)
 	var hp := float(kit.get_stats()["hp"])
-	check(hp >= 6000.0 and hp <= 9600.0 and float(kit.get_stats()["mp"]) >= 1000.0, "[%s] stats in balance range" % id, str(hp))
+	check(hp >= 6000.0 and hp <= 13000.0 and float(kit.get_stats()["mp"]) >= 1000.0, "[%s] stats in balance range" % id, str(hp))
 	check(kit.passives.size() >= 1, "[%s] has passives" % id)
 	check(kit.skills.size() == 8, "[%s] exactly 8 skills" % id, str(kit.skills.size()))
 	var slots_ok := true

@@ -20,16 +20,16 @@ func define() -> void:
 	model = "thief"
 	tint = Color(0.95, 0.75, 0.25)
 	famous = "林枫 Lin Feng (前 方锐 Fang Rui) / 鬼迷神疑 Doubtful Demon"
-	stats = {"hp": 6800.0, "mp": 1300.0, "mp_regen": 22.0, "patk": 525.0, "matk": 450.0,
+	stats = {"hp": 6500.0, "mp": 1300.0, "mp_regen": 22.0, "patk": 525.0, "matk": 450.0,
 		"pdef": 330.0, "mdef": 330.0, "move_speed": 6.6, "jump_velocity": 9.2, "crit": 0.12}
 
 	# ---------------------------------------------------------------- slot 0: basic chain
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.26, &"attack_1h_1", 2.2, ["melee", "combo"],
-		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.65, {"knockback": 0.8})},
+		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.55, {"knockback": 0.8})},
 		{"t": 0.08, "type": "sfx", "name": "slash"}],
 		{"cancel_window": 0.13, "chain": ["atk1", "atk2", "atk3"], "desc": "匕首快划 Quick dagger slash."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.26, &"attack_1h_2", 2.2, ["melee", "combo"],
-		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.65, {"knockback": 0.8})},
+		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.55, {"knockback": 0.8})},
 		{"t": 0.08, "type": "sfx", "name": "slash"}],
 		{"cancel_window": 0.13, "desc": "反手划 Backhand slash."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.4, &"attack_stab", 2.4, ["melee", "finisher"],
@@ -52,7 +52,7 @@ func define() -> void:
 		[{"t": 0.1, "type": "trap", "trap_id": "poison", "at": "target", "distance": 4.0, "radius": 2.2, "arm_time": 0.3,
 		"duration": 15.0, "max_active": 2,
 		"hit": hit(0.6, {"stun": 0.8, "hitstun": 0.3, "knockback": 0.0, "element": "poison", TRAP_KEY: true,
-		"statuses": [st("poison", 6.0, 1.5)]})},
+		"statuses": [st("poison", 6.0, 1.1)]})},
 		{"t": 0.1, "type": "sfx", "name": "trap"}],
 		{"desc": "毒云陷阱：剧毒持续伤害并打断 Poison cloud trap: poison damage over time and a brief stun."})
 
@@ -173,7 +173,7 @@ func ambush(f: Fighter, _args: Dictionary, runner: SkillRunner) -> void:
 	var from_stealth := f.has_status(&"stealth") or bool(runner.vars.get("from_stealth", false))
 	var h: Dictionary
 	if from_stealth:
-		h = hit(2.6, {"stun": 3.0, "hitstun": 0.4, "knockback": 0.3, "crit_bonus": 0.2})
+		h = hit(2.6, {"stun": 2.0, "hitstun": 0.4, "knockback": 0.3, "crit_bonus": 0.2})
 	else:
 		h = hit(1.3, {"stun": 1.0, "hitstun": 0.4, "knockback": 1.0})
 	runner.execute_step({"type": "melee", "range": 2.4, "arc": 120.0, "hit": h, "fx": "hit_heavy"})

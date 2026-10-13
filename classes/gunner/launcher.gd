@@ -29,7 +29,7 @@ func define() -> void:
 	model = "launcher"
 	tint = Color(1.0, 0.6, 0.1)
 	famous = "苏沐橙 Su Mucheng / 沐雨橙风 Dancing Rain / 吞日 Devouring Sun"
-	stats = {"hp": 7000.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 690.0, "matk": 350.0,
+	stats = {"hp": 7000.0, "mp": 1400.0, "mp_regen": 22.0, "patk": 720.0, "matk": 350.0,
 		"pdef": 300.0, "mdef": 350.0, "move_speed": 5.8, "jump_velocity": 8.8, "weight": 1.1,
 		"cast_speed": 1.0, "atk_speed": 0.95}
 

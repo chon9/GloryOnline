@@ -37,7 +37,7 @@ func define() -> void:
 	model = "witch"
 	tint = Color(0.85, 0.35, 0.95)
 	famous = "王杰希 Wang Jiexi / 王不留行 Vaccaria / 灭绝星尘 Stardust Extermination"
-	stats = {"hp": 6600.0, "mp": 1300.0, "mp_regen": 20.0, "patk": 520.0, "matk": 545.0,
+	stats = {"hp": 6600.0, "mp": 1300.0, "mp_regen": 20.0, "patk": 520.0, "matk": 520.0,
 		"pdef": 330.0, "mdef": 420.0, "move_speed": 6.4, "jump_velocity": 9.0, "weight": 1.0,
 		"cast_speed": 1.0, "atk_speed": 1.0}
 
@@ -45,18 +45,18 @@ func define() -> void:
 	var a1 := sk(0, "broom_1", "普攻·扫击", "Broom Swat", 0.0, 0.0, 0.32, &"attack_1h_1", 2.8, ["melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "swing"},
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 120.0, "height": 2.8,
-			"hit": hit(0.7, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
+			"hit": hit(0.62, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "chain": ["broom_1", "broom_2", "broom_3"],
 		"desc": "扫把三段连击（飞行中亦可） Three-hit broom chain, usable in flight."})
 	sk(0, "broom_2", "普攻·回扫", "Broom Backswing", 0.0, 0.0, 0.32, &"attack_1h_2", 2.8, ["melee", "combo"],
 		[{"t": 0.0, "type": "sfx", "name": "swing"},
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 120.0, "height": 2.8,
-			"hit": hit(0.7, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
+			"hit": hit(0.62, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "desc": "回扫 Backswing."})
 	sk(0, "broom_3", "普攻·旋扫", "Broom Whirl", 0.0, 0.0, 0.48, &"attack_spin", 3.0, ["melee", "finisher", "aoe"],
 		[{"t": 0.0, "type": "sfx", "name": "swing"},
 		{"t": 0.18, "type": "melee", "shape": "circle", "range": 3.0, "height": 3.0, "fx": "slash_arc",
-			"hit": hit(0.95, {"type": "magic", "knockback": 4.0, "hitstun": 0.45})}],
+			"hit": hit(0.85, {"type": "magic", "knockback": 4.0, "hitstun": 0.45})}],
 		{"cancel_window": 0.18, "desc": "旋转扫击，击退周围敌人 Spinning sweep that knocks back everyone around."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -68,7 +68,7 @@ func define() -> void:
 		{"cancel_window": 0.22, "desc": "扫把上扫，将敌人轻微挑起 Upward broom sweep with a light knock-up."})
 
 	# ---------------------------------------------------------------- slot 2: Magic Missile
-	var missile := sk(2, "magic_missile", "魔法飞弹", "Magic Missile", 3.0, 30.0, 0.3, &"shoot_1h", 18.0, ["ranged", "combo"],
+	var missile := sk(2, "magic_missile", "魔法飞弹", "Magic Missile", 4.5, 30.0, 0.3, &"shoot_1h", 18.0, ["ranged", "combo"],
 		[{"t": 0.1, "type": "projectile", "speed": 24.0, "range": 20.0, "radius": 0.4, "homing": 3.0, "aim": "target",
 			"visual": "missile", "color": C_ARCANE, "scale": 0.8, "sfx": "magic",
 			"hit": hit(1.3, {"type": "magic", "hitstun": 0.4, "knockback": 1.5})},

@@ -205,6 +205,7 @@ func think(delta: float) -> void:
 	var w := fighter.world()
 	if w == null:
 		return
+	_watch_world(w)
 	_strafe_timer -= dt
 	if _strafe_timer <= 0.0:
 		_strafe_timer = _rng.randf_range(1.2, 3.0)
@@ -212,8 +213,7 @@ func think(delta: float) -> void:
 	_backstep_left = maxf(0.0, _backstep_left - dt)
 	_detour_left = maxf(0.0, _detour_left - dt)
 	_sidestep_left = maxf(0.0, _sidestep_left - dt)
-	if _target != null and not _usable(w, _target):
-		_target = null
+	_drop_stale_refs(w)
 	_hazard_source(w)
 	_scan_dangers(w)
 	if mode == "raid":
@@ -808,7 +808,7 @@ func _hazard_at(p: Vector3) -> bool:
 ##  - `channel`: non-empty while an interruptible channel runs (handled by _try_interrupt).
 func _scan_boss_mechanics(w: World) -> void:
 	_share_pos = Vector3.INF
-	if _boss != null and not _usable(w, _boss):
+	if not _usable(w, _boss):
 		_boss = null
 	if _boss == null:
 		for e: Fighter in _enemies(w):
@@ -1822,9 +1822,9 @@ func _decide_mob(w: World) -> void:
 	var t := fighter.top_threat()
 	if fighter.status.has(&"taunted"):
 		var src := fighter.status.source(&"taunted")
-		if src != null and src.is_alive():
+		if _usable(w, src):
 			t = src
-	if t != null and not _usable(w, t):
+	if not _usable(w, t):
 		t = null
 	if t == null:
 		# Proximity aggro and social aggro (pack members assist each other).
@@ -1875,27 +1875,61 @@ func _decide_mob(w: World) -> void:
 # ================================================================== acting
 ## A cached fighter reference that is still safe to query (valid, in tree, registered, alive).
 ## Raid resets remove living mobs from the tree in the same frame the brains run.
-func _usable(w: World, f: Fighter, allow_dead: bool = false) -> bool:
-	if f == null or not is_instance_valid(f) or f.is_queued_for_deletion() or not f.is_inside_tree():
+## Untyped on purpose: a previously freed reference must fail is_instance_valid here instead of the
+## typed-argument check (a freed Object also compares equal to null, so `x != null` guards miss it).
+func _usable(w: World, f: Variant, allow_dead: bool = false) -> bool:
+	if not is_instance_valid(f):
 		return false
-	if w != null and w.get_fighter(f.uid) != f:
+	var fi := f as Fighter
+	if fi == null or fi.is_queued_for_deletion() or not fi.is_inside_tree():
 		return false
-	return allow_dead or f.is_alive()
+	if w != null and w.get_fighter(fi.uid) != fi:
+		return false
+	return allow_dead or fi.is_alive()
+
+
+## Clears cached fighter references that were freed / removed from the World (raid skip / wipe reset).
+func _drop_stale_refs(w: World) -> void:
+	if not _usable(w, _target):
+		_target = null
+	if not _usable(w, _plan_ally, true):
+		_plan_ally = null
+	if not _usable(w, _boss):
+		_boss = null
+
+
+## Listen for World.fighter_removed once so references die with the fighter, not a frame later.
+func _watch_world(w: World) -> void:
+	if not w.fighter_removed.is_connected(_on_world_fighter_removed):
+		w.fighter_removed.connect(_on_world_fighter_removed)
+
+
+func _on_world_fighter_removed(f: Fighter) -> void:
+	if f == null:
+		return
+	if is_same(_target, f):
+		_target = null
+	if is_same(_plan_ally, f):
+		_plan_ally = null
+	if is_same(_boss, f):
+		_boss = null
 
 
 func _act(w: World, dt: float) -> void:
 	var inp := fighter.input
-	var t := _target
-	if t != null and (not _usable(w, t) or (t.is_stealthed and t.team != fighter.team)):
+	_drop_stale_refs(w)
+	var t: Fighter = _target
+	if t != null and t.is_stealthed and t.team != fighter.team:
 		t = null
 		_target = null
 	inp.target_uid = t.uid if t != null else 0
 	inp.aim_point = t.center() if t != null else Vector3.ZERO
-	if _plan_ally != null and not _usable(w, _plan_ally, true):
-		_plan_ally = null
 	if difficulty >= 1 and t != null:
 		_scan_projectiles(w)
 	# ------------------------------------------------ movement
+	if t != null and not is_instance_valid(t):
+		t = null
+		_target = null
 	var desired := _desired_move(w, t)
 	var steered := _steer(w, desired)
 	_move = _move.lerp(steered, clampf(dt * 10.0, 0.0, 1.0))
@@ -2192,7 +2226,8 @@ func _escape_point(w: World) -> Vector3:
 	return p
 
 
-func _desired_move(w: World, t: Fighter) -> Vector3:
+func _desired_move(w: World, tv: Variant) -> Vector3:
+	var t: Fighter = tv as Fighter if is_instance_valid(tv) else null
 	var me := fighter.global_position
 	# Raid soak circle: stack inside it (unless a telegraph lands on us before the soak resolves).
 	if _share_pos != Vector3.INF and not (_dodging and _dodge_urgency < _share_left):
