@@ -77,15 +77,26 @@ func _physics_process(delta: float) -> void:
 
 
 ## Advances the whole host simulation by one step: fighters, then projectiles/areas.
+## Fx.context_caster is set to the fighter / effect owner being simulated, so every Fx call made while it runs is
+## attributed to that caster (clients scale other players' effects by ownership).
 func step(delta: float) -> void:
+	var fx := CoreUtil.autoload("Fx")
+	var ctx := fx != null and "context_caster" in fx
 	for f: Fighter in fighters.duplicate():
 		if is_instance_valid(f) and f.is_inside_tree() and not f.is_queued_for_deletion():
+			if ctx:
+				fx.set("context_caster", f.uid)
 			if not auto_step and f.brain != null and is_instance_valid(f.brain) and f.brain.has_method("think"):
 				f.brain.call("think", delta)
 			f.host_tick(delta)
 	for e: Variant in effects.duplicate():
 		if is_instance_valid(e) and not (e as Node).is_queued_for_deletion():
+			if ctx:
+				var c: Variant = (e as Node).get("caster")
+				fx.set("context_caster", (c as Fighter).uid if is_instance_valid(c) and c is Fighter else 0)
 			(e as Node).call("tick", delta)
+	if ctx:
+		fx.set("context_caster", 0)
 	_prune_effects()
 
 

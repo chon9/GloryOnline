@@ -941,3 +941,191 @@ RESOLVED (wave3): NET-HUD "RAID / AI balance: bot party cannot kill the Frost Go
 - **RAID**: test_raid_clear's 330 s floor sits right at HEAD's own Frost Forest time (5:37). The default suite passes
   (5:34 / 6:10, 0 wipes), but over seeds 0-5 two seeds clear in 5:21-5:24 and fail the floor. A few % more trash /
   boss hp, or a slightly lower floor, would give kit tuning room.
+
+## VFX (art migration)
+Every effect of `autoload/fx.gd` is restyled to the anime look of the look-dev slice (bible section 5) behind the
+unchanged Fx API: same public methods + signatures, same RPC modes, same `EFFECT_NAMES` (23), `PROJECTILE_VISUALS`
+(15), `AREA_VISUALS` (11) x circle/line/ring, `SFX_MAP`, unknown-name fallbacks, `clear_all` / `shutdown` /
+`live_count`, park-and-reclaim of follow areas, `move_area_visual`, homing_rate, despawn-from-`_exit_tree`.
+- Code: recipes in `visuals/vfx_effects.gd` (named effects), `visuals/vfx_projectiles.gd`, `visuals/vfx_ground.gd`
+  (zones + telegraphs), shared palettes/materials/meshes/fonts in `visuals/vfx_lib.gd`, pooled pieces
+  `visuals/vfx_flash.gd` + `visuals/vfx_ribbon.gd`, `visuals/vfx_numbers.gd`, `visuals/vfx_hitstop.gd`. Shaders
+  (original, procedural, no textures): `visuals/shaders/vfx_{sprite,slash,glyph,ring,energy,ground,trail,solid,outline}`
+  + `screen_impact` (slash/glyph/ring/energy/screen_impact ported from `lookdev/shaders/`).
+  The Kenney particle PNGs in `assets/vfx/` are no longer used by Fx (kept on disk; nothing else loads them).
+- Performance: one material per shader (per-effect colours/progress are instance uniforms), every one-shot piece
+  is pooled (VfxFlash / CPUParticles3D / damage numbers / lights) and stepped by Fx's single `_process`;
+  `Fx.budget()` 0/1/2 drops extras above 260 live pieces and keeps only core pieces above 560.
+- `Color.WHITE` still means "element default"; defaults now come from the bible 5.2 palettes. `AREA_COLORS` /
+  `PROJ_COLORS` / `NUMBER_COLORS` keep their keys with bible colours.
+- Damage numbers (bible 5.5): Teko numerals (UI track's `assets/fonts/teko`, Noto Sans SC for CJK tags, system font
+  fallback), dark outline + drop shadow, 140% -> 100% pop in 6 frames. crit = gold #FFC43A, bigger, "暴击" tag;
+  heal = green "+N"; miss = grey "MISS" + "闪避"; true = red #FF4A4A + "真实"; phys white, magic pale violet.
+- Telegraphs (delayed areas): thick hot outline + dark keyline, rotating rune band (circle/ring) or marching
+  chevrons (line), moving hatch, and a fill that sweeps centre -> edge (start -> end for lines) as the delay runs out,
+  pulsing faster near impact. Colour = element pushed 65% toward red-orange (unchanged rule).
+- **Hit-stop + impact frames (new, local, cosmetic).** `Fx.impact(pos, strength := 2.0, dir := Vector3.ZERO)`
+  (host broadcast, `unreliable`): strength 1/2/3/4 = 3/5/8/12 rendered frames (bible 5.3). It deactivates the
+  AnimationMixers of the victim's visual (nearest within 1.8 m of `pos`) and, when `dir` (attacker -> victim) is
+  given, of the attacker's visual (nearest within 5 m behind), plus a small shake on the victim; VFX keep animating.
+  It never touches `Engine.time_scale`, physics or Fighter state, so host simulation timing is unchanged. Visuals are
+  found through `World.fighters_root` children's `visual` plus any node in group `fx_hitstop`. Strength >= 3 near
+  the camera adds a 1-2 frame impact frame (`screen_impact`: radial speed lines, element flash, chromatic split;
+  ultimates open with an inverse frame), rate-limited to one heavy frame per 0.45 s.
+  Automatic triggers from existing events: `hit_spark` / `block_spark` = 1, crit `damage_number` = 2,
+  `hit_heavy` = 3, `ultimate_flash` = 4. Switches: `Fx.hitstop_enabled`, `Fx.auto_hitstop`, `Fx.screen_impact_enabled`.
+- Showcase: `visuals/vfx_gallery.tscn` (`-- --shotdir=<dir> --view=all|melee|magic|elements|proj|ground_circle|
+  ground_line|ground_ring|telegraph|numbers|combat|<effect name>|perf`).
+- Tests: `tests/test_assets_fx.gd` keeps every old check; the earth-spike check now asserts the spikes fade through the
+  shared `fade` uniform (cel solids with a noise dissolve) instead of the old per-node transparency path; new checks
+  for hit-stop (freeze, durations, release, no time_scale change, disable switch), pooling and the numeral font.
+
+## Requests (art VFX)
+- **CORE** (`core/fighter.gd` / `core/skill_runner.gd`, optional): call `Fx.impact(victim.center(), level, dir)` for
+  finishers and kit-specific heavy moments (level 3 = heavy 8 f, 4 = ultimate/finisher 12 f) where the hit fx is not
+  already `hit_heavy` / `ultimate_flash`, e.g. the last hit of a combo string, grab throws, wall bounces. Normal hits
+  need nothing (the auto triggers above cover them). If CORE ever wants this off in ranked PvP, set
+  `Fx.hitstop_enabled = false` on every peer.
+- **CORE** (`core/fighter.gd` `_apply_damage`): absorbed damage is currently folded into the number; a separate
+  `damage_number(pos, absorbed, &"absorb")` would show the bible's light-blue absorb number (Fx already styles
+  `absorb`).
+- **CHARS** (`visuals/character_visual.gd`): hit-stop toggles `AnimationMixer.active` on the visual's mixers and
+  restores it afterwards; please keep animation in AnimationPlayer/AnimationTree nodes under the visual (do not
+  toggle `active` yourself) and do not drive the visual root's local `position` (the victim shake offsets it for a
+  few frames and restores it).
+
+## Requests (art UI)
+- **LEAD** (export presets): the in-game credits screen (main menu -> 鸣谢 Credits, `ui/credits.gd`) reads
+  `res://assets/CREDITS.md` at runtime; add `assets/CREDITS.md` (and `assets/licenses/*`) to the export include filter,
+  otherwise exports show the built-in fallback summary. game-icons.net CC BY rows added by ICONS appear automatically
+  (any CREDITS table with a "License" column is listed).
+- **CHARS**: the HUD player frame renders a live head portrait from `CharacterVisual.get_head_position()` and the
+  fighter's `forward()`; the menus' class showcase (`ui/char_preview.gd`) frames `CharacterVisual.create_for_class()`
+  by its mesh AABB. Keep `get_head_position()` at the head (it currently returns head + 0.6 * MODEL_SCALE; the
+  portrait subtracts 0.18 m).
+- Note: `test_net_roster.gd` "theme.tres loads with SystemFont" now checks the bundled CJK font (theme ships OFL
+  Noto Sans SC instead of a SystemFont). StatusSet bits 25/26 (`atk_down`, `cast_slow`) and `Fighter.kit_counter`
+  pips are shown by the HUD (resolves the wave3 CORE-FX HUD requests).
+
+## CHARS (art migration)
+
+Player classes are anime bodies now (VRoid CC0 bases + toon/outline + class dress, Mesh2Motion clips); KayKit stays
+for mobs, bosses and summons, restyled with the same toon shader. Public API unchanged (`create`, `create_for_class`,
+`play`, `replay`, `set_weapon`, `set_alpha`, `set_status_visual`, `flash_hit`, `get_hand_position`,
+`get_head_position`, `has_clip_for`, ANIM keys, STATUS bit order, `WeaponFactory.build(id, tint)` for every id).
+- **Model ids**: a class id (`"blade_master"`, `"knight"`, `"ninja"`, ...) is an anime body and wins over the old KayKit
+  ids of the same name; `CharacterVisual.MODELS` now lists only KayKit mobs/bosses/summons (magical_girl,
+  plant_warrior, toy_soldier, robot_one/two, skeletons, necromancer, werewolves, orc_raider, the 7 Large bosses).
+  `""` and unknown ids resolve to the anime Knight (was the KayKit knight). `CLASS_MODEL[cid].model` is the class id.
+  Removed KayKit player bodies: ActionFigure, AvianSwordsman, Barbarian, Caveman, Cleric, CombatMech, Druid, Engineer,
+  Hiker, Hoarder, Knight, Lorekeeper, Mage, Marksman, Ninja, Paladin(+_with_Helmet), Protagonist_A/B, Ranger, Rogue(+_Hooded),
+  SpaceRanger, Superhero, Survivalist, Tiefling, Vampire, Witch. The Ninja "Shadow Clone" summon (model "ninja") now
+  renders as the anime Ninja.
+- **rig** is `"anime"` for players (`"medium"` / `"large"` for KayKit). `CharacterVisual.ANIME_ANIM_MAP` maps every
+  abstract key for the anime rig (`anim_map_for(rig)`); `resolve_clip(rig, key, stance, extra)` gained an `extra`
+  override dict; new instance helper `resolve_key(key)` (dress overrides > weapon stance > map). New fields `body`
+  (AnimeBody) and `dress` (resolved ClassDress dict), static `is_anime_id(id)`.
+- **Heights**: anime bodies are scaled to their dress height (1.74-1.88 m, `height` reports it).
+- **Weapons**: WeaponFactory ids are now procedural metre-scale models (meta `units` = "m", `grip_kind`, `two_hand`),
+  muzzle +X / blade +Y convention unchanged; KayKit mob weapons keep KayKit units and get toon materials. The KayKit
+  pole tilt is applied by CharacterVisual on KayKit handslots only (`POLE_TILT` still exported).
+- **Stealth** (`set_alpha`): meshes swap to a shared per-visual ghost material (dark glass + cel rim, alpha-blended with
+  depth writes) and restore their original materials at 1.0; instance transparency is not used (it self-sorts the
+  toon bodies).
+- **Status visuals** restyled: cel-banded overlay rim, ice-crystal shell on freeze, ember particles on burn, faceted gold
+  stars on stun/sleep/confusion, hex-line shield bubble (gold for invuln). Bit order unchanged.
+- **Secondary motion**: VRM spring chains (SpringBoneSimulator3D) + runtime cloth strips (`AnimeCloth`: capes,
+  scarves, bustles) simulate only within 25 m of the active camera (checked every ~0.5 s).
+- **Class dresses**: `visuals/class_dress.gd` + one auto-registered file per class in `visuals/dress/<class_id>.gd`
+  (recipe `visuals/dress/README.md`). Dress dictionaries never hold lambdas/Callables (static caches with lambdas of
+  other scripts segfault Godot at exit).
+- **Shaders**: `visuals/shaders/toon.gdshader`, `toon_outline.gdshader` (copies of the look-dev versions).
+
+### CHARS pass 2
+- Dress spec gained `cull` (remove base-clothing triangles inside character-space boxes), `face` (persistent VRM
+  expression from the `.vrm.json` "expressions" table, now written by `vrm2glb.py`), `weapon_anims` (per held weapon
+  clip overrides) and HAIR `spec` / `spec_strength`. Toon shader: `special` 1 = anisotropic hair streaks, 2 = face shadow
+  from the head axes (CharacterVisual updates them per frame), `zone_ambient` / `zone_rim` uniforms.
+- Umbrella form changes animate (~0.2 s): `Panel_*` canopy panels and `Morph_*` nodes are kept unmerged and eased from
+  the previous form; `CharacterVisual.set_weapon()` drives it, API unchanged.
+- **Zone tint API**: `CharacterVisual.set_zone(zone: String, tree := null)` (ENV preset names: frost, glory_stage,
+  blossom, golden_ruins, lava, moon; "" = neutral) and `CharacterVisual.set_zone_colors(rim, ambient)`; per instance
+  `set_zone_tint(rim, ambient)`. The zone is static: visuals created later pick it up.
+
+### CHARS pass 3 (fixes + performance)
+- **Costume merge**: all rigid costume pieces of a body are baked into ONE skinned mesh (`GeneralSkeleton/Costume`, +
+  `CostumeFx` for transparent parts, no shadows): one surface per material, vertices bound to the bone their piece hung
+  from (`AnimeBody._merge_costume`). `Att_<bone>` attachments now only hold cloth anchors and floaters (floaters are
+  merged per floater, shadows off). Body materials are shared per class (face materials stay per instance); the face /
+  eye mesh casts no shadow. `AnimeBody.skinned_merge = false` (gallery `--nomerge`) restores the per-bone merge for A/B.
+- **AnimeCloth**: fixed 60 Hz steps with render interpolation (frame-rate independent; option values are "per 1/60 s
+  step"), mesh built once and GPU-skinned to a private bone chain, rest shape bends toward world-down (`hang`), bending
+  smoothing (`bend`), curved cross section (`curl`) with vertical `folds`, `root_stiff`, `settle(seconds)`.
+  `CharacterVisual.settle_cloth()` / `pose_clip(clip, t)` for stills (the gallery settles cloth before every shot).
+- **Outline LOD**: `toon_outline.gdshader` culls the hull past `cull_dist` (40 m; the line is < 1 px there).
+- **Grips**: per-clip / per-key overrides (`grips[id].clips[clip]`, `grips[id].anims[key]`), shared `CLIP_GRIPS` for
+  caster poles in the KayKit cast clips + Power Up + Two-hand Blast (staffs no longer upside down), `roll` / `roll_r` /
+  `roll_l` for fist weapons (`ClassDress.gun_xf(..., roll_deg)`; tonfa defaults to the pinky side on both arms),
+  `accent_only` (keep only the factory weapon's emissive accents; qi_master).
+- **WeaponFactory**: gauntlet cuff now runs toward the elbow (gloves, gloves_left, gloves_qi, claws), claws have no
+  floating trim. `toonify()` gained `darken` / `rim_strength`; KayKit mobs use `CharacterVisual.MOB_TONE` (deeper cool
+  shadow band, cool rim, heavier line; Frost Golem / skeletons darker so they read on snow).
+- **AnimeGear**: `ribbon` and `tube` were wound inside-out (normals pointed inward, outlines wrong) and bevelled
+  `extrude` walls could twist; all builders now use Godot's clockwise front faces.
+- Gun stance idle is `Idle_Sword` (guns low; Pistol_Idle crossed the face). Elementalist / summoner / warlock use
+  `kk_Ranged_Magic_Summon` / `_Raise` again. Resolves "Requests (art CHARS-dress)" (gauntlet cuff, is_finished
+  coverage for all 25 classes).
+
+## Requests (art CHARS)
+- **ENV / LEAD (match scene)**: after building a map, call `CharacterVisual.set_zone(<env_kit preset name>,
+  get_tree())` (e.g. from `MapBase` setup or the code that applies `EnvKit.PRESETS[zone]`), and
+  `CharacterVisual.set_zone("")` when leaving the match. Characters and KayKit mobs then take the zone's rim colour
+  and shadow tint. Without the call they stay neutral (current look).
+
+## Requests (art CHARS-dress)
+- **CHARS lead (`visuals/weapon_factory.gd`, fist weapons)**: `_gauntlet()` builds its cuff with
+  `along := Basis(Vector3.FORWARD, PI / 2)`, which maps lathe +Y to **+X** (the knuckle side), not -X as the comment
+  says, so the flared cuff sits over the fist like a bucket and the elbow fin at x = -0.2 floats beside the forearm
+  ("gloves", "gloves_left", "gloves_qi", "claws" all affected). Fix: `Basis(Vector3.BACK, PI / 2)` (or
+  `Basis(Vector3.FORWARD, -PI / 2)`). Until then the striker and qi_master dresses shrink their factory gloves out of
+  sight (`grips: {"gloves": {"scale": 0.001}, ...}`) and build articulated gauntlets on the arm / finger bones
+  instead (`visuals/dress/_gunfight_lib.gd` `gauntlet()`: flared bracer, back-of-hand plate, knuckle bar with studs,
+  one plate per finger phalanx, optional glow strip; qi_master adds glowing qi spheres at the fists). Once the cuff is
+  fixed, either drop those `scale` grips (and pass `t0` ~0.6 so the dress bracer sits under the factory cuff) or keep
+  the dress gauntlets and make the factory gloves a knuckle-only accent; tell the dress owner which.
+- **CHARS lead (`tests/test_assets_visuals.gd`)**: please add `ClassDress.is_finished()` coverage for
+  `sharpshooter`, `spitfire`, `mechanic`, `striker`, `qi_master`. Note the existing height check (1.65-1.95 m) is why
+  the compact mechanic is 1.66 m.
+
+## LEAD integration (art migration: camera / VFX readability / HUD / wiring)
+- **CameraRig** (`core/camera_rig.gd`) retuned for the 1.66-1.88 m anime bodies: arm pivot 2.05 m (scaled by the
+  followed visual's `height`), 0.6 m right shoulder, 6.4 m default zoom (2.6-11, smoothed), 62 deg FOV, -0.3 rad
+  default pitch -> own character in the lower third, fight above it. Collision is a sphere cast (pulls in over 2-3
+  frames, eases back out); shapes named `Bound*` (invisible arena walls), meta `camera_ignore`, low props below the
+  pivot and slender posts are see-through. Lock-on pitches toward the target as seen from the camera (no more
+  straight-down view at melee range) and pulls out for close / large targets. Trauma shake + FOV punch are fed by
+  the new `Fx.impact_fired(pos, level, rel)` signal (light hits only shake when the local player is involved);
+  `impact_feedback` follows the `camera_shake` pref. New `fov_punch(amount)`, `debug_state()`.
+- **Fx ownership intensity** (`autoload/fx.gd`, controls only): `play` / `spawn_projectile_visual` /
+  `spawn_area_visual` / `impact` take an optional trailing `caster` uid (0 = `Fx.context_caster`, which
+  `World.step` sets to the fighter / effect owner being simulated, so core needs no per-call changes). Each peer
+  scales effects by the caster's relation to its local player: own `own_intensity` (1.0), allies
+  `ally_intensity` (0.5, also drops cosmetic extras), enemies `enemy_intensity` (0.7); enemy / boss telegraphs
+  stay 1.0, ally telegraphs >= 0.6, damage numbers untouched, opaque cel solids are never dithered. Applied to
+  flash `fade`, particle alpha / count / energy, lights, projectile meshes, zone / telegraph alpha. Pieces within
+  `near_fade_dist` (2 m) of the camera fade out (`near_camera_fade`), damage numbers within ~3 m too. Full-screen
+  impact frames only for own hits / hits on the local player, others' ultimates at most every 1.2 s and dimmed.
+  Prefs `fx_own` / `fx_ally` / `fx_enemy` / `camera_shake` ([video] in user://settings.cfg) in the main-menu
+  settings and the pause menu (live).
+- **Fx.impact calls in core** (VFX request): finisher-tagged skills' light hits (level 3), grab throws (3, 4 for
+  ultimates), cosmetic wall slam of launched bodies (3 + dust; no gameplay change).
+- **Zone tint** (CHARS request): `MatchScene.apply_zone()` calls `CharacterVisual.set_zone(<preset>)` after the map
+  is built (map `env_zone` property / meta, else `MatchScene.ZONE_BY_MAP`), `set_zone("")` on leaving the match.
+  **ENV (optional)**: expose `env_zone` on MapBase subclasses so new maps need no table entry.
+- **HUD layout**: target frame is a compact (x0.8) holo plate directly under the top-centre stack; combo counter
+  moved right (0.70, 0.60); skill call-out shrunk (x0.78) and lowered (0.61).
+- **Export** (UI request): `export_presets.cfg` (Windows Desktop) includes `assets/CREDITS.md, assets/licenses/*`.
+- Notes for owners: **VFX** - cel-solid debris / spikes erode with large 22-cell noise blocks that read as a checker
+  pattern up close. **ENV** - hundred_blossoms' bridge / torii stand in the middle of the fight and often frame the
+  camera through red beams. **CHARS** - `anime_body.gd:497` "Nonexistent 'int' constructor" and `:250`
+  "get_script on a previously freed instance" errors seen during real matches (2026-10-14).

@@ -20,6 +20,8 @@ const HudKillFeed := preload("res://ui/hud_kill_feed.gd")
 const HudScoreboard := preload("res://ui/hud_scoreboard.gd")
 const HudHelp := preload("res://ui/hud_help.gd")
 const HudTop := preload("res://ui/hud_top.gd")
+const HudMinimap := preload("res://ui/hud_minimap.gd")
+const HudCallout := preload("res://ui/hud_callout.gd")
 
 const REFRESH_HZ: float = 25.0
 const SCOREBOARD_HZ: float = 4.0
@@ -40,16 +42,22 @@ var enemy_frames: HudTeamFrames
 var boss_bar: HudBossBar
 var combo: HudCombo
 var announce_banner: HudAnnounce
+var warn_banner: HudAnnounce
 var kill_feed: HudKillFeed
 var scoreboard: HudScoreboard
 var help: HudHelp
 var top_bar: HudTop
+var minimap: HudMinimap
+var callout: HudCallout
 var spectate_label: Label
+var spectate_plate: PanelContainer
 var defeat_overlay: Control
 var defeat_title: Label
 var defeat_sub: Label
+var defeat_en: Label
 var result_panel: PanelContainer
 var result_title: Label
+var result_en: Label
 var result_sub: Label
 
 var mode: String = ""
@@ -71,11 +79,19 @@ var _ended: bool = false
 var _local_was_alive: bool = true
 var _defeat_t: float = 0.0
 var _built: bool = false
+var _top_center: Control
+var _last_cast_slot: int = -1
+var _last_cast_uid: int = 0
 
 
 func _ready() -> void:
 	layer = 10
 	_build()
+
+
+func _exit_tree() -> void:
+	if is_inside_tree() and get_tree().root.find_children("*", "CanvasLayer", true, false).filter(func(n: Node) -> bool: return n is Hud and n != self).is_empty():
+		HudStyle.release()
 
 
 func _build() -> void:
@@ -100,10 +116,10 @@ func _build() -> void:
 	var tl := VBoxContainer.new()
 	tl.name = "TopLeft"
 	tl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tl.add_theme_constant_override("separation", 10)
-	tl.position = Vector2(16, 14)
+	tl.add_theme_constant_override("separation", 12)
+	tl.position = Vector2(16, 16)
 	root.add_child(tl)
-	player_frame = HudUnitFrame.new(false, 372.0)
+	player_frame = HudUnitFrame.new(false, 430.0)
 	player_frame.name = "PlayerFrame"
 	tl.add_child(player_frame)
 	team_frames = HudTeamFrames.new(false)
@@ -128,42 +144,69 @@ func _build() -> void:
 	boss_bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	boss_bar.visible = false
 	tc.add_child(boss_bar)
-	target_frame = HudUnitFrame.new(true, 360.0)
+	# Target frame: compact holo plate tucked right under the match info (own layer, scaled by _layout_target),
+	# so it never reaches down into the fight area in the middle of the screen.
+	target_frame = HudUnitFrame.new(true, 420.0)
 	target_frame.name = "TargetFrame"
-	target_frame.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	target_frame.visible = false
-	tc.add_child(target_frame)
-	spectate_label = HudStyle.make_label("", 18, Color(0.75, 0.85, 1.0), true, 5)
-	spectate_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	root.add_child(target_frame)
+	_top_center = tc
+	spectate_plate = PanelContainer.new()
+	spectate_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var spb := HudStyle.glory("plate", 0.0, HudStyle.UI_CYAN)
+	spb.content_margin_left = 26.0
+	spb.content_margin_right = 26.0
+	spb.content_margin_top = 2.0
+	spb.content_margin_bottom = 4.0
+	spectate_plate.add_theme_stylebox_override("panel", spb)
+	spectate_plate.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	spectate_plate.visible = false
+	tc.add_child(spectate_plate)
+	spectate_label = HudStyle.make_label("", 18, Color(0.8, 0.94, 1.0), true, 4)
 	spectate_label.visible = false
-	tc.add_child(spectate_label)
+	spectate_label.visibility_changed.connect(func() -> void: spectate_plate.visible = spectate_label.visible)
+	spectate_plate.add_child(spectate_label)
 
 	# top-right: kill feed + enemy summary
 	var tr := VBoxContainer.new()
 	tr.name = "TopRight"
 	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.add_theme_constant_override("separation", 14)
+	tr.add_theme_constant_override("separation", 10)
 	tr.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT, Control.PRESET_MODE_MINSIZE, 16)
 	tr.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	root.add_child(tr)
+	minimap = HudMinimap.new()
+	minimap.name = "Minimap"
+	minimap.size_flags_horizontal = Control.SIZE_SHRINK_END
+	tr.add_child(minimap)
 	kill_feed = HudKillFeed.new()
 	kill_feed.name = "KillFeed"
-	kill_feed.custom_minimum_size = Vector2(380, 0)
+	kill_feed.custom_minimum_size = Vector2(360, 0)
 	tr.add_child(kill_feed)
 	enemy_frames = HudTeamFrames.new(true)
 	enemy_frames.name = "EnemyFrames"
 	enemy_frames.size_flags_horizontal = Control.SIZE_SHRINK_END
 	tr.add_child(enemy_frames)
 
-	# combo counter (right of the crosshair)
+	# combo counter (right side, below the enemy list: off the fight in the screen centre)
 	combo = HudCombo.new()
 	combo.name = "Combo"
 	combo.anchor_left = 0.70
 	combo.anchor_right = 0.70
-	combo.anchor_top = 0.47
-	combo.anchor_bottom = 0.47
-	combo.size = Vector2(300, 140)
+	combo.anchor_top = 0.60
+	combo.anchor_bottom = 0.60
+	combo.size = Vector2(320, 140)
 	root.add_child(combo)
+
+	# brush-calligraphy skill call-out (left, between the party frames and the skill bar)
+	callout = HudCallout.new()
+	callout.name = "Callout"
+	callout.anchor_top = 0.61
+	callout.anchor_bottom = 0.61
+	callout.offset_left = 20
+	callout.size = Vector2(640, 180)
+	callout.scale = Vector2(0.78, 0.78)
+	root.add_child(callout)
 
 	# announcement banner
 	announce_banner = HudAnnounce.new()
@@ -175,6 +218,14 @@ func _build() -> void:
 	announce_banner.offset_top = -60
 	announce_banner.offset_bottom = 60
 	root.add_child(announce_banner)
+	# boss-mechanic warnings: compact band under the boss bar / match info (positioned by _layout_target),
+	# so the boss and its telegraphs in the screen centre stay visible
+	warn_banner = HudAnnounce.new()
+	warn_banner.name = "MechanicWarning"
+	warn_banner.compact = true
+	warn_banner.max_hold = 2.5
+	warn_banner.size = Vector2(1600, 84)
+	root.add_child(warn_banner)
 
 	# bottom-center: skill bar + cast bar
 	skill_bar = HudSkillBar.new()
@@ -208,24 +259,37 @@ func _center(c: Control) -> void:
 	c.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 
+const VIGNETTE: String = "shader_type canvas_item;\nvoid fragment() { vec2 d = UV - 0.5; d.x *= 1.6; float v = smoothstep(0.25, 0.85, length(d)); COLOR = vec4(mix(vec3(0.05, 0.0, 0.02), vec3(0.35, 0.02, 0.04), v), 0.18 + 0.55 * v); }"
+
+
 func _build_defeat() -> Control:
 	var c := ColorRect.new()
 	c.name = "DefeatOverlay"
 	c.color = Color(0.25, 0.0, 0.0, 0.28)
+	var mat := ShaderMaterial.new()
+	var sh := Shader.new()
+	sh.code = VIGNETTE
+	mat.shader = sh
+	c.material = mat
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var vb := VBoxContainer.new()
 	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vb.add_theme_constant_override("separation", 0)
 	vb.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
 	vb.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	vb.grow_vertical = Control.GROW_DIRECTION_BOTH
-	vb.anchor_top = 0.62
-	vb.anchor_bottom = 0.62
+	vb.anchor_top = 0.58
+	vb.anchor_bottom = 0.58
 	c.add_child(vb)
-	defeat_title = HudStyle.make_label("你已被击败  You were defeated", 40, Color(1, 0.4, 0.35), true, 8)
+	defeat_title = HudStyle.make_label_f("你已被击败", HudStyle.brush(), 84, Color("#FF6A5A"), 10)
+	defeat_title.add_theme_color_override("font_outline_color", Color(0.15, 0.0, 0.02, 0.95))
 	defeat_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(defeat_title)
-	defeat_sub = HudStyle.make_label("", 20, HudStyle.C_TEXT, false, 5)
+	defeat_en = HudStyle.make_label_f("YOU WERE DEFEATED", HudStyle.tech(800), 20, Color("#FFC0B0"), 4)
+	defeat_en.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(defeat_en)
+	defeat_sub = HudStyle.make_label("", 19, HudStyle.C_TEXT, false, 5)
 	defeat_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(defeat_sub)
 	c.visible = false
@@ -236,18 +300,24 @@ func _build_result() -> PanelContainer:
 	var p := PanelContainer.new()
 	p.name = "Result"
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := HudStyle.panel(Color(0.03, 0.04, 0.07, 0.9), HudStyle.C_BORDER, 14, 2, 26.0)
-	sb.shadow_color = Color(0, 0, 0, 0.5)
-	sb.shadow_size = 16
+	var sb := HudStyle.glory("panel", 0.0)
+	sb.content_margin_left = 60.0
+	sb.content_margin_right = 60.0
+	sb.content_margin_top = 4.0
+	sb.content_margin_bottom = 16.0
 	p.add_theme_stylebox_override("panel", sb)
 	var vb := VBoxContainer.new()
 	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vb.add_theme_constant_override("separation", 6)
+	vb.add_theme_constant_override("separation", 0)
 	vb.custom_minimum_size = Vector2(460, 0)
 	p.add_child(vb)
-	result_title = HudStyle.make_label("", 48, HudStyle.C_GOLD, true, 8)
+	result_title = HudStyle.make_label_f("", HudStyle.brush(), 92, HudStyle.UI_GOLD_HI, 10)
+	result_title.add_theme_color_override("font_outline_color", Color(0.22, 0.1, 0.02, 0.95))
 	result_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(result_title)
+	result_en = HudStyle.make_label_f("", HudStyle.crit(), 26, HudStyle.UI_GOLD, 5)
+	result_en.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vb.add_child(result_en)
 	result_sub = HudStyle.make_label("", 18, HudStyle.C_TEXT, false, 4)
 	result_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(result_sub)
@@ -306,7 +376,28 @@ func bind(p_world: World, p_match: Node, p_local_uid: int) -> void:
 	top_bar.set_score(score, mode == "raid")
 	top_bar.set_timer(_timer_left if mode != "raid" else 0.0, mode == "raid")
 	overlay.world = world
+	minimap.world = world
+	minimap.caption = _map_caption()
+	_last_cast_slot = -1
 	refresh()
+
+
+## "地图名 · 模式" under the minimap.
+func _map_caption() -> String:
+	var mt := HudTop.mode_text(mode).split(" ")[0] if mode != "" else "训练"
+	if match_node == null or not is_instance_valid(match_node):
+		return mt
+	var st: Variant = match_node.get("settings")
+	if not (st is Dictionary):
+		return mt
+	var sd: Dictionary = st
+	var nm := ""
+	if mode == "raid":
+		if str(sd.get("raid_id", "")) != "":
+			nm = str(RaidRegistry.get_info(str(sd.get("raid_id", ""))).get("name_cn", ""))
+	elif str(sd.get("map_id", "")) != "":
+		nm = str(MapRegistry.info(str(sd.get("map_id", ""))).get("name_cn", ""))
+	return (nm + " · " + mt) if nm != "" else mt
 
 
 func set_local_uid(uid: int) -> void:
@@ -365,7 +456,27 @@ func find_boss() -> Fighter:
 
 # ================================================================== signals
 func _on_announce(text: String, seconds: float) -> void:
-	announce_banner.show_text(text, seconds)
+	if is_mechanic_warning(text):
+		warn_banner.show_text(text, seconds, HudStyle.C_GOLD, true)
+	else:
+		announce_banner.show_text(text, seconds)
+
+
+## Raid boss call-outs (BossBrain abilities) go to the compact upper band; round / encounter / clear / wipe /
+## victory banners stay centred.
+const CENTER_KEYWORDS: Array[String] = ["准备出发", "遭遇", "已清除", "团灭", "重新挑战", "通关", "胜", "败", "Round", "局"]
+
+
+func is_mechanic_warning(text: String) -> bool:
+	if mode != "raid" or _ended:
+		return false
+	var boss := find_boss()
+	if boss == null or not is_instance_valid(boss) or not boss.is_alive():
+		return false
+	for k: String in CENTER_KEYWORDS:
+		if text.contains(k):
+			return false
+	return true
 
 
 func _on_timer_changed(seconds_left: float) -> void:
@@ -395,7 +506,7 @@ func _on_match_ended(result: Dictionary) -> void:
 	var my_team := me.team if me != null else 0
 	var wt := int(result.get("winner_team", -1))
 	var title := ""
-	var col := HudStyle.C_GOLD
+	var col := HudStyle.UI_GOLD_HI
 	if str(result.get("mode", mode)) == "raid":
 		if wt == -1:
 			title = "团灭  Wiped"
@@ -410,8 +521,10 @@ func _on_match_ended(result: Dictionary) -> void:
 	else:
 		title = "失败  Defeat"
 		col = Color(1, 0.4, 0.35)
-	result_title.text = title
-	result_title.add_theme_color_override("font_color", col)
+	var parts := HudAnnounce.split_bilingual(title)
+	result_title.text = parts[0]
+	result_en.text = parts[1].to_upper()
+	result_title.add_theme_color_override("font_color", col.lerp(Color.WHITE, 0.15))
 	var sub := ""
 	var ct := float(result.get("clear_time", 0.0))
 	if ct > 0.0:
@@ -545,6 +658,35 @@ func _process(delta: float) -> void:
 	if _accum >= 1.0 / REFRESH_HZ:
 		_accum = 0.0
 		refresh()
+	_layout_target()
+
+
+## Keeps the target frame centred directly below the top-centre stack (match info / boss bar), scaled for the
+## canvas height (0.8 on the 900 px stretch base), so it ends well above the fight in the screen centre.
+func _layout_target() -> void:
+	if _top_center == null:
+		return
+	if warn_banner != null:
+		var wvp := root.size if root != null and root.size.y > 0.0 else Vector2(1600, 900)
+		var wbelow := 10.0
+		for c in _top_center.get_children():
+			if c is Control and (c as Control).visible:
+				wbelow = maxf(wbelow, _top_center.position.y + (c as Control).position.y + (c as Control).size.y)
+		if target_frame != null and target_frame.visible:
+			wbelow = maxf(wbelow, target_frame.position.y + target_frame.size.y * target_frame.scale.y)
+		warn_banner.size = Vector2(wvp.x, 84)
+		warn_banner.position = Vector2(0, roundf(wbelow + 4.0))
+	if target_frame == null or not target_frame.visible:
+		return
+	var vp := root.size if root != null and root.size.y > 0.0 else Vector2(1920, 1080)
+	var s := clampf(vp.y / 900.0, 0.6, 1.2) * 0.8   # HUD is laid out on the 1600x900 canvas_items base
+	target_frame.scale = Vector2(s, s)
+	target_frame.size = target_frame.get_combined_minimum_size()
+	var below := 10.0
+	for c in _top_center.get_children():
+		if c is Control and (c as Control).visible:
+			below = maxf(below, _top_center.position.y + (c as Control).position.y + (c as Control).size.y)
+	target_frame.position = Vector2(roundf((vp.x - target_frame.size.x * s) * 0.5), roundf(below + 6.0))
 
 
 ## Full data refresh (normally ~25 Hz from _process; tests may call it directly).
@@ -566,6 +708,10 @@ func refresh() -> void:
 	if _ended:
 		boss_bar.visible = false
 	combo.set_count(me.combo_count if me != null and me.is_alive() and not _ended else 0)
+	minimap.viewer = me
+	minimap.world = world if valid_world else null
+	minimap.visible = valid_world
+	_update_callout(me)
 	if mode == "raid":
 		top_bar.set_timer(_raid_elapsed, true)
 	if not valid_world:
@@ -614,6 +760,24 @@ func refresh() -> void:
 	top_bar.pips.set_counts(a0, t0, a1, t1)
 	top_bar.pips.visible = pvp and t1 > 0
 	_update_local_state(me)
+
+
+## Brush call-out when the followed fighter starts a non-basic skill.
+func _update_callout(me: Fighter) -> void:
+	if me == null or not is_instance_valid(me):
+		_last_cast_slot = -1
+		return
+	var cs := me.cast_slot
+	if me.uid != _last_cast_uid:
+		_last_cast_uid = me.uid
+		_last_cast_slot = cs
+		return
+	if cs != _last_cast_slot:
+		_last_cast_slot = cs
+		if cs >= 1 and me.is_alive() and not _ended:
+			var sk: SkillDef = me.runner.skill if me.runner != null and me.runner.skill != null else me.get_skill(cs)
+			if sk != null:
+				callout.show_skill(sk, me.kit.name_cn if me.kit != null else "", me.kit.tint if me.kit != null else HudStyle.UI_GOLD)
 
 
 func _update_local_state(me: Fighter) -> void:

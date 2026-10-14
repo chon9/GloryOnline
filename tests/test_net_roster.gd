@@ -171,7 +171,9 @@ func run() -> void:
 	var lobby: Node = cur.get_node_or_null("Lobby") if cur != null else null
 	check(lobby != null, "lobby view shown in LOBBY state")
 	var th: Variant = load("res://ui/theme.tres")
-	check(th is Theme and (th as Theme).default_font is SystemFont, "theme.tres loads with SystemFont")
+	# art migration: the theme ships the bundled OFL Noto Sans SC (was a SystemFont); it must cover CJK
+	check(th is Theme and (th as Theme).default_font != null and (th as Theme).default_font.has_char("荣".unicode_at(0)),
+		"theme.tres loads with a CJK-capable bundled font")
 	var card: Node = (load("res://ui/class_card.gd") as Script).new()
 	root.add_child(card)
 	await process_frame

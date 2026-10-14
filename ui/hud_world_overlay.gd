@@ -5,6 +5,7 @@ extends Control
 
 const HudStyle := preload("res://ui/hud_style.gd")
 const HudIcons := preload("res://ui/hud_icons.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 const MAX_DIST: float = 45.0
 const PLATE_W: float = 86.0
@@ -79,36 +80,27 @@ func _draw_plates(cam: Camera3D) -> void:
 			var fs := 14 if not summon else 11
 			var tw := font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 			var np := Vector2(sp.x - tw * 0.5, sp.y - 5.0)
-			var name_col := col.lerp(Color.WHITE, 0.45)
+			var name_col := col.lerp(Color.WHITE, 0.6)
 			if is_lock:
 				name_col = Color(1, 0.9, 0.5)
 			draw_string_outline(font, np, nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, Color(0, 0, 0, 0.85 * alpha))
 			draw_string(font, np, nm, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(name_col.r, name_col.g, name_col.b, alpha))
-			# class glyph badge left of the name
+			# class emblem left of the name
 			if f.kit != null and not summon:
-				var bc := Vector2(np.x - 11.0, sp.y - 10.0)
-				draw_circle(bc, 8.5, Color(0, 0, 0, 0.7 * alpha))
-				draw_circle(bc, 7.0, Color(HudStyle.class_color(f).darkened(0.4), alpha))
-				HudIcons.glyph(self, bc, HudStyle.class_glyph(f), 10, Color(1, 1, 1, alpha), 0)
-		# hp bar
-		draw_rect(bar.grow(1.0), Color(0, 0, 0, 0.8 * alpha))
+				var er := Rect2(Vector2(np.x - 22.0, sp.y - 20.0), Vector2(18, 18))
+				HudIcons.draw_class_emblem(self, er, f.class_id, HudStyle.class_glyph(f), HudStyle.class_color(f))
+		# slanted hp bar (team colour fill, gold frame when locked)
 		var frac := clampf(f.hp / maxf(f.max_hp, 1.0), 0.0, 1.0)
-		var fill := Rect2(bar.position, Vector2(bar.size.x * frac, bar.size.y))
-		draw_rect(fill, Color(col.r, col.g, col.b, alpha))
-		draw_rect(Rect2(fill.position, Vector2(fill.size.x, fill.size.y * 0.4)), Color(1, 1, 1, 0.22 * alpha))
-		if f.shield_hp > 0.0:
-			var sf := clampf(f.shield_hp / maxf(f.max_hp, 1.0), 0.0, 1.0)
-			var sx := minf(frac, 1.0 - sf)
-			draw_rect(Rect2(bar.position + Vector2(bar.size.x * sx, 0), Vector2(bar.size.x * sf, bar.size.y)),
-				Color(1, 1, 1, 0.6 * alpha))
-		if is_lock:
-			draw_rect(bar.grow(2.0), Color(1, 0.85, 0.35, alpha), false, 1.5)
+		var sf := clampf(f.shield_hp / maxf(f.max_hp, 1.0), 0.0, 1.0)
+		var fill_c := HudStyle.C_HP if enemy else HudStyle.C_HP_ALLY
+		var frame_c := Color(1, 0.85, 0.35, alpha) if is_lock else Color(0, 0, 0, 0.85 * alpha)
+		GD.bar(get_canvas_item(), bar.grow_individual(4, 1, 0, 1), frac, frac, Color(fill_c, alpha), Color(0, 0, 0, 0), frame_c, 0, sf)
 		# status hint: a few dots for active debuffs/buffs (full icons live in the frames)
 		if f.status_mask != 0 and dist < 25.0:
 			var n := 0
 			for bit in HudStyle.STATUS_INFO.size():
 				if (f.status_mask >> bit) & 1:
-					var r := Rect2(bar.position + Vector2(n * 13.0, h + 3.0), Vector2(12, 12))
+					var r := Rect2(bar.position + Vector2(n * 15.0, h + 4.0), Vector2(14, 14))
 					HudIcons.draw_status_icon(self, r, bit)
 					n += 1
 					if n >= 6:

@@ -1,9 +1,10 @@
 extends Control
-## One skill-bar slot: procedural icon, key label, cooldown sweep + seconds, charges, MP greying,
+## One skill-bar slot (look-dev slot states): painted icon (procedural fallback), key label, cooldown sweep + seconds, charges, MP greying,
 ## cast highlight, ready flash and a rich hover tooltip (CN/EN name, desc, cooldown, MP cost).
 
 const HudStyle := preload("res://ui/hud_style.gd")
 const HudIcons := preload("res://ui/hud_icons.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 var slot: int = 0
 var skill: SkillDef = null
@@ -52,7 +53,7 @@ func update_state(p_cd: float, p_charges: int, p_no_mp: bool, p_locked: bool, p_
 	casting = p_casting
 	if changed or _flash > 0.0:
 		queue_redraw()
-	set_process(cd > 0.0 or _flash > 0.0 or casting)
+	set_process(cd > 0.0 or _flash > 0.0 or casting or (slot == 7 and skill != null))
 
 
 func _process(delta: float) -> void:
@@ -62,79 +63,147 @@ func _process(delta: float) -> void:
 		_flash = maxf(0.0, _flash - delta * 3.0)
 	_pulse += delta
 	queue_redraw()
-	if cd <= 0.0 and _flash <= 0.0 and not casting:
+	if cd <= 0.0 and _flash <= 0.0 and not casting and slot != 7:
 		set_process(false)
 
 
 func _draw() -> void:
-	var r := Rect2(Vector2(2, 2), size - Vector2(4, 4))
-	# frame shadow
-	HudIcons.gradient_rect(self, r.grow(2), Color(0, 0, 0, 0.55), Color(0, 0, 0, 0.75), 9.0)
-	HudIcons.draw_skill_icon(self, r, skill, tint)
+	var ci := get_canvas_item()
+	var ult := slot == 7
+	var r := Rect2(Vector2(4, 4), size - Vector2(8, 8))
+	var c := r.get_center()
+	var ch := r.size.x * 0.07
+	var face := GD.chamfer(r, ch)
+	var is_ready := skill != null and cd <= 0.0 and not locked and not no_mp
+	if ult and is_ready:
+		# slow golden ready halo following the frame
+		var pulse := 0.75 + 0.25 * sin(_pulse * 2.6)
+		for k in 4:
+			GD.polyline(ci, GD.chamfer(r.grow(1.5 + k * 1.6), ch + 1.5 + k * 1.6), Color(GD.GOLD, (0.34 - k * 0.075) * pulse), 1.8, true)
+	if _flash > 0.0:
+		for k in 6:
+			GD.polyline(ci, GD.chamfer(r.grow(1.0 + k * 1.4), ch + 1.0 + k * 1.4), Color(GD.GOLD_HI, (0.55 - k * 0.09) * _flash), 2.0, true)
+	GD.poly(ci, GD.chamfer(r.grow(2.0), ch + 2.0), Color(0, 0, 0, 0.6))
+	var painted := HudStyle.skill_icon(skill)
+	if painted != null:
+		draw_texture_rect(painted, r, false)
+	else:
+		HudIcons.draw_skill_icon(self, r, skill, tint)
+		# steel bevel (gold on the ultimate) around the procedural fallback
+		GD.polyline(ci, face, GD.GOLD if ult else HudStyle.UI_STEEL, 2.0, true)
+		GD.polyline(ci, GD.chamfer(r.grow(-2.5), ch), Color(0, 0, 0, 0.55), 1.0, true)
 	if skill == null:
+		GD.poly(ci, face, Color(0.02, 0.03, 0.06, 0.7))
 		return
-	var center := r.get_center()
+	var inner := r.grow(-r.size.x * 0.05)
+	var box := GD.chamfer(inner, r.size.x * 0.04)
 	var full_cd := cd > 0.0 and charges <= 0
 	if locked:
-		HudIcons.gradient_rect(self, r, Color(0.1, 0.1, 0.12, 0.7), Color(0.05, 0.05, 0.06, 0.8), 7.0)
+		GD.poly(ci, face, Color(0.05, 0.05, 0.07, 0.62))
+		# chain glyph: two linked rings
+		GD.arc(ci, c + Vector2(-5, 0), 6.0, 0, TAU, Color(0.8, 0.82, 0.88, 0.9), 2.0, 16)
+		GD.arc(ci, c + Vector2(5, 0), 6.0, 0, TAU, Color(0.8, 0.82, 0.88, 0.9), 2.0, 16)
 	elif no_mp and not full_cd:
-		HudIcons.gradient_rect(self, r, Color(0.05, 0.12, 0.35, 0.55), Color(0.02, 0.05, 0.2, 0.7), 7.0)
+		# not enough MP: icon stays in colour (not a cooldown); blue inner border + crossed-out MP droplet
+		GD.poly(ci, box, Color(0.0, 0.02, 0.08, 0.32))
+		GD.polyline(ci, box, Color(HudStyle.C_MP, 0.95), 2.5, true)
+		var dc := Vector2(r.end.x - r.size.x * 0.24, r.position.y + r.size.x * 0.26)
+		var dr := r.size.x * 0.12
+		var drop := PackedVector2Array([dc + Vector2(0, -dr * 1.5)])
+		for k in 13:
+			var a := lerpf(-PI * 0.15, PI * 1.15, k / 12.0)
+			drop.append(dc + Vector2(cos(a), sin(a)) * dr)
+		GD.poly(ci, drop, Color(0.02, 0.04, 0.1, 0.95))
+		var inner_drop := PackedVector2Array()
+		for v in drop:
+			inner_drop.append(dc + (v - dc) * 0.72)
+		GD.poly(ci, inner_drop, HudStyle.C_MP)
+		GD.line(ci, dc + Vector2(-dr, dr), dc + Vector2(dr, -dr * 1.2), Color(0.02, 0.03, 0.07), 4.0)
+		GD.line(ci, dc + Vector2(-dr, dr), dc + Vector2(dr, -dr * 1.2), Color("#FF6A6A"), 2.0)
 	if cd > 0.0:
 		var frac := clampf(cd / cd_total, 0.0, 1.0)
 		if full_cd:
-			HudIcons.gradient_rect(self, r, Color(0, 0, 0, 0.30), Color(0, 0, 0, 0.42), 7.0)
-			_draw_sweep(r, frac, Color(0, 0, 0, 0.5))
+			_draw_sweep(r, box, frac, painted)
+			var f_cd := HudStyle.num(700)
+			# whole seconds only; the last 3 s are a gold bar that empties along the slot bottom
+			var txt := "%d" % ceili(cd)
+			if cd <= 3.0:
+				var fb := Rect2(inner.position + Vector2(3, inner.size.y - 8), Vector2(inner.size.x - 6, 4))
+				GD.rect(ci, fb, Color(0.02, 0.03, 0.07, 0.9))
+				GD.rect(ci, Rect2(fb.position, Vector2(fb.size.x * clampf(cd / 3.0, 0.0, 1.0), fb.size.y)), HudStyle.C_CRIT)
+			var fs := int(r.size.y * 0.62)
+			var sz := f_cd.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
+			var base := Vector2(c.x - sz.x * 0.5, c.y + f_cd.get_ascent(fs) * 0.36)
+			GD.text(ci, f_cd, base, txt, fs, HudStyle.C_TEXT, 4, Color(0.02, 0.03, 0.07, 0.95))
 		else:
-			# a charge is still available: thin progress ring only
-			draw_arc(center, r.size.x * 0.5 - 2.0, -PI * 0.5, -PI * 0.5 + TAU * (1.0 - frac), 32,
-				Color(1, 0.85, 0.4, 0.85), 2.5, true)
-		if full_cd:
-			var t := ("%.1f" % cd) if cd < 10.0 else str(int(ceil(cd)))
-			HudIcons.glyph(self, center + Vector2(0, 2), t, int(r.size.y * 0.4), Color(1, 0.97, 0.88), 6, Color(0, 0, 0, 1.0), true)
+			# a charge is still available: thin gold recharge ring along the frame
+			var pts := PackedVector2Array()
+			var steps := 24
+			for k in steps + 1:
+				var a := -PI * 0.5 + TAU * (1.0 - frac) * k / float(steps)
+				var p := c + Vector2(cos(a), sin(a)) * r.size.x
+				pts.append(Vector2(clampf(p.x, r.position.x + 1, r.end.x - 1), clampf(p.y, r.position.y + 1, r.end.y - 1)))
+			GD.polyline(ci, pts, Color(HudStyle.C_CRIT, 0.9), 2.5)
 	if max_charges > 1:
-		var b := Rect2(r.position + Vector2(r.size.x - 20, r.size.y - 18), Vector2(18, 16))
-		HudIcons.gradient_rect(self, b, Color(0.15, 0.15, 0.2, 0.95), Color(0.05, 0.05, 0.08, 0.95), 4.0)
-		HudIcons.glyph(self, b.get_center(), str(charges), 12, Color(1, 0.9, 0.5) if charges > 0 else Color(0.7, 0.7, 0.7), 2)
-	if no_mp and not locked:
-		var mt := "MP %d" % int(skill.mp_cost)
-		HudIcons.glyph(self, Vector2(center.x, r.end.y - 9), mt, 11, Color(0.55, 0.75, 1.0), 3)
-	# key label
-	var kf := HudStyle.font(true)
-	var ksz := 12
-	var kw := kf.get_string_size(key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, ksz).x + 8.0
-	var kr := Rect2(r.position + Vector2(-1, -1), Vector2(kw, 16))
-	HudIcons.gradient_rect(self, kr, Color(0.12, 0.13, 0.18, 0.95), Color(0.04, 0.04, 0.06, 0.95), 4.0)
-	HudIcons.outline_rect(self, kr, Color(1, 1, 1, 0.25), 1.0, 4.0)
-	HudIcons.glyph(self, kr.get_center(), key_label, ksz, Color(1, 0.95, 0.8), 0)
+		# stack count: big outlined digit, bottom-right corner
+		var f := HudStyle.num(700)
+		var fs2 := int(r.size.y * 0.42)
+		var t := str(charges)
+		var sz2 := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs2)
+		var base2 := Vector2(r.end.x - sz2.x - 2, r.end.y - 4)
+		GD.text(ci, f, base2, t, fs2, Color("#FFF4D0") if charges > 0 else Color(0.7, 0.7, 0.72), 4, Color(0.02, 0.03, 0.07, 0.95))
 	if casting:
-		var a := 0.6 + 0.4 * sin(_pulse * 10.0)
-		HudIcons.outline_rect(self, r.grow(1), Color(1, 0.85, 0.3, a), 3.0, 8.0)
-		HudIcons.outline_rect(self, r.grow(3), Color(1, 0.7, 0.2, a * 0.4), 2.0, 9.0)
+		# pressed / casting: gold stroke following the slot shape, inner glow, 1.5 px press shadow
+		var a2 := 0.75 + 0.25 * sin(_pulse * 10.0)
+		for k in 5:
+			GD.polyline(ci, GD.chamfer(r.grow(-1.0 - k * 2.0), ch), Color(GD.GOLD, (0.30 - k * 0.06) * a2), 2.0, true)
+		GD.polyline(ci, PackedVector2Array([Vector2(r.position.x + 3, r.end.y - 6), r.position + Vector2(3, 6), Vector2(r.end.x - 6, r.position.y + 3)]),
+			Color(0, 0, 0, 0.6), 1.5)
+		GD.polyline(ci, GD.chamfer(r.grow(1.5), ch + 1.5), Color(GD.GOLD_HI, a2), 2.0, true)
+		GD.polyline(ci, GD.chamfer(r.grow(3.0), ch + 3.0), Color(GD.GOLD, 0.5 * a2), 1.2, true)
 	if _flash > 0.0:
-		HudIcons.gradient_rect(self, r, Color(1, 1, 1, 0.55 * _flash), Color(1, 0.95, 0.7, 0.25 * _flash), 7.0)
-		HudIcons.outline_rect(self, r.grow(2.0 + (1.0 - _flash) * 4.0), Color(1, 0.95, 0.6, _flash), 2.0, 9.0)
+		GD.poly(ci, face, Color(1, 0.95, 0.75, 0.35 * _flash))
+	# keybind tab on the frame's bottom edge
+	var kf := HudStyle.sans(800)
+	var ks := 11
+	var tw := kf.get_string_size(key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, ks).x
+	var tab := Rect2(Vector2(c.x - tw * 0.5 - 6, r.end.y - 7), Vector2(tw + 12, 14))
+	var tp := GD.chamfer(tab, 4.0)
+	GD.poly(ci, tp, Color(0.03, 0.06, 0.11, 0.95))
+	GD.polyline(ci, tp, Color(GD.GOLD if ult else HudStyle.UI_STEEL, 0.9), 1.0, true)
+	GD.text(ci, kf, Vector2(c.x - tw * 0.5, tab.position.y + 11), key_label, ks, HudStyle.C_TEXT)
 
 
-func _draw_sweep(r: Rect2, frac: float, c: Color) -> void:
-	# Pie covering the remaining fraction, clockwise from 12 o'clock, clipped to the tile square.
-	var center := r.get_center()
-	var rad := r.size.length() * 0.5 + 2.0
-	var pts := PackedVector2Array([center])
-	var start := -PI * 0.5 + TAU * (1.0 - frac)
-	var end := -PI * 0.5 + TAU
-	var steps := maxi(2, int(32 * frac))
-	for i in steps + 1:
-		var a := lerpf(start, end, float(i) / float(steps))
-		var p := center + Vector2(cos(a), sin(a)) * rad
-		p.x = clampf(p.x, r.position.x, r.end.x)
-		p.y = clampf(p.y, r.position.y, r.end.y)
-		pts.append(p)
-	if pts.size() >= 3:
-		draw_colored_polygon(pts, c)
-	var edge := center + Vector2(cos(start), sin(start)) * rad
-	edge.x = clampf(edge.x, r.position.x, r.end.x)
-	edge.y = clampf(edge.y, r.position.y, r.end.y)
-	draw_line(center, edge, Color(1, 0.9, 0.5, 0.8), 1.5, true)
+## Clockwise radial wipe over the remaining fraction: a darkened, desaturated copy of the icon (painted icons) or a
+## dark veil (procedural), clipped to the slot face, with a bright tick at the sweep edge.
+func _draw_sweep(r: Rect2, box: PackedVector2Array, frac: float, painted: Texture2D) -> void:
+	var ci := get_canvas_item()
+	var c := r.get_center()
+	var rad := r.size.x * 0.75
+	var a0 := -PI * 0.5 + TAU * (1.0 - frac)
+	var a1 := -PI * 0.5 + TAU
+	var pts := PackedVector2Array([c])
+	var steps := maxi(2, int(48 * frac))
+	for k in steps + 1:
+		var a := lerpf(a0, a1, float(k) / steps)
+		pts.append(c + Vector2(cos(a), sin(a)) * rad)
+	var grey := HudStyle.icon_cd(painted)
+	for pl in Geometry2D.intersect_polygons(pts, box):
+		if pl.size() < 3:
+			continue
+		if grey != null:
+			var uv := PackedVector2Array()
+			for v in pl:
+				uv.append((v - r.position) / r.size)
+			draw_colored_polygon(pl, Color.WHITE, uv, grey)
+		else:
+			GD.poly(ci, pl, Color(0.01, 0.02, 0.05, 0.62))
+	var dir := Vector2(cos(a0), sin(a0))
+	for seg in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([c, c + dir * rad]), box):
+		if seg.size() < 2:
+			continue
+		GD.polyline(ci, seg, Color(1, 0.92, 0.7, 0.55), 1.0)
+		GD.line(ci, seg[seg.size() - 1] - dir * 6.0, seg[seg.size() - 1], Color(1, 0.96, 0.85, 1.0), 2.5)
 
 
 func _make_custom_tooltip(_for_text: String) -> Object:
@@ -145,7 +214,7 @@ static func make_tooltip_panel(s: SkillDef, key: String) -> Control:
 	if s == null:
 		return null
 	var pc := PanelContainer.new()
-	pc.add_theme_stylebox_override("panel", HudStyle.panel(Color(0.04, 0.05, 0.08, 0.96), HudStyle.C_BORDER, 8, 1, 10.0))
+	pc.add_theme_stylebox_override("panel", HudStyle.glory("plain", 10.0))
 	var rt := RichTextLabel.new()
 	rt.bbcode_enabled = true
 	rt.fit_content = true

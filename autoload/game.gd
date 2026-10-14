@@ -54,6 +54,11 @@ var prefs: Dictionary = {
 	"bot_difficulty": 1,
 	"player_name": "",
 	"class_id": "",
+	# effect intensity by caster (Fx ownership scaling) + camera impact feedback
+	"fx_own": 1.0,
+	"fx_ally": 0.5,
+	"fx_enemy": 0.7,
+	"camera_shake": true,
 }
 var prefs_path: String = PREFS_PATH
 ## Host: seconds the results screen stays before everyone returns to the lobby automatically (0 = button only).
@@ -152,6 +157,9 @@ func load_prefs() -> void:
 	prefs["bot_difficulty"] = clampi(int(cf.get_value("game", "bot_difficulty", prefs["bot_difficulty"])), 0, 3)
 	prefs["player_name"] = str(cf.get_value("game", "player_name", prefs["player_name"]))
 	prefs["class_id"] = str(cf.get_value("game", "class_id", prefs["class_id"]))
+	for k: String in ["fx_own", "fx_ally", "fx_enemy"]:
+		prefs[k] = clampf(float(cf.get_value("video", k, prefs[k])), 0.0, 1.0)
+	prefs["camera_shake"] = bool(cf.get_value("video", "camera_shake", prefs["camera_shake"]))
 
 
 func save_prefs() -> Error:
@@ -161,6 +169,9 @@ func save_prefs() -> Error:
 	cf.set_value("game", "bot_difficulty", int(prefs["bot_difficulty"]))
 	cf.set_value("game", "player_name", str(prefs["player_name"]))
 	cf.set_value("game", "class_id", str(prefs["class_id"]))
+	for k: String in ["fx_own", "fx_ally", "fx_enemy"]:
+		cf.set_value("video", k, float(prefs.get(k, 1.0)))
+	cf.set_value("video", "camera_shake", bool(prefs.get("camera_shake", true)))
 	return cf.save(prefs_path)
 
 
@@ -169,6 +180,11 @@ func apply_prefs() -> void:
 	if AudioServer.bus_count > 0:
 		AudioServer.set_bus_volume_db(0, linear_to_db(maxf(v, 0.0001)))
 		AudioServer.set_bus_mute(0, v <= 0.001)
+	var fx := get_node_or_null("/root/Fx")
+	if fx != null and "ally_intensity" in fx:
+		fx.set("own_intensity", float(prefs.get("fx_own", 1.0)))
+		fx.set("ally_intensity", float(prefs.get("fx_ally", 0.5)))
+		fx.set("enemy_intensity", float(prefs.get("fx_enemy", 0.7)))
 	prefs_changed.emit()
 
 

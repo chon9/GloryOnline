@@ -20,11 +20,14 @@ var _enraged: bool = false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := HudStyle.panel(Color(0.06, 0.03, 0.03, 0.78), Color(HudStyle.C_BOSS.r, HudStyle.C_BOSS.g, HudStyle.C_BOSS.b, 0.75), 10, 1, 8.0)
-	sb.shadow_color = Color(0, 0, 0, 0.4)
-	sb.shadow_size = 8
+	var sb := HudStyle.glory("panel", 0.0)
+	sb.set("fill", Color(0.09, 0.04, 0.06, 0.9))
+	sb.content_margin_left = 26.0
+	sb.content_margin_right = 26.0
+	sb.content_margin_top = 10.0
+	sb.content_margin_bottom = 12.0
 	add_theme_stylebox_override("panel", sb)
-	custom_minimum_size = Vector2(680, 0)
+	custom_minimum_size = Vector2(720, 0)
 	var vb := VBoxContainer.new()
 	vb.add_theme_constant_override("separation", 3)
 	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -32,10 +35,10 @@ func _init() -> void:
 	var top := HBoxContainer.new()
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vb.add_child(top)
-	phase_label = HudStyle.make_label("", 14, HudStyle.C_TEXT_DIM, true)
+	phase_label = HudStyle.make_label("", 14, HudStyle.UI_GOLD_HI, true, 3)
 	phase_label.custom_minimum_size = Vector2(150, 0)
 	top.add_child(phase_label)
-	name_label = HudStyle.make_label("", 21, HudStyle.C_BOSS.lerp(Color.WHITE, 0.3), true, 5)
+	name_label = HudStyle.make_label("", 22, Color("#FFD9A0"), true, 5)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(name_label)
@@ -44,15 +47,15 @@ func _init() -> void:
 	enrage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top.add_child(enrage_label)
 	hp_bar = HudBar.new()
-	hp_bar.custom_minimum_size = Vector2(0, 22)
+	hp_bar.custom_minimum_size = Vector2(0, 24)
 	hp_bar.fill_color = Color(0.85, 0.16, 0.14)
-	hp_bar.trail_color = Color(1.0, 0.85, 0.45)
+	hp_bar.trail_color = Color(1.0, 0.78, 0.35)
 	hp_bar.text_mode = 3
-	hp_bar.font_size = 14
+	hp_bar.font_size = 15
 	hp_bar.ticks = 10
 	vb.add_child(hp_bar)
 	status_row = HudStatusRow.new()
-	status_row.icon_size = 18.0
+	status_row.icon_size = 24.0
 	vb.add_child(status_row)
 	set_process(false)
 

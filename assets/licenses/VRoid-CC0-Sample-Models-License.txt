@@ -1,0 +1,19 @@
+VRoid Project CC0 sample models (VRoid Studio sample avatars)
+Author: VRoid Project (pixiv Inc.)
+Source: https://opengameart.org/content/vroid-studio-cc0-models
+        ("explicitly released by VRoid under CC0")
+
+License: Creative Commons Zero (CC0 1.0 Universal, public domain dedication)
+https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+Embedded VRM meta of every shipped model (verified by assets/characters/anime/tools, see CREDITS.md):
+  allowedUserName = Everyone, commercial use = Allow, and either licenseName = CC0
+  or the VRoid Hub licence with redistribution = allow, modification = allow, credit = unnecessary
+  (https://hub.vroid.com/license?allowed_to_use_user=everyone&characterization_allowed_user=everyone&corporate_commercial_use=allow&credit=unnecessary&modification=allow&personal_commercial_use=profit&redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow)
+
+Files (assets/characters/anime/*.glb + *.vrm.json) are MODIFIED versions: converted from VRM 0.x to glTF binary,
+normal/matcap/outline/thumbnail textures dropped, textures downsized (512 px body, 1024 px face/hair), primitives
+merged, a 180-degree facing fix added, humanoid + spring-bone data moved to the .vrm.json sidecar. At runtime the
+materials are replaced by the project's toon shader and recoloured.
+
+Credit (optional, given anyway): Character base models by VRoid Project (pixiv Inc.), CC0, via OpenGameArt.

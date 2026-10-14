@@ -1,9 +1,9 @@
 extends Control
-## Big juicy combo counter ("17 连击 HITS"): pops on every new hit, color heats up with the count,
+## Combo counter (look-dev: Russo One gold digits, 连击, slash underline): pops on every new hit, colour heats up,
 ## shakes slightly on milestones, fades out after the combo drops.
 
 const HudStyle := preload("res://ui/hud_style.gd")
-const HudIcons := preload("res://ui/hud_icons.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 const MIN_SHOW: int = 2
 const FADE_TIME: float = 0.9
@@ -49,12 +49,10 @@ func is_showing() -> bool:
 
 func heat_color(n: int) -> Color:
 	if n >= 40:
-		return Color(1.0, 0.25, 0.35)
+		return Color("#FF4A5A")
 	if n >= 20:
-		return Color(1.0, 0.45, 0.15)
-	if n >= 10:
-		return Color(1.0, 0.75, 0.2)
-	return Color(1.0, 0.95, 0.8)
+		return Color("#FF8A2A")
+	return Color("#FFC43A")
 
 
 func _process(delta: float) -> void:
@@ -73,31 +71,23 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if _alpha <= 0.01 or _shown < MIN_SHOW:
 		return
+	var ci := get_canvas_item()
 	var col := heat_color(_shown)
 	var a := _alpha
-	var sc := 1.0 + _pop * 0.45
+	var sc := 1.0 + _pop * 0.4
 	var jitter := Vector2(sin(_t * 70.0), cos(_t * 53.0)) * _shake * 4.0
+	draw_set_transform(Vector2(20, size.y * 0.72) + jitter, deg_to_rad(-4.0), Vector2.ONE)
 	var num := str(_shown)
-	var f := HudStyle.font(true)
-	var fs := int(64 * sc)
+	var f := HudStyle.crit()
+	var fs := int(76 * sc)
 	var nw := f.get_string_size(num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	var base := Vector2(size.x - 12.0, size.y * 0.62) + jitter
-	# soft slanted underline swoosh
-	var u0 := base + Vector2(-nw - 140, 30)
-	var u1 := base + Vector2(6, 22)
-	draw_polygon(PackedVector2Array([u0, u1, u1 + Vector2(-6, 7), u0 + Vector2(10, 9)]),
-		PackedColorArray([Color(col.r, col.g, col.b, 0.0), Color(col.r, col.g, col.b, 0.9 * a),
-		Color(col.r, col.g, col.b, 0.6 * a), Color(col.r, col.g, col.b, 0.0)]))
-	var np := base + Vector2(-nw - 118, 0)
-	draw_string_outline(f, np, num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 10, Color(0, 0, 0, 0.9 * a))
-	draw_string_outline(f, np, num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, Color(col.darkened(0.5), a))
-	draw_string(f, np, num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(col.r, col.g, col.b, a))
-	# white pop flash over the number
+	var ink := Color(0.2, 0.08, 0.02, 0.95 * a)
+	# slash underline band in the heat colour
+	GD.callout_band(ci, Rect2(Vector2(-6, 10), Vector2(nw + 130, 10)), col, 11, 0.9 * a)
+	GD.text(ci, f, Vector2(0, 0), num, fs, Color(col, a), 8, ink)
 	if _pop > 0.0:
-		draw_string(f, np, num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, _pop * 0.6 * a))
-	var lp := base + Vector2(-108, -20)
-	draw_string_outline(f, lp, "连击", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, 6, Color(0, 0, 0, 0.9 * a))
-	draw_string(f, lp, "连击", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(1, 1, 1, a))
-	var ep := base + Vector2(-104, 8)
-	draw_string_outline(f, ep, "HITS", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, 5, Color(0, 0, 0, 0.9 * a))
-	draw_string(f, ep, "HITS", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(col.r, col.g, col.b, a))
+		f.draw_string(ci, Vector2(0, 0), num, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, _pop * 0.55 * a))
+	var lf := HudStyle.sans(800)
+	GD.text(ci, lf, Vector2(nw + 12, -10), "连击", 34, Color(HudStyle.UI_GOLD_HI, a), 6, ink)
+	GD.text(ci, HudStyle.tech(800), Vector2(nw + 14, 8), "HITS", 14, Color(col, 0.9 * a), 4, ink)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

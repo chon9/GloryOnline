@@ -156,6 +156,7 @@ var motion_override: bool = false
 var ghost: bool = false
 var _grabbed_by: Fighter = null
 var _grab_final: Dictionary = {}
+var _wall_fx_t: float = -10.0
 var _grab_throw: Dictionary = {}
 
 # visual-side caches (all peers)
@@ -1043,6 +1044,12 @@ func _physics_move(delta: float) -> void:
 	velocity.x = horiz.x
 	velocity.z = horiz.z
 	move_and_slide()
+	# Cosmetic wall slam: a launched / thrown body hitting a wall at speed (hit-stop + dust; no gameplay change).
+	if launched and _knock_vel.length() > 5.0 and is_on_wall() and _time - _wall_fx_t > 0.6:
+		_wall_fx_t = _time
+		var wn := get_wall_normal()
+		CoreUtil.fx(&"impact", [center(), 3.0, -wn, last_attacker_uid])
+		CoreUtil.fx(&"play", [&"land_dust", center() - wn * radius(), wn, Color.WHITE, 0.8, last_attacker_uid])
 	_clamp_bounds()
 
 
@@ -1209,6 +1216,10 @@ func receive_hit(src: Fighter, hit_in: Dictionary, from_pos: Vector3) -> float:
 	if bool(res["blocked"]):
 		fx_name = &"block_spark"
 	CoreUtil.fx(&"play", [fx_name, center(), CoreUtil.flat_dir(global_position - from_pos), Color.WHITE, 1.0])
+	# Finisher hits (skills tagged "finisher") get the heavy hit-stop / impact frame even when the hit fx is light.
+	if fx_name == &"hit_spark" and src != null and src.runner != null and src.runner.skill != null \
+			and src.runner.skill.has_tag("finisher"):
+		CoreUtil.fx(&"impact", [center(), 3.0, CoreUtil.flat_dir(global_position - from_pos), src.uid])
 	if not is_alive():
 		return dealt
 	var armored := status.has(&"super_armor") and not bool(hit["armor_break"]) and not bool(hit["grab"])
@@ -1411,6 +1422,8 @@ func _tick_grabbed(delta: float) -> void:
 				velocity.y = 5.0
 		_no_recover = true
 		_enter_launched()
+		var ult := g.runner != null and g.runner.skill != null and g.runner.skill.is_ultimate()
+		CoreUtil.fx(&"impact", [center(), 4.0 if ult else 3.0, g.forward(), g.uid])
 
 
 ## Sideways offset when one grabber holds several victims: victims (ordered by uid) spread along the

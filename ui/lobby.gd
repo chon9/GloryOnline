@@ -5,10 +5,12 @@ extends Control
 ## Ready and Start.
 
 const CLASS_CARD := preload("res://ui/class_card.gd")
+const HudStyle := preload("res://ui/hud_style.gd")
+const HudIcons := preload("res://ui/hud_icons.gd")
 const THEME_PATH: String = "res://ui/theme.tres"
 const MAP_REGISTRY: String = "res://maps/map_registry.gd"
 const RAID_REGISTRY: String = "res://pve/raid_registry.gd"
-const TEAM_COLORS: Array[Color] = [Color(0.45, 0.65, 1.0), Color(1.0, 0.5, 0.45)]
+const TEAM_COLORS: Array[Color] = [Color("#2F7BFF"), Color("#FF3B4A")]
 const TEAM_TITLES: Array[String] = ["蓝队 Blue Team", "红队 Red Team"]
 
 var _mode: OptionButton
@@ -46,64 +48,73 @@ func _build() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side: String in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 18)
+		margin.add_theme_constant_override("margin_" + side, 20)
+	margin.add_theme_constant_override("margin_top", 12)
 	add_child(margin)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 10)
 	margin.add_child(root)
-	# Header.
+	# Header: brush title + transport info.
 	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
 	root.add_child(head)
-	var title := Label.new()
-	title.text = "房间 Lobby"
-	title.add_theme_font_size_override("font_size", 32)
+	var title := HudStyle.make_label_f("房间", HudStyle.brush(), 46, HudStyle.UI_GOLD_HI, 6)
+	title.add_theme_color_override("font_outline_color", Color(0.15, 0.07, 0.0, 0.95))
 	head.add_child(title)
-	_info = Label.new()
+	var te := HudStyle.make_label_f("LOBBY", HudStyle.tech(800), 16, HudStyle.C_TEXT_DIM, 2)
+	te.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(te)
+	_info = HudStyle.make_label("", 14, HudStyle.C_TEXT_DIM, false, 2)
 	_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	head.add_child(_info)
-	# Settings row.
+	# Settings strip.
+	var sp := PanelContainer.new()
+	sp.add_theme_stylebox_override("panel", HudStyle.glory("plain", 8.0))
+	root.add_child(sp)
 	var srow := HFlowContainer.new()
-	srow.add_theme_constant_override("h_separation", 10)
-	root.add_child(srow)
+	srow.add_theme_constant_override("h_separation", 8)
+	srow.add_theme_constant_override("v_separation", 6)
+	sp.add_child(srow)
 	srow.add_child(_lbl("模式 Mode"))
 	_mode = OptionButton.new()
 	for m: String in _game().MODES:
 		_mode.add_item(_game().MODE_NAMES[m])
 	_mode.item_selected.connect(func(i: int) -> void: _game().set_setting("mode", _game().MODES[i]))
-	srow.add_child(_mode)
+	srow.add_child(compact(_mode))
 	_map_label = _lbl("地图 Map")
 	srow.add_child(_map_label)
 	_map = OptionButton.new()
 	_map.item_selected.connect(_on_map_selected)
-	srow.add_child(_map)
+	srow.add_child(compact(_map))
 	_rounds_label = _lbl("胜场 Rounds")
 	srow.add_child(_rounds_label)
 	_rounds = OptionButton.new()
 	for n in [1, 2, 3]:
 		_rounds.add_item("BO%d" % (n * 2 - 1))
 	_rounds.item_selected.connect(func(i: int) -> void: _game().set_setting("rounds_to_win", i + 1))
-	srow.add_child(_rounds)
+	srow.add_child(compact(_rounds))
 	srow.add_child(_lbl("时限 Time(s)"))
 	_time = SpinBox.new()
 	_time.min_value = 30
 	_time.max_value = 900
 	_time.step = 30
 	_time.value_changed.connect(func(v: float) -> void: _game().set_setting("round_time", int(v)))
-	srow.add_child(_time)
+	srow.add_child(compact(_time))
 	srow.add_child(_lbl("电脑难度 Bot Level"))
 	_diff = OptionButton.new()
 	for d: String in _game().DIFFICULTY_NAMES:
 		_diff.add_item(d)
 	_diff.item_selected.connect(func(i: int) -> void: _game().set_setting("bot_difficulty", i))
-	srow.add_child(_diff)
+	srow.add_child(compact(_diff))
 	_team_size_label = _lbl("每队人数 Team Size")
 	srow.add_child(_team_size_label)
 	_team_size = SpinBox.new()
 	_team_size.min_value = 1
 	_team_size.max_value = 5
 	_team_size.value_changed.connect(func(v: float) -> void: _game().set_setting("team_size", int(v)))
-	srow.add_child(_team_size)
+	srow.add_child(compact(_team_size))
 	# Center: teams + class card.
 	var center := HBoxContainer.new()
 	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -127,28 +138,41 @@ func _build() -> void:
 	bot.add_theme_constant_override("separation", 10)
 	root.add_child(bot)
 	var leave := Button.new()
-	leave.text = "离开 Leave"
+	leave.text = "离开  Leave"
+	leave.custom_minimum_size = Vector2(150, 48)
 	leave.pressed.connect(func() -> void: _game().leave_session())
 	bot.add_child(leave)
 	_invite_btn = Button.new()
-	_invite_btn.text = "邀请好友 Invite Friends"
+	_invite_btn.text = "邀请好友  Invite Friends"
+	_invite_btn.custom_minimum_size = Vector2(0, 48)
 	_invite_btn.pressed.connect(func() -> void:
 		if not _net().invite_friends():
 			_status.text = "需要 Steam 大厅 Steam lobby required")
 	bot.add_child(_invite_btn)
-	_status = Label.new()
+	_status = HudStyle.make_label("", 16, HudStyle.UI_GOLD_HI, false, 2)
 	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bot.add_child(_status)
 	_ready_btn = Button.new()
 	_ready_btn.toggle_mode = true
-	_ready_btn.text = "准备 Ready"
+	_ready_btn.text = "准备  Ready"
+	_ready_btn.custom_minimum_size = Vector2(170, 48)
 	_ready_btn.toggled.connect(func(on: bool) -> void: _game().set_ready(on))
 	bot.add_child(_ready_btn)
 	_start_btn = Button.new()
-	_start_btn.text = "开始比赛 Start Match"
+	_start_btn.text = "开始比赛  Start Match"
+	_start_btn.custom_minimum_size = Vector2(260, 52)
 	_start_btn.add_theme_font_size_override("font_size", 22)
+	for st: Array in [["normal", "button_pressed"], ["hover", "button_hover"]]:
+		var sb := HudStyle.glory(str(st[1]), 0.0)
+		sb.content_margin_left = 22.0
+		sb.content_margin_right = 22.0
+		sb.content_margin_top = 8.0
+		sb.content_margin_bottom = 8.0
+		_start_btn.add_theme_stylebox_override(str(st[0]), sb)
+	_start_btn.add_theme_color_override("font_color", HudStyle.UI_GOLD_HI)
 	_start_btn.pressed.connect(func() -> void:
 		var why: String = _game().start_match()
 		if why != "":
@@ -156,9 +180,26 @@ func _build() -> void:
 	bot.add_child(_start_btn)
 
 
+## Smaller buttons / option buttons / spin boxes for dense rows (theme buttons are 17 px with wide margins).
+static func compact(c: Control, fs: int = 14, mx: float = 10.0, my: float = 4.0) -> Control:
+	c.add_theme_font_size_override("font_size", fs)
+	if c is Button:
+		for st: Array in [["normal", "button"], ["hover", "button_hover"], ["pressed", "button_pressed"], ["hover_pressed", "button_pressed"],
+				["disabled", "button_disabled"], ["focus", "button_focus"]]:
+			var sb := HudStyle.glory(str(st[1]), 0.0)
+			sb.content_margin_left = mx
+			sb.content_margin_right = mx
+			sb.content_margin_top = my
+			sb.content_margin_bottom = my
+			c.add_theme_stylebox_override(str(st[0]), sb)
+	elif c is SpinBox:
+		(c as SpinBox).get_line_edit().add_theme_font_size_override("font_size", fs)
+	return c
+
+
 func _lbl(t: String) -> Label:
-	var l := Label.new()
-	l.text = t
+	var l := HudStyle.make_label(t, 14, HudStyle.C_TEXT_DIM, false, 2)
+	l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	return l
 
 
@@ -301,21 +342,36 @@ func _build_teams(host: bool) -> void:
 	for t in _game().team_count():
 		var col := PanelContainer.new()
 		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var sb := HudStyle.glory("panel", 0.0, Color(0, 0, 0, 0), false)
+		sb.content_margin_left = 14.0
+		sb.content_margin_right = 14.0
+		sb.content_margin_top = 10.0
+		sb.content_margin_bottom = 12.0
+		col.add_theme_stylebox_override("panel", sb)
 		_teams_box.add_child(col)
 		var v := VBoxContainer.new()
 		v.add_theme_constant_override("separation", 6)
 		col.add_child(v)
-		var h := Label.new()
 		var slots: Array = _game().team_slots(t)
-		h.text = "%s  (%d/%d)" % [TEAM_TITLES[t] if _game().is_pvp() else "队伍 Party", slots.size(), _game().team_capacity(t)]
-		h.add_theme_font_size_override("font_size", 22)
-		h.add_theme_color_override("font_color", TEAM_COLORS[t])
-		v.add_child(h)
+		var plate := PanelContainer.new()
+		var psb := HudStyle.glory("plate", 0.0, TEAM_COLORS[t] if _game().is_pvp() else HudStyle.UI_GOLD)
+		psb.content_margin_left = 24.0
+		psb.content_margin_right = 30.0
+		psb.content_margin_top = 1.0
+		psb.content_margin_bottom = 3.0
+		plate.add_theme_stylebox_override("panel", psb)
+		plate.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		var h := HudStyle.make_label("%s  (%d/%d)" % [TEAM_TITLES[t] if _game().is_pvp() else "队伍 Party", slots.size(), _game().team_capacity(t)],
+			19, (TEAM_COLORS[t] if _game().is_pvp() else HudStyle.UI_GOLD_HI).lerp(Color.WHITE, 0.35), true, 3)
+		plate.add_child(h)
+		v.add_child(plate)
 		for s: Dictionary in slots:
 			v.add_child(_slot_row(s, host, my))
 		if host and slots.size() < _game().team_capacity(t):
 			var add := Button.new()
-			add.text = "+ 添加电脑 Add Bot"
+			add.text = "+ 添加电脑  Add Bot"
+			compact(add, 13, 10.0, 3.0)
+			add.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 			var team: int = t
 			add.pressed.connect(func() -> void: _game().add_bot(team))
 			v.add_child(add)
@@ -326,43 +382,57 @@ func _slot_row(s: Dictionary, host: bool, my: int) -> Control:
 	row.add_theme_constant_override("separation", 6)
 	var peer := int(s["peer"])
 	var slot_id := int(s["slot"])
-	var tag := Label.new()
-	tag.text = "[电脑 AI]" if peer == 0 else ("[房主 Host]" if peer == 1 else "[玩家 P]")
-	tag.add_theme_font_size_override("font_size", 14)
-	row.add_child(tag)
-	var name_l := Label.new()
-	name_l.text = str(s["name"]) + ("  *" if peer == my else "")
+	var cid := str(s["class_id"])
+	var em := Control.new()
+	em.custom_minimum_size = Vector2(34, 34)
+	em.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	em.draw.connect(func() -> void:
+		var k := CoreUtil.get_kit(cid)
+		HudIcons.draw_class_emblem(em, Rect2(Vector2.ZERO, em.size), cid, k.name_cn.substr(0, 1) if k != null else "?",
+			k.tint if k != null else Color.WHITE))
+	row.add_child(em)
+	var name_l := HudStyle.make_label(str(s["name"]) + ("  *" if peer == my else ""), 16, HudStyle.UI_GOLD_HI if peer == my else HudStyle.C_TEXT, true, 2)
 	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	name_l.custom_minimum_size = Vector2(110, 0)
+	name_l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	name_l.custom_minimum_size = Vector2(80, 0)
+	name_l.tooltip_text = "电脑 AI" if peer == 0 else ("房主 Host" if peer == 1 else "玩家 Player")
+	name_l.mouse_filter = Control.MOUSE_FILTER_PASS
 	name_l.clip_text = true
-	if peer == my:
-		name_l.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))
+	name_l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	row.add_child(name_l)
 	var cls := Button.new()
-	cls.text = _game().class_label(str(s["class_id"]))
-	cls.add_theme_font_size_override("font_size", 15)
+	cls.text = _game().class_label(cid)
+	compact(cls, 13, 8.0, 3.0)
+	cls.custom_minimum_size = Vector2(132, 34)
+	cls.clip_text = true
+	cls.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cls.size_flags_stretch_ratio = 1.5
+	cls.tooltip_text = cls.text
 	var can_pick := peer == my or (host and peer == 0)
 	cls.disabled = not can_pick
 	cls.pressed.connect(func() -> void:
 		_pick_slot = slot_id
-		_card.call("preview", str(s["class_id"]))
+		_card.call("preview", cid)
 		_update_card_target())
 	row.add_child(cls)
-	var rd := Label.new()
-	rd.text = "已准备 Ready" if bool(s["ready"]) else "未准备 Not ready"
-	rd.add_theme_font_size_override("font_size", 14)
-	rd.add_theme_color_override("font_color", Color(0.5, 1.0, 0.55) if bool(s["ready"]) else Color(0.8, 0.8, 0.8))
+	var rd := HudStyle.make_label("已准备" if bool(s["ready"]) else "未准备", 12,
+		Color(0.5, 1.0, 0.55) if bool(s["ready"]) else HudStyle.C_TEXT_DIM, false, 2)
+	rd.tooltip_text = "Ready" if bool(s["ready"]) else "Not ready"
+	rd.mouse_filter = Control.MOUSE_FILTER_PASS
+	rd.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(rd)
 	if _game().team_count() > 1 and (peer == my or host):
 		var sw := Button.new()
 		sw.text = "换队 Swap"
-		sw.add_theme_font_size_override("font_size", 14)
+		compact(sw, 12, 7.0, 3.0)
+		sw.custom_minimum_size = Vector2(0, 32)
 		sw.pressed.connect(func() -> void: _game().swap_team(slot_id))
 		row.add_child(sw)
 	if host and peer == 0:
 		var rm := Button.new()
-		rm.text = "移除 Remove"
-		rm.add_theme_font_size_override("font_size", 14)
+		rm.text = "移除 Kick"
+		compact(rm, 12, 7.0, 3.0)
+		rm.custom_minimum_size = Vector2(0, 32)
 		rm.pressed.connect(func() -> void: _game().remove_slot(slot_id))
 		row.add_child(rm)
 	return row

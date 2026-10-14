@@ -1,0 +1,344 @@
+{
+ "source": "AvatarSample_F.vrm",
+ "meta": {
+  "title": "ヴィータ",
+  "author": "VRoidプロジェクト",
+  "licenseName": "Other",
+  "otherLicenseUrl": "https://hub.vroid.com/license?allowed_to_use_user=everyone&characterization_allowed_user=everyone&corporate_commercial_use=allow&credit=unnecessary&modification=allow&personal_commercial_use=profit&redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow",
+  "allowedUserName": "Everyone"
+ },
+ "humanoid": {
+  "hips": "J_Bip_C_Hips",
+  "leftUpperLeg": "J_Bip_L_UpperLeg",
+  "rightUpperLeg": "J_Bip_R_UpperLeg",
+  "leftLowerLeg": "J_Bip_L_LowerLeg",
+  "rightLowerLeg": "J_Bip_R_LowerLeg",
+  "leftFoot": "J_Bip_L_Foot",
+  "rightFoot": "J_Bip_R_Foot",
+  "spine": "J_Bip_C_Spine",
+  "chest": "J_Bip_C_Chest",
+  "neck": "J_Bip_C_Neck",
+  "head": "J_Bip_C_Head",
+  "leftShoulder": "J_Bip_L_Shoulder",
+  "rightShoulder": "J_Bip_R_Shoulder",
+  "leftUpperArm": "J_Bip_L_UpperArm",
+  "rightUpperArm": "J_Bip_R_UpperArm",
+  "leftLowerArm": "J_Bip_L_LowerArm",
+  "rightLowerArm": "J_Bip_R_LowerArm",
+  "leftHand": "J_Bip_L_Hand",
+  "rightHand": "J_Bip_R_Hand",
+  "leftToes": "J_Bip_L_ToeBase",
+  "rightToes": "J_Bip_R_ToeBase",
+  "leftEye": "J_Adj_L_FaceEye",
+  "rightEye": "J_Adj_R_FaceEye",
+  "leftThumbProximal": "J_Bip_L_Thumb1",
+  "leftThumbIntermediate": "J_Bip_L_Thumb2",
+  "leftThumbDistal": "J_Bip_L_Thumb3",
+  "leftIndexProximal": "J_Bip_L_Index1",
+  "leftIndexIntermediate": "J_Bip_L_Index2",
+  "leftIndexDistal": "J_Bip_L_Index3",
+  "leftMiddleProximal": "J_Bip_L_Middle1",
+  "leftMiddleIntermediate": "J_Bip_L_Middle2",
+  "leftMiddleDistal": "J_Bip_L_Middle3",
+  "leftRingProximal": "J_Bip_L_Ring1",
+  "leftRingIntermediate": "J_Bip_L_Ring2",
+  "leftRingDistal": "J_Bip_L_Ring3",
+  "leftLittleProximal": "J_Bip_L_Little1",
+  "leftLittleIntermediate": "J_Bip_L_Little2",
+  "leftLittleDistal": "J_Bip_L_Little3",
+  "rightThumbProximal": "J_Bip_R_Thumb1",
+  "rightThumbIntermediate": "J_Bip_R_Thumb2",
+  "rightThumbDistal": "J_Bip_R_Thumb3",
+  "rightIndexProximal": "J_Bip_R_Index1",
+  "rightIndexIntermediate": "J_Bip_R_Index2",
+  "rightIndexDistal": "J_Bip_R_Index3",
+  "rightMiddleProximal": "J_Bip_R_Middle1",
+  "rightMiddleIntermediate": "J_Bip_R_Middle2",
+  "rightMiddleDistal": "J_Bip_R_Middle3",
+  "rightRingProximal": "J_Bip_R_Ring1",
+  "rightRingIntermediate": "J_Bip_R_Ring2",
+  "rightRingDistal": "J_Bip_R_Ring3",
+  "rightLittleProximal": "J_Bip_R_Little1",
+  "rightLittleIntermediate": "J_Bip_R_Little2",
+  "rightLittleDistal": "J_Bip_R_Little3",
+  "upperChest": "J_Bip_C_UpperChest"
+ },
+ "springs": [
+  {
+   "stiffness": 0.75,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_Bust1",
+    "J_Sec_R_Bust1"
+   ]
+  },
+  {
+   "stiffness": 0.5,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_LowerSleeve",
+    "J_Sec_L_TipSleeve",
+    "J_Sec_R_LowerSleeve",
+    "J_Sec_R_TipSleeve"
+   ]
+  },
+  {
+   "stiffness": 0.5,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_SkirtBack1",
+    "J_Sec_L_SkirtFront1",
+    "J_Sec_L_SkirtSide2",
+    "J_Sec_R_SkirtBack1",
+    "J_Sec_R_SkirtFront1",
+    "J_Sec_R_SkirtSide1"
+   ]
+  },
+  {
+   "stiffness": 0.518066466,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0189400464,
+   "bones": [
+    "HairJoint-245c78de-5156-428a-a204-d0d365e05ba6"
+   ]
+  },
+  {
+   "stiffness": 0.5157978,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0215554833,
+   "bones": [
+    "HairJoint-228d3cb8-acdc-423e-ba0b-348633783c8d"
+   ]
+  },
+  {
+   "stiffness": 0.518066466,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.03833933,
+   "bones": [
+    "HairJoint-92f42ad7-3cfb-4a57-92ce-fb7949e9fd63"
+   ]
+  },
+  {
+   "stiffness": 0.5157978,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.048984617,
+   "bones": [
+    "HairJoint-bbbbeaec-2e88-4187-a45f-82397e478b9b"
+   ]
+  },
+  {
+   "stiffness": 0.482051253,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.04,
+   "bones": [
+    "HairJoint-97f1861b-4225-48a8-82a7-83298efe6d1d"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.01845865,
+   "bones": [
+    "HairJoint-624404ef-6900-4636-a7e8-8f21a085e1a1"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0242933258,
+   "bones": [
+    "HairJoint-f42abeae-8c90-4c62-acb0-f421b9ff20ae"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0239906013,
+   "bones": [
+    "HairJoint-4308202c-fb5a-4cd4-b888-88df8484cbfd"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0191555619,
+   "bones": [
+    "HairJoint-f5673e45-468b-4385-9e7f-884dd40a42d9"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0165685341,
+   "bones": [
+    "HairJoint-b2ad7ba8-6449-4705-8265-acf10ff1e0b6"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.01982906,
+   "bones": [
+    "HairJoint-84128ad6-f9ff-4606-a254-0ae6a42fa328"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.01982906,
+   "bones": [
+    "HairJoint-e4b0b4c5-3f6a-478d-adca-d4d03d2deecc"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0201710239,
+   "bones": [
+    "HairJoint-c2c155fc-f638-43ac-bd5d-c8bcfcdb5bfe"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0201710239,
+   "bones": [
+    "HairJoint-a9ff6aaa-bb4d-492a-9e81-3c1ebc305fca"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0201710239,
+   "bones": [
+    "HairJoint-e1cb9281-c290-4f72-8e0f-833f3b3a9b5c"
+   ]
+  }
+ ],
+ "expressions": {
+  "a": [
+   [
+    "Face.baked",
+    29,
+    1.0
+   ]
+  ],
+  "i": [
+   [
+    "Face.baked",
+    30,
+    1.0
+   ]
+  ],
+  "u": [
+   [
+    "Face.baked",
+    31,
+    1.0
+   ]
+  ],
+  "e": [
+   [
+    "Face.baked",
+    32,
+    1.0
+   ]
+  ],
+  "o": [
+   [
+    "Face.baked",
+    33,
+    1.0
+   ]
+  ],
+  "blink": [
+   [
+    "Face.baked",
+    12,
+    1.0
+   ]
+  ],
+  "blink_l": [
+   [
+    "Face.baked",
+    14,
+    1.0
+   ]
+  ],
+  "blink_r": [
+   [
+    "Face.baked",
+    13,
+    1.0
+   ]
+  ],
+  "angry": [
+   [
+    "Face.baked",
+    0,
+    1.0
+   ]
+  ],
+  "fun": [
+   [
+    "Face.baked",
+    1,
+    1.0
+   ]
+  ],
+  "joy": [
+   [
+    "Face.baked",
+    2,
+    1.0
+   ]
+  ],
+  "sorrow": [
+   [
+    "Face.baked",
+    3,
+    1.0
+   ]
+  ],
+  "surprised": [
+   [
+    "Face.baked",
+    4,
+    1.0
+   ]
+  ],
+  "extra": [
+   [
+    "Face.baked",
+    20,
+    1.0
+   ],
+   [
+    "Face.baked",
+    40,
+    1.0
+   ]
+  ]
+ }
+}

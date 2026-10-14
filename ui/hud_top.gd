@@ -2,6 +2,7 @@ extends PanelContainer
 ## Top-center match info: mode name, round timer (or raid clear timer), team score and alive pips.
 
 const HudStyle := preload("res://ui/hud_style.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 const MODE_NAMES: Dictionary = {
 	"duel": "个人赛 Individual", "arena": "擂台赛 Group Arena", "team": "团体赛 Team Battle", "raid": "副本 Raid",
@@ -14,7 +15,7 @@ class Pips extends Control:
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		custom_minimum_size = Vector2(0, 12)
+		custom_minimum_size = Vector2(0, 14)
 
 	func set_counts(a0: int, t0: int, a1: int, t1: int) -> void:
 		if a0 == alive[0] and a1 == alive[1] and t0 == total[0] and t1 == total[1]:
@@ -30,11 +31,11 @@ class Pips extends Control:
 			for i in total[team]:
 				var x := cx - 22.0 - i * 14.0 if team == 0 else cx + 22.0 + i * 14.0
 				var p := Vector2(x, size.y * 0.5)
-				draw_circle(p, 5.5, Color(0, 0, 0, 0.7))
 				if i < alive[team]:
-					draw_circle(p, 4.2, c)
+					GD.diamond(get_canvas_item(), p, 4.5, 6.0, c)
 				else:
-					draw_arc(p, 4.0, 0, TAU, 12, Color(c.r, c.g, c.b, 0.45), 1.2, true)
+					GD.polyline(get_canvas_item(), PackedVector2Array([p + Vector2(0, -5.5), p + Vector2(4, 0), p + Vector2(0, 5.5), p + Vector2(-4, 0)]),
+						Color(c, 0.45), 1.0, true)
 
 
 var mode_label: Label
@@ -49,14 +50,18 @@ var _urgent: bool = false
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := HudStyle.panel(Color(0.03, 0.04, 0.07, 0.72), Color(HudStyle.C_BORDER.r, HudStyle.C_BORDER.g, HudStyle.C_BORDER.b, 0.6), 10, 1, 6.0)
+	var sb := HudStyle.glory("panel", 0.0)
+	sb.content_margin_left = 22.0
+	sb.content_margin_right = 22.0
+	sb.content_margin_top = 6.0
+	sb.content_margin_bottom = 8.0
 	add_theme_stylebox_override("panel", sb)
-	custom_minimum_size = Vector2(300, 0)
+	custom_minimum_size = Vector2(320, 0)
 	var vb := VBoxContainer.new()
-	vb.add_theme_constant_override("separation", 0)
+	vb.add_theme_constant_override("separation", -4)
 	vb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(vb)
-	mode_label = HudStyle.make_label("", 12, HudStyle.C_TEXT_DIM, false, 3)
+	mode_label = HudStyle.make_label("", 12, HudStyle.UI_GOLD_HI, false, 3)
 	mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(mode_label)
 	var hb := HBoxContainer.new()
@@ -64,20 +69,20 @@ func _init() -> void:
 	hb.add_theme_constant_override("separation", 18)
 	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vb.add_child(hb)
-	left_score = HudStyle.make_label("", 28, HudStyle.team_color(0), true, 5)
+	left_score = HudStyle.make_label_f("", HudStyle.crit(), 30, HudStyle.team_color(0).lightened(0.25), 6)
 	left_score.custom_minimum_size = Vector2(50, 0)
 	left_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hb.add_child(left_score)
-	timer_label = HudStyle.make_label("--:--", 30, HudStyle.C_TEXT, true, 5)
+	timer_label = HudStyle.make_label_f("--:--", HudStyle.num(650), 40, HudStyle.UI_GOLD_HI, 5)
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	timer_label.custom_minimum_size = Vector2(110, 0)
 	hb.add_child(timer_label)
-	right_score = HudStyle.make_label("", 28, HudStyle.team_color(1), true, 5)
+	right_score = HudStyle.make_label_f("", HudStyle.crit(), 30, HudStyle.team_color(1).lightened(0.2), 6)
 	right_score.custom_minimum_size = Vector2(50, 0)
 	hb.add_child(right_score)
 	pips = Pips.new()
 	vb.add_child(pips)
-	extra_label = HudStyle.make_label("", 13, HudStyle.C_TEXT_DIM, false, 3)
+	extra_label = HudStyle.make_label("", 13, HudStyle.C_TEXT, false, 3)
 	extra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vb.add_child(extra_label)
 	set_process(false)
@@ -111,7 +116,7 @@ func set_timer(seconds: float, count_up: bool) -> void:
 	else:
 		timer_label.text = HudStyle.fmt_time(seconds) if not count_up else "%02d:%02d" % [int(seconds) / 60, int(seconds) % 60]
 		_urgent = not count_up and seconds <= 10.0 and seconds > 0.0
-	timer_label.add_theme_color_override("font_color", Color(1, 0.35, 0.3) if _urgent else HudStyle.C_TEXT)
+	timer_label.add_theme_color_override("font_color", Color(1, 0.35, 0.3) if _urgent else HudStyle.UI_GOLD_HI)
 	set_process(_urgent)
 	if not _urgent:
 		timer_label.scale = Vector2.ONE

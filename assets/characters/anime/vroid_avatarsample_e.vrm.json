@@ -1,0 +1,380 @@
+{
+ "source": "AvatarSample_E.vrm",
+ "meta": {
+  "title": "ビビ",
+  "author": "VRoidプロジェクト",
+  "licenseName": "Other",
+  "otherLicenseUrl": "https://hub.vroid.com/license?allowed_to_use_user=everyone&characterization_allowed_user=everyone&corporate_commercial_use=allow&credit=unnecessary&modification=allow&personal_commercial_use=profit&redistribution=allow&sexual_expression=allow&version=1&violent_expression=allow",
+  "allowedUserName": "Everyone"
+ },
+ "humanoid": {
+  "hips": "J_Bip_C_Hips",
+  "leftUpperLeg": "J_Bip_L_UpperLeg",
+  "rightUpperLeg": "J_Bip_R_UpperLeg",
+  "leftLowerLeg": "J_Bip_L_LowerLeg",
+  "rightLowerLeg": "J_Bip_R_LowerLeg",
+  "leftFoot": "J_Bip_L_Foot",
+  "rightFoot": "J_Bip_R_Foot",
+  "spine": "J_Bip_C_Spine",
+  "chest": "J_Bip_C_Chest",
+  "neck": "J_Bip_C_Neck",
+  "head": "J_Bip_C_Head",
+  "leftShoulder": "J_Bip_L_Shoulder",
+  "rightShoulder": "J_Bip_R_Shoulder",
+  "leftUpperArm": "J_Bip_L_UpperArm",
+  "rightUpperArm": "J_Bip_R_UpperArm",
+  "leftLowerArm": "J_Bip_L_LowerArm",
+  "rightLowerArm": "J_Bip_R_LowerArm",
+  "leftHand": "J_Bip_L_Hand",
+  "rightHand": "J_Bip_R_Hand",
+  "leftToes": "J_Bip_L_ToeBase",
+  "rightToes": "J_Bip_R_ToeBase",
+  "leftEye": "J_Adj_L_FaceEye",
+  "rightEye": "J_Adj_R_FaceEye",
+  "leftThumbProximal": "J_Bip_L_Thumb1",
+  "leftThumbIntermediate": "J_Bip_L_Thumb2",
+  "leftThumbDistal": "J_Bip_L_Thumb3",
+  "leftIndexProximal": "J_Bip_L_Index1",
+  "leftIndexIntermediate": "J_Bip_L_Index2",
+  "leftIndexDistal": "J_Bip_L_Index3",
+  "leftMiddleProximal": "J_Bip_L_Middle1",
+  "leftMiddleIntermediate": "J_Bip_L_Middle2",
+  "leftMiddleDistal": "J_Bip_L_Middle3",
+  "leftRingProximal": "J_Bip_L_Ring1",
+  "leftRingIntermediate": "J_Bip_L_Ring2",
+  "leftRingDistal": "J_Bip_L_Ring3",
+  "leftLittleProximal": "J_Bip_L_Little1",
+  "leftLittleIntermediate": "J_Bip_L_Little2",
+  "leftLittleDistal": "J_Bip_L_Little3",
+  "rightThumbProximal": "J_Bip_R_Thumb1",
+  "rightThumbIntermediate": "J_Bip_R_Thumb2",
+  "rightThumbDistal": "J_Bip_R_Thumb3",
+  "rightIndexProximal": "J_Bip_R_Index1",
+  "rightIndexIntermediate": "J_Bip_R_Index2",
+  "rightIndexDistal": "J_Bip_R_Index3",
+  "rightMiddleProximal": "J_Bip_R_Middle1",
+  "rightMiddleIntermediate": "J_Bip_R_Middle2",
+  "rightMiddleDistal": "J_Bip_R_Middle3",
+  "rightRingProximal": "J_Bip_R_Ring1",
+  "rightRingIntermediate": "J_Bip_R_Ring2",
+  "rightRingDistal": "J_Bip_R_Ring3",
+  "rightLittleProximal": "J_Bip_R_Little1",
+  "rightLittleIntermediate": "J_Bip_R_Little2",
+  "rightLittleDistal": "J_Bip_R_Little3",
+  "upperChest": "J_Bip_C_UpperChest"
+ },
+ "springs": [
+  {
+   "stiffness": 0.75,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_Bust1",
+    "J_Sec_R_Bust1"
+   ]
+  },
+  {
+   "stiffness": 0.5,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_LowerSleeve",
+    "J_Sec_L_TipSleeve",
+    "J_Sec_R_LowerSleeve",
+    "J_Sec_R_TipSleeve"
+   ]
+  },
+  {
+   "stiffness": 0.5,
+   "gravity": 0,
+   "drag": 0.05,
+   "radius": 0.02,
+   "bones": [
+    "J_Sec_L_SkirtBack1",
+    "J_Sec_L_SkirtFront1",
+    "J_Sec_L_SkirtSide2",
+    "J_Sec_R_SkirtBack1",
+    "J_Sec_R_SkirtFront1",
+    "J_Sec_R_SkirtSide1"
+   ]
+  },
+  {
+   "stiffness": 0.600779831,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.037264958,
+   "bones": [
+    "HairJoint-e17dce3f-4249-4ac2-abc6-05b550f1cbb7"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0248975232,
+   "bones": [
+    "HairJoint-d844a34c-f0a7-41f0-9dbf-95cff742c9b3"
+   ]
+  },
+  {
+   "stiffness": 0.4034188,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.020602677,
+   "bones": [
+    "HairJoint-29ee833a-ea1a-4fcb-8c9b-3533fa46aeea"
+   ]
+  },
+  {
+   "stiffness": 0.3008547,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0270042121,
+   "bones": [
+    "HairJoint-63087579-3ae2-4143-b33c-9f91339bd39b"
+   ]
+  },
+  {
+   "stiffness": 0.249572664,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0307746753,
+   "bones": [
+    "HairJoint-68ef5058-3b28-42ae-955f-53d46460126c"
+   ]
+  },
+  {
+   "stiffness": 0.2974359,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0265978128,
+   "bones": [
+    "HairJoint-0cb85c8c-70d3-4066-93ff-f23682ba5904"
+   ]
+  },
+  {
+   "stiffness": 0.249572635,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.02980467,
+   "bones": [
+    "HairJoint-3bc2fdb8-fcd7-4117-8fbc-f0ec28ec48f9"
+   ]
+  },
+  {
+   "stiffness": 0.5962425,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0352136753,
+   "bones": [
+    "HairJoint-f3405174-d75f-4265-8bcd-60894d0f60ec"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.016,
+   "bones": [
+    "HairJoint-f000dd91-baba-4862-9308-8b5652d8ddfd"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.008888889,
+   "bones": [
+    "HairJoint-9554c00a-cdc1-4628-8172-a0112c939675"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.007015653,
+   "bones": [
+    "HairJoint-01f63079-da4e-47d5-b2c6-268e15b3320d"
+   ]
+  },
+  {
+   "stiffness": 0.502564132,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.01,
+   "bones": [
+    "HairJoint-2929a92a-49a4-4d81-ba6a-b0a9f00ed79a"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.00222097337,
+   "bones": [
+    "HairJoint-bf888760-d05b-4e59-ba36-4b0d6dca895b"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.019829059,
+   "bones": [
+    "HairJoint-ef96ab0c-6631-4731-ac3b-6871cef831e3"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.022564102,
+   "bones": [
+    "HairJoint-644f29f8-baed-4f17-bbbd-890c06d7d8ca"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0150427353,
+   "bones": [
+    "HairJoint-19009c59-172e-4b59-abe0-773a363b904d"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0211965814,
+   "bones": [
+    "HairJoint-51efaed8-3c42-4467-8dba-08e2fbd5952c"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.014358975,
+   "bones": [
+    "HairJoint-80912c8b-76c3-4ccb-900b-c5c3da6ff406"
+   ]
+  },
+  {
+   "stiffness": 0.4,
+   "gravity": 0,
+   "drag": 0.4,
+   "radius": 0.0209612027,
+   "bones": [
+    "HairJoint-eb805545-f2fb-4f77-bb23-8d4e88ffc9c3"
+   ]
+  }
+ ],
+ "expressions": {
+  "a": [
+   [
+    "Face.baked",
+    29,
+    1.0
+   ]
+  ],
+  "i": [
+   [
+    "Face.baked",
+    30,
+    1.0
+   ]
+  ],
+  "u": [
+   [
+    "Face.baked",
+    31,
+    1.0
+   ]
+  ],
+  "e": [
+   [
+    "Face.baked",
+    32,
+    1.0
+   ]
+  ],
+  "o": [
+   [
+    "Face.baked",
+    33,
+    1.0
+   ]
+  ],
+  "blink": [
+   [
+    "Face.baked",
+    12,
+    1.0
+   ]
+  ],
+  "blink_l": [
+   [
+    "Face.baked",
+    14,
+    1.0
+   ]
+  ],
+  "blink_r": [
+   [
+    "Face.baked",
+    13,
+    1.0
+   ]
+  ],
+  "angry": [
+   [
+    "Face.baked",
+    0,
+    1.0
+   ]
+  ],
+  "fun": [
+   [
+    "Face.baked",
+    1,
+    1.0
+   ]
+  ],
+  "joy": [
+   [
+    "Face.baked",
+    2,
+    1.0
+   ]
+  ],
+  "sorrow": [
+   [
+    "Face.baked",
+    3,
+    1.0
+   ]
+  ],
+  "surprised": [
+   [
+    "Face.baked",
+    4,
+    1.0
+   ]
+  ],
+  "extra": [
+   [
+    "Face.baked",
+    20,
+    1.0
+   ],
+   [
+    "Face.baked",
+    40,
+    1.0
+   ]
+  ]
+ }
+}

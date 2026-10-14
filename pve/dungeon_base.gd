@@ -24,6 +24,8 @@ var edges: Array[Dictionary] = []       # {pos, yaw, inward, cell}
 var geo: Node3D
 var body: StaticBody3D
 var rng := RandomNumberGenerator.new()
+## Painted environment toolkit (merged visual batches; collision still goes through add_box / body).
+var env: EnvKit
 var light_count: int = 0
 var max_lights: int = 18
 
@@ -46,10 +48,12 @@ func build() -> void:
 	body.collision_mask = 0
 	add_child(body)
 	_compute_cells()
+	env = EnvKit.new(self, hash(map_id + "_env") & 0x7fffffff, body)
 	build_ground()
 	build_boundary()
 	decorate()
 	build_lighting()
+	env.finish(geo)
 
 
 # ------------------------------------------------------------------ overridables
@@ -316,6 +320,11 @@ func omni(pos: Vector3, color: Color, energy: float, rng_m: float, shadows: bool
 	l.shadow_enabled = shadows
 	geo.add_child(l)
 	return l
+
+
+## Painted zone atmosphere (EnvKit presets) instead of make_environment(): WorldEnvironment + Sun + Fill.
+func painted_environment(preset: String, over: Dictionary = {}) -> void:
+	EnvKit.atmosphere(self, preset, over)
 
 
 func make_environment(bg: Color, ambient: Color, ambient_energy: float, fog_color: Color, fog_density: float,

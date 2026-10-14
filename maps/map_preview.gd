@@ -29,6 +29,11 @@ func _ready() -> void:
 			_args[kv[0]] = kv[1]
 	for d: Dictionary in MapRegistry.list("all"):
 		_map_ids.append(str(d["id"]))
+	if _args.has("shot") or _args.has("perf"):
+		# exact 1920x1080 framebuffer (a decorated window gets clipped by the taskbar)
+		get_window().borderless = true
+		get_window().position = Vector2i.ZERO
+		get_window().size = Vector2i(1920, 1080)
 	var id: String = _args.get("map", "classic_arena")
 	_map_index = maxi(0, _map_ids.find(id))
 	cam = Camera3D.new()
@@ -44,9 +49,34 @@ func _ready() -> void:
 	_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_label.add_theme_constant_override("outline_size", 6)
 	cl.add_child(_label)
+	_label.visible = not (_args.has("shot") or _args.has("perf"))
 	_load_map(id)
 	if _args.has("shot"):
 		_shots.call_deferred()
+	elif _args.has("perf"):
+		_perf.call_deferred()
+
+
+## Perf mode: gameplay view with 10 fighters (5v5 on the spawns), prints the mean FPS over --perf seconds.
+func _perf() -> void:
+	await get_tree().create_timer(float(_args.get("wait", "3.0"))).timeout
+	_set_view(_args.get("views", "tps"))
+	var secs := float(_args["perf"])
+	var frames := 0
+	var t0 := Time.get_ticks_usec()
+	var worst := 0.0
+	var last := t0
+	while Time.get_ticks_usec() - t0 < int(secs * 1000000.0):
+		await get_tree().process_frame
+		var now := Time.get_ticks_usec()
+		worst = maxf(worst, (now - last) / 1000.0)
+		last = now
+		frames += 1
+	var dt := (Time.get_ticks_usec() - t0) / 1000000.0
+	print("PERF map=%s fps=%.1f worst_frame_ms=%.1f draws=%d prims=%d" % [map.map_id, frames / dt, worst,
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
+	get_tree().quit()
 
 
 func _load_map(id: String) -> void:
@@ -64,7 +94,7 @@ func _load_map(id: String) -> void:
 	map.build()
 	_set_view("overview")
 	_update_label()
-	if _args.get("chars", "1") == "1":
+	if _args.get("chars", "1") != "0":
 		_place_chars.call_deferred()
 
 
@@ -78,7 +108,8 @@ func _place_chars() -> void:
 	for team in [0, 1]:
 		var pts := map.get_spawn_points(team)
 		var yaw := map.get_spawn_yaw(team)
-		for i in mini(pts.size(), 3):
+		var per_team := 5 if _args.get("chars", "1") == "10" else 3
+		for i in mini(pts.size(), per_team):
 			var c: Array = classes[(i + team * 2) % classes.size()]
 			var v := CharacterVisual.create_for_class(c[0], c[1], c[2], ArenaMap.TEAM_COLORS[team])
 			v.position = _ground(pts[i])
@@ -125,6 +156,15 @@ func _set_view(view: String) -> void:
 			var d := CoreUtil.flat_dir(c - bc)
 			pos = bc - d * 4.5 + Vector3(0, 3.6, 0)
 			target = bc + d * 12.0 + Vector3(0, 1.0, 0)
+		"game", "game_red":
+			# gameplay camera: 4.5 m behind and 3.5 m above a spawn, looking across the map
+			var sc := bc if view == "game" else rc
+			var d := CoreUtil.flat_dir(c - sc)
+			pos = sc - d * 4.5 + Vector3(0, 3.5, 0)
+			target = sc + d * 14.0 + Vector3(0, 0.6, 0)
+		"est":
+			pos = c + Vector3(s * 0.75, s * 0.42, s * 0.7)
+			target = c + Vector3(0, -s * 0.05, 0)
 		"tps_red":
 			var d := CoreUtil.flat_dir(c - rc)
 			pos = rc - d * 4.5 + Vector3(0, 3.6, 0)
@@ -151,7 +191,8 @@ func _set_view(view: String) -> void:
 
 func _shots() -> void:
 	var wait := float(_args.get("wait", "1.2"))
-	var views: PackedStringArray = str(_args.get("views", "overview,tps,side")).split(";" if str(_args.get("views", "")).contains(";") else ",")
+	var vs := str(_args.get("views", "overview,tps,side"))
+	var views: PackedStringArray = vs.split(";" if vs.contains(";") or vs.contains("custom:") else ",")
 	await get_tree().create_timer(wait).timeout
 	for v in views:
 		_set_view(v)

@@ -238,7 +238,10 @@ func floor_grid(rect: Rect2, y: float = 0.0, tile: String = D + "floor_tile_larg
 
 ## Raised stone platform: foundation blocks on the edges, 2 m floor tiles on top, solid collision.
 ## rect is in XZ meters (multiples of 2 recommended), h = top height.
-func platform(rect: Rect2, h: float, top_tile: String = D + "floor_tile_small.gltf", base_y: float = 0.0) -> void:
+func platform(rect: Rect2, h: float, top_tile: String = D + "floor_tile_small.gltf", base_y: float = 0.0, visual: bool = true) -> void:
+	if not visual:
+		platform_col(rect, h, base_y)
+		return
 	var nx := int(round(rect.size.x / 2.0))
 	var nz := int(round(rect.size.y / 2.0))
 	var sy := (h - base_y) / 2.0
@@ -250,6 +253,11 @@ func platform(rect: Rect2, h: float, top_tile: String = D + "floor_tile_small.gl
 			if edge:
 				piece(D + "floor_foundation_allsides.gltf", Vector3(cx, base_y, cz), 0.0, Vector3(1.0, sy, 1.0))
 			piece(top_tile, Vector3(cx, h - 0.05, cz), 90.0 * ((ix * 7 + iz * 3) % 4), Vector3.ONE, false)
+	platform_col(rect, h, base_y)
+
+
+## Collision only for a raised platform (top at h).
+func platform_col(rect: Rect2, h: float, base_y: float = 0.0) -> void:
 	var cy := (h + base_y) * 0.5 - 0.5
 	col_box(Vector3(rect.get_center().x, cy, rect.get_center().y), Vector3(rect.size.x, h - base_y + 1.0, rect.size.y), 0.0, "Plat")
 
@@ -257,9 +265,9 @@ func platform(rect: Rect2, h: float, top_tile: String = D + "floor_tile_small.gl
 ## Stair ramp (KayKit long modular stairs, scaled) going from `top` (center of the upper edge, y = top height)
 ## down along direction yaw (degrees; 0 = towards +Z) for `length` meters to `base_y`. width multiple of 2.
 ## Collision is a slope plane through the step noses; slope = atan(h/length) (keep <= 35 deg).
-func ramp(top: Vector3, yaw_deg: float, length: float, width: float = 4.0, base_y: float = 0.0) -> void:
+func ramp(top: Vector3, yaw_deg: float, length: float, width: float = 4.0, base_y: float = 0.0, visual: bool = true) -> void:
 	var h := top.y - base_y
-	var modules := maxi(1, int(round(width / 2.0)))
+	var modules := maxi(1, int(round(width / 2.0))) if visual else 0
 	var b := Basis(Vector3.UP, deg_to_rad(yaw_deg))
 	var right := b * Vector3.RIGHT
 	for i in modules:

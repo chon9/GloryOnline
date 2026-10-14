@@ -21,6 +21,16 @@ const MODE_SCRIPTS: Dictionary = {
 const RESULTS_SCRIPT := preload("res://ui/results.gd")
 const PAUSE_SCRIPT := preload("res://ui/pause_menu.gd")
 const SPECTATE_DELAY: float = 1.5
+## EnvKit atmosphere preset per map id (maps call setup_atmosphere / painted_environment with these). A map can
+## override it with an `env_zone` property or meta.
+const ZONE_BY_MAP: Dictionary = {
+	"classic_arena": "glory_stage",
+	"hundred_blossoms": "blossom",
+	"old_castle": "golden_ruins",
+	"lava_cave": "lava",
+	"boneyard": "moon",
+	"frost_forest": "frost",
+}
 const RESULTS_DELAY: float = 2.5
 
 var settings: Dictionary = {}
@@ -55,6 +65,7 @@ func _ready() -> void:
 	world.name = "World"
 	add_child(world)
 	map.apply_to_world(world)
+	apply_zone()
 	world.fighter_removed.connect(_on_fighter_removed)
 	mode = create_mode()
 	add_child(mode)
@@ -78,8 +89,36 @@ func _ready() -> void:
 			controller.camera.mouse_sensitivity = _game().mouse_sensitivity()
 		spectate_cam.mouse_sensitivity = _game().mouse_sensitivity())
 	spectate_cam.mouse_sensitivity = _game().mouse_sensitivity()
+	_apply_camera_prefs()
+	if _game().has_signal("prefs_changed"):
+		_game().connect("prefs_changed", _apply_camera_prefs)
 	_update_cameras(0.0)
 	_game().on_match_scene_ready(self)
+
+
+func _apply_camera_prefs() -> void:
+	var on := bool(_game().prefs.get("camera_shake", true))
+	for rig: CameraRig in [controller.camera if controller != null else null, spectate_cam]:
+		if rig != null and is_instance_valid(rig):
+			rig.impact_feedback = on
+
+
+func _exit_tree() -> void:
+	CharacterVisual.set_zone("", get_tree())
+
+
+## Zone rim / shadow tint for every character visual (CHARS request): the map's EnvKit preset, "" = neutral.
+func apply_zone() -> String:
+	var z := ""
+	if map != null:
+		if map.has_meta("env_zone"):
+			z = str(map.get_meta("env_zone"))
+		elif "env_zone" in map:
+			z = str(map.get("env_zone"))
+		else:
+			z = str(ZONE_BY_MAP.get(map.map_id, ""))
+	CharacterVisual.set_zone(z, get_tree())
+	return z
 
 
 ## Host: every peer has loaded; start the mode (spawns fighters through World's spawner).

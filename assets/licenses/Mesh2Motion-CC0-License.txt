@@ -1,0 +1,11 @@
+Mesh2Motion human animation library
+Author: Mesh2Motion (mesh2motion.org); base set built on Universal Animation Library 1 and 2 by Quaternius (quaternius.com)
+Source: https://github.com/Mesh2Motion/mesh2motion-app (static/animations/human-base-animations.glb, human-addon-animations.glb)
+License: Creative Commons Zero (CC0 1.0 Universal) - https://github.com/Mesh2Motion/mesh2motion-app/blob/main/LICENSE-CC0.MD
+  "All 3d models, blend files, rigs, animations" are CC0.
+  https://creativecommons.org/publicdomain/zero/1.0/legalcode
+Universal Animation Library (Quaternius): CC0 1.0.
+
+Files: assets/anims/anime/human-base-animations.glb, human-addon-animations.glb (unmodified; retargeted at import
+time through assets/characters/anime/retarget/m2m.tres).
+Credit (optional): Animations: Mesh2Motion (mesh2motion.org), CC0; includes Universal Animation Library by Quaternius, CC0.

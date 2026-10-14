@@ -76,7 +76,9 @@ func _physics_process(_delta: float) -> void:
 		camera.target = fighter
 		# Local hit feedback (works on clients too: hp is replicated).
 		if _last_hp >= 0.0 and fighter.hp < _last_hp - 1.0:
-			camera.shake(clampf((_last_hp - fighter.hp) / fighter.max_hp * 8.0, 0.15, 0.8))
+			var frac := (_last_hp - fighter.hp) / maxf(fighter.max_hp, 1.0)
+			if frac > 0.02:
+				camera.shake(clampf(frac * 4.0, 0.1, 0.45))
 		_last_hp = fighter.hp
 	var inp := build_input()
 	if multiplayer.is_server():

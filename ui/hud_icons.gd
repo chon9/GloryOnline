@@ -1,9 +1,11 @@
 extends RefCounted
-## Procedural HUD icons drawn straight onto a CanvasItem (no textures, no per-frame allocations of nodes).
+## HUD icons drawn straight onto a CanvasItem. Painted PNGs from the ICONS track (assets/icons/**) are used when present;
+## otherwise the procedural fallback below draws them (no per-frame node allocations).
 ## Skill icon: gradient tile in kit.tint + first CN glyph of the skill name + a small shape by tags.
 ## Status icon: colored badge + CN glyph, red rim for debuffs, green/gold rim for buffs.
 
 const HudStyle := preload("res://ui/hud_style.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 ## Tag -> badge shape (first matching tag wins, in this order).
 const TAG_ORDER: Array[String] = ["ultimate", "launcher", "grab", "heal", "summon", "gap_closer", "escape", "cc",
@@ -76,6 +78,10 @@ static func skill_glyph(skill: SkillDef) -> String:
 
 ## Full skill icon inside `r`. `tint` = kit.tint (or mob tint).
 static func draw_skill_icon(ci: CanvasItem, r: Rect2, skill: SkillDef, tint: Color) -> void:
+	var painted := HudStyle.skill_icon(skill)
+	if painted != null:
+		ci.draw_texture_rect(painted, r, false)
+		return
 	if skill == null:
 		gradient_rect(ci, r, Color(0.12, 0.13, 0.16), Color(0.06, 0.07, 0.09), 7.0)
 		return
@@ -166,27 +172,56 @@ static func _star(ci: CanvasItem, cen: Vector2, r_out: float, r_in: float, n: in
 	ci.draw_colored_polygon(pts, c)
 
 
-## Status badge for StatusSet bit `bit` inside `r`.
-static func draw_status_icon(ci: CanvasItem, r: Rect2, bit: int) -> void:
+## Status badge for StatusSet bit `bit` inside `r`: painted icon, else ink ground + glyph; polarity frame
+## (buff green-gold, debuff red, CC purple) on the procedural fallback (painted icons carry their own bevel).
+static func draw_status_icon(ci: CanvasItem, r: Rect2, bit: int, alpha: float = 1.0) -> void:
 	if bit < 0 or bit >= HudStyle.STATUS_INFO.size():
+		return
+	var painted := HudStyle.status_icon(bit)
+	if painted != null:
+		ci.draw_texture_rect(painted, r, false, Color(1, 1, 1, alpha))
 		return
 	var info: Array = HudStyle.STATUS_INFO[bit]
 	var c: Color = info[3]
-	var neg := HudStyle.is_negative_bit(bit)
-	gradient_rect(ci, r, c.lerp(Color.WHITE, 0.15).darkened(0.15), c.darkened(0.6), 4.0)
-	glyph(ci, r.get_center(), str(info[0]), int(r.size.y * 0.66), Color(1, 1, 1), maxi(2, int(r.size.y * 0.12)))
-	var rim := Color(1.0, 0.3, 0.25) if neg else Color(0.55, 1.0, 0.55)
-	outline_rect(ci, r, rim, 1.5, 4.0)
+	var frame := HudStyle.status_frame_color(bit)
+	var rid := ci.get_canvas_item()
+	var pts := GD.chamfer(r, r.size.x * 0.18)
+	var cols := PackedColorArray()
+	for v in pts:
+		var k := clampf((v.y - r.position.y) / maxf(r.size.y, 1.0), 0.0, 1.0)
+		cols.append(Color(c.darkened(0.55).lerp(Color(0.03, 0.04, 0.08), k * 0.8), alpha))
+	GD.poly_grad(rid, pts, cols)
+	GD.circle(rid, r.get_center() + Vector2(0, -r.size.y * 0.06), r.size.x * 0.32, Color(c, 0.22 * alpha))
+	glyph(ci, r.get_center() + Vector2(0, r.size.y * 0.02), str(info[0]), int(r.size.y * 0.6), Color(c.lerp(Color.WHITE, 0.55), alpha),
+		maxi(2, int(r.size.y * 0.1)), Color(0.02, 0.03, 0.07, 0.95 * alpha))
+	if HudStyle.is_negative_bit(bit) and not HudStyle.CC_BITS.has(bit):
+		GD.polyline(rid, pts, Color(frame, alpha), maxf(1.2, r.size.x * 0.06), true)
+	elif HudStyle.CC_BITS.has(bit):
+		GD.polyline(rid, pts, Color(frame, alpha), maxf(1.5, r.size.x * 0.08), true)
+	else:
+		GD.polyline(rid, pts, Color(HudStyle.UI_GOLD, alpha), maxf(1.2, r.size.x * 0.06), true)
+		GD.polyline(rid, GD.chamfer(r.grow(-2.0), r.size.x * 0.14), Color(frame, 0.6 * alpha), 1.0, true)
 
 
-## Circular class portrait: tint disc + class glyph, ring in `ring` color.
+## Class emblem (painted assets/icons/class/<id>.png, else the procedural gold-on-navy crest).
+static func draw_class_emblem(ci: CanvasItem, r: Rect2, class_id: String, glyph_text: String, tint: Color, dead: bool = false) -> void:
+	var t := HudStyle.class_emblem(class_id)
+	var mod := Color(0.5, 0.5, 0.52) if dead else Color.WHITE
+	if t != null:
+		ci.draw_texture_rect(t, r, false, mod)
+		return
+	GD.crest(ci.get_canvas_item(), r, glyph_text, tint if not dead else Color(0.4, 0.4, 0.42), HudStyle.brush())
+
+
+## Circular class badge: navy disc, class emblem, ring in `ring` colour (team / self / boss).
 static func draw_portrait(ci: CanvasItem, cen: Vector2, radius: float, f: Fighter, ring: Color, dead: bool) -> void:
-	var tint := HudStyle.class_color(f)
-	if dead:
-		tint = Color(0.35, 0.35, 0.38)
-	ci.draw_circle(cen, radius, Color(0.03, 0.04, 0.06, 0.95))
-	ci.draw_circle(cen, radius * 0.86, tint.darkened(0.55))
-	ci.draw_circle(cen + Vector2(-radius * 0.18, -radius * 0.2), radius * 0.55, Color(tint.r, tint.g, tint.b, 0.35))
-	glyph(ci, cen, HudStyle.class_glyph(f), int(radius * 1.05), Color(1, 0.97, 0.9) if not dead else Color(0.7, 0.7, 0.7),
-		maxi(3, int(radius * 0.12)))
-	ci.draw_arc(cen, radius - 1.0, 0, TAU, 40, ring, 2.5, true)
+	var rid := ci.get_canvas_item()
+	GD.circle(rid, cen, radius, Color(0.03, 0.05, 0.1, 0.95))
+	GD.circle(rid, cen, radius * 0.86, Color(0.07, 0.12, 0.22, 0.95))
+	var cid := ""
+	if f != null and is_instance_valid(f):
+		cid = f.class_id if f.kit != null else ""
+	var er := Rect2(cen - Vector2(radius, radius) * 0.78, Vector2(radius, radius) * 1.56)
+	draw_class_emblem(ci, er, cid, HudStyle.class_glyph(f), HudStyle.class_color(f), dead)
+	GD.arc(rid, cen, radius - 1.0, 0, TAU, ring, 2.2, 40)
+	GD.arc(rid, cen, radius - 3.5, 0, TAU, Color(GD.GOLD_SH, 0.8), 1.0, 40)

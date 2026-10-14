@@ -105,6 +105,17 @@ func _test_map(id: String) -> void:
 	check(map.find_children("*", "DirectionalLight3D", true, false).size() >= 1, "[%s] has DirectionalLight3D" % id)
 	var omni := map.find_children("*", "OmniLight3D", true, false).size()
 	check(omni >= 1 and omni <= 16, "[%s] a few omni lights" % id, str(omni))
+	# art migration: painted look-dev environment, no KayKit tile pieces, one zone atmosphere
+	var painted := map.find_child("PaintedGeometry", true, false)
+	check(painted != null and painted.get_child_count() >= 5, "[%s] painted environment batches built" % id,
+		str(painted.get_child_count() if painted != null else 0))
+	check(map is ArenaMap and (map as ArenaMap).kit.piece_count == 0, "[%s] no KayKit tile pieces left" % id)
+	var we := map.find_children("*", "WorldEnvironment", true, false)
+	var sky_ok := false
+	if we.size() == 1:
+		var e := (we[0] as WorldEnvironment).environment
+		sky_ok = e.sky != null and e.sky.sky_material is ShaderMaterial and e.fog_enabled and e.glow_enabled
+	check(sky_ok, "[%s] painted sky + fog + glow grading" % id)
 	var draws := map.find_children("*", "GeometryInstance3D", true, false).size()
 	check(draws <= 160, "[%s] draw-call budget (geometry nodes <= 160)" % id, str(draws))
 	# ramps <= 35 degrees

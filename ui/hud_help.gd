@@ -37,15 +37,18 @@ var _class_key: String = ""
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var sb := HudStyle.panel(Color(0.03, 0.04, 0.07, 0.93), HudStyle.C_BORDER, 14, 2, 18.0)
-	sb.shadow_color = Color(0, 0, 0, 0.5)
-	sb.shadow_size = 16
+	var sb := HudStyle.glory("panel", 0.0)
+	sb.set("fill", Color(0.04, 0.075, 0.13, 0.95))
+	sb.content_margin_left = 30.0
+	sb.content_margin_right = 30.0
+	sb.content_margin_top = 20.0
+	sb.content_margin_bottom = 18.0
 	add_theme_stylebox_override("panel", sb)
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 8)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
-	title = HudStyle.make_label("", 26, HudStyle.C_GOLD, true, 5)
+	title = HudStyle.make_label("", 26, HudStyle.UI_GOLD_HI, true, 5)
 	root.add_child(title)
 	info = HudStyle.make_label("", 14, HudStyle.C_TEXT_DIM, false, 3)
 	root.add_child(info)
@@ -87,11 +90,11 @@ func _init() -> void:
 	cv.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cv.custom_minimum_size = Vector2(300, 0)
 	cols.add_child(cv)
-	cv.add_child(HudStyle.make_label("操作 Controls", 18, HudStyle.C_GOLD, true))
+	cv.add_child(HudStyle.make_label("操作 Controls", 18, HudStyle.UI_GOLD_HI, true))
 	for c: Array in CONTROLS:
 		var hb := HBoxContainer.new()
 		hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var k := HudStyle.make_label(str(c[0]), 14, Color(1, 0.92, 0.7), true, 3)
+		var k := HudStyle.make_label(str(c[0]), 14, HudStyle.UI_CYAN, true, 3)
 		k.custom_minimum_size = Vector2(96, 0)
 		hb.add_child(k)
 		hb.add_child(HudStyle.make_label(str(c[1]), 14, HudStyle.C_TEXT, false, 3))

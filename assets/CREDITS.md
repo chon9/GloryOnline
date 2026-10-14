@@ -5,10 +5,12 @@ Attribution is not required, but it is given here gladly. License texts are in `
 
 | Pack | Author | License | Used for | Folder |
 |---|---|---|---|---|
-| KayKit Character Animations 1.1 (Rig_Medium, Rig_Large) | Kay Lousberg (KayKit), www.kaylousberg.com | CC0 1.0 | all animations | `anims/` |
-| KayKit Adventurers 2.0 (characters + weapons) | Kay Lousberg (KayKit) | CC0 1.0 | player bodies, weapons | `characters/`, `weapons/adv/` |
+| VRoid Project CC0 sample models (11 bases, converted) | VRoid Project (pixiv Inc.), via OpenGameArt | CC0 1.0 (VRoid Hub licence: redistribution + modification allowed, credit unnecessary) | all 25 player-class bodies | `characters/anime/` |
+| Mesh2Motion human animation library (base + addon) | Mesh2Motion (mesh2motion.org), incl. Universal Animation Library by Quaternius | CC0 1.0 | player-class animations | `anims/anime/human-*.glb` |
+| KayKit Character Animations 1.1 (Rig_Medium, Rig_Large) | Kay Lousberg (KayKit), www.kaylousberg.com | CC0 1.0 | mob/boss/summon animations; CombatMelee + CombatRanged copies retargeted as player gap-filler clips | `anims/`, `anims/anime/kaykit_*.glb` |
+| KayKit Adventurers 2.0 (weapons) | Kay Lousberg (KayKit) | CC0 1.0 | mob weapons | `weapons/adv/` |
 | KayKit Skeletons 1.1 (characters + weapons) | Kay Lousberg (KayKit) | CC0 1.0 | mobs, mob weapons | `characters/`, `weapons/special/` |
-| KayKit Mystery Monthly Series 4 / 5 / 6 (characters + props) | Kay Lousberg (KayKit) | CC0 1.0 | player bodies, bosses, weapons | `characters/`, `weapons/special/` |
+| KayKit Mystery Monthly Series 4 / 5 / 6 (characters + props) | Kay Lousberg (KayKit) | CC0 1.0 | bosses, summons, mob weapons | `characters/`, `weapons/special/` |
 | KayKit Fantasy Weapons Bits 1.0 | Kay Lousberg (KayKit) | CC0 1.0 | weapons | `weapons/fantasy/` |
 | KayKit Prototype Bits 1.1 (Gun_Pistol/Rifle/Sniper) | Kay Lousberg (KayKit) | CC0 1.0 | rifle | `weapons/guns/` |
 | KayKit Dungeon Remastered 1.1 (all 283 pieces) | Kay Lousberg (KayKit) | CC0 1.0 | arenas, raid dungeon | `env/dungeon/` |
@@ -32,109 +34,89 @@ One texture was missing from the mirror's `OrcRaider.glb`; `characters/OrcRaider
 same pack's `textures/` folder and is applied at load time by `CharacterVisual.TEXTURE_FIX`.
 
 ---------------------------------------------------------------------------------------------------
-## Class -> body mapping (CharacterVisual.CLASS_MODEL)
+## Player bodies: anime pipeline (CharacterVisual "anime" rig, ClassDress)
 
-All 25 classes have a distinct KayKit Medium-rig body; `tint` is the class accent colour (VFX/UI/weapon glow).
+All 25 classes are re-dressed VRoid CC0 bases (art migration, `docs/ART_MIGRATION.md`). The body, recolour maps,
+procedural costume, proportions, clips and weapon grips of a class come from `visuals/class_dress.gd` (temporary
+recolour) or its own `visuals/dress/<class_id>.gd` (hand-built). Recipe: `visuals/dress/README.md`.
 
-| class_id | 职业 | model id | file |
+| base key | file (assets/characters/anime/) | source VRM | VRM meta licence |
 |---|---|---|---|
-| blade_master | 剑客 Blade Master | ranger | characters/Ranger.glb |
-| berserker | 狂剑士 Berserker | barbarian | characters/Barbarian.glb |
-| spellblade | 魔剑士 Spellblade | avian_swordsman | characters/AvianSwordsman.glb |
-| ghostblade | 鬼剑士 Ghostblade | tiefling | characters/Tiefling.glb |
-| battle_mage | 战斗法师 Battle Mage | protagonist_a | characters/Protagonist_A.glb |
-| elementalist | 元素法师 Elementalist | mage | characters/Mage.glb |
-| witch | 魔道学者 Witch | witch | characters/Witch.glb |
-| summoner | 召唤师 Summoner | druid | characters/Druid.glb |
-| sharpshooter | 神枪手 Sharpshooter | marksman | characters/Marksman.glb |
-| spitfire | 弹药专家 Spitfire | action_figure | characters/ActionFigure.glb |
-| launcher | 枪炮师 Launcher | combat_mech | characters/CombatMech.glb |
-| mechanic | 机械师 Mechanic | engineer | characters/Engineer.glb |
-| striker | 拳法家 Striker | superhero | characters/Superhero.glb |
-| qi_master | 气功师 Qi Master | protagonist_b | characters/Protagonist_B.glb |
-| grappler | 柔道 Grappler | caveman | characters/Caveman.glb |
-| brawler | 流氓 Brawler | survivalist | characters/Survivalist.glb |
-| assassin | 刺客 Assassin | rogue_hooded | characters/Rogue_Hooded.glb |
-| ninja | 忍者 Ninja | ninja | characters/Ninja.glb |
-| thief | 盗贼 Thief | hoarder | characters/Hoarder.glb |
-| warlock | 术士 Warlock | vampire | characters/Vampire.glb |
-| knight | 骑士 Knight | knight | characters/Knight.glb |
-| exorcist | 驱魔师 Exorcist | lorekeeper | characters/Lorekeeper.glb |
-| cleric | 牧师 Cleric | cleric | characters/Cleric.glb |
-| paladin | 守护天使 Paladin | paladin_helmet | characters/Paladin_with_Helmet.glb |
-| unspecialized | 散人 Unspecialized | rogue | characters/Rogue.glb |
+| sakurada | vroid_sakurada.glb | Sakurada Fumiriya.vrm (桜田 史利矢) | VRoid Hub: redistribution/modification allow, credit unnecessary |
+| hairsample_male | vroid_hairsample_male.glb | HairSample_Male.vrm | CC0 |
+| base_male | vroid_base_male.glb | Base_Male.vrm | CC0 |
+| avatarsample_d | vroid_avatarsample_d.glb | AvatarSample_D.vrm (千駄ヶ谷 渋) | VRoid Hub (as above) |
+| avatarsample_d_darkness | vroid_avatarsample_d_darkness.glb | AvatarSample_D_Darkness.vrm | CC0 |
+| avatarsample_e | vroid_avatarsample_e.glb | AvatarSample_E.vrm (ビビ) | VRoid Hub (as above) |
+| avatarsample_f | vroid_avatarsample_f.glb | AvatarSample_F.vrm (ヴィータ) | VRoid Hub (as above) |
+| avatarsample_g | vroid_avatarsample_g.glb | AvatarSample_G.vrm (ヴィクトリア・ルービン) | VRoid Hub (as above) |
+| base_female | vroid_base_female.glb | Base_Female.vrm | CC0 |
+| hairsample_female | vroid_hairsample_female.glb | HairSample_Female.vrm | CC0 |
+| sendagaya_shino | vroid_sendagaya_shino.glb | Sendagaya Shino.vrm (千駄ヶ谷 篠) | VRoid Hub (as above) |
 
-Spare Medium bodies (summons, NPCs, alternates): paladin, space_ranger, hiker, magical_girl, plant_warrior,
-toy_soldier, robot_one, robot_two (Mechanic robots), werewolf_man.
+All 11 are listed on OpenGameArt ("VRoid Studio CC0 models", explicitly released by VRoid under CC0) and every
+embedded VRM meta allows redistribution and modification (checked before conversion). Converted with
+`characters/anime/tools/vrm2glb.py` (512 px body / 1024 px face+hair textures), retargeted at import to
+SkeletonProfileHumanoid through `characters/anime/retarget/vroid.tres` (BoneMaps generated by
+`characters/anime/tools/make_bonemaps.gd`, import patched by `tools/patch_import.py`).
+Licence notes: `licenses/VRoid-CC0-Sample-Models-License.txt`, `licenses/Mesh2Motion-CC0-License.txt`.
 
-Mobs (Medium rig): skeleton_minion, skeleton_warrior, skeleton_rogue, skeleton_mage, necromancer,
-werewolf (Werewolf_Wolf.glb), werewolf_man, orc_raider.
-Bosses (Large rig, ~3.5 m): black_knight, frost_golem, orc_brute, monstrosity, skeleton_golem, clanker,
-barbarian_large. Suggested boss/mob weapons: `CharacterVisual.MOB_WEAPONS`.
+| class_id | 职业 | base | dress |
+|---|---|---|---|
+| battle_mage | 战斗法师 Battle Mage | sakurada | `dress/battle_mage.gd` (finished) |
+| launcher | 枪炮师 Launcher | avatarsample_g | `dress/launcher.gd` (finished) |
+| witch | 魔道学者 Witch | hairsample_male | `dress/witch.gd` (finished) |
+| unspecialized | 散人 Unspecialized | hairsample_male | `dress/unspecialized.gd` (finished) |
+| blade_master | 剑客 Blade Master | sakurada | `dress/blade_master.gd` (finished) |
+| other 20 classes | | see `ClassDress.FALLBACK` | temporary recolour + belt |
+
+KayKit bodies kept (toon-restyled at load): summons magical_girl, plant_warrior, toy_soldier, robot_one, robot_two;
+mobs skeleton_minion, skeleton_warrior, skeleton_rogue, skeleton_mage, necromancer, werewolf (Werewolf_Wolf.glb),
+werewolf_man, orc_raider; bosses (Large rig, ~3.5 m) black_knight, frost_golem, orc_brute, monstrosity,
+skeleton_golem, clanker, barbarian_large. Suggested boss/mob weapons: `CharacterVisual.MOB_WEAPONS`.
+The KayKit player bodies used before the migration were removed from `characters/`.
 
 ---------------------------------------------------------------------------------------------------
-## Animation key -> clip (CharacterVisual.ANIM_MAP)
+## Animation key -> clip
 
-Clips come from `anims/Rig_Medium_*.glb` (MovementBasic, MovementAdvanced, General, CombatMelee, CombatRanged,
-Special, Simulation) and `anims/Rig_Large_*.glb` (MovementBasic, MovementAdvanced, General, CombatMelee).
-One AnimationLibrary per rig is built at runtime; Rig_Large position tracks other than root/hips are stripped
-(fixes the KayKit Large head-offset, the head otherwise sinks ~0.115 m).
+Anime rig (`CharacterVisual.ANIME_ANIM_MAP`; Mesh2Motion clips, `kk_` = KayKit clip retargeted through
+`characters/anime/retarget/kaykit.tres`). Weapon stances (`ANIME_STANCE_OVERRIDES`) and dress `anims` override idle /
+attack per class (e.g. Battle Mage idle = Fighting Idle, Launcher idle = Idle_FoldArms with the cannon on the shoulder).
 
-| key | Medium clip | Large clip | loop/hold |
+| key | anime clip | key | anime clip |
 |---|---|---|---|
-| idle | Idle_A (2h stance: Melee_2H_Idle, unarmed: Melee_Unarmed_Idle) | Idle_A | loop |
-| run | Running_A (rifle: Running_HoldingRifle) | Running_A | loop |
-| walk | Walking_A | Walking_A | loop |
-| jump | Jump_Start | Dodge_Forward | |
-| fall | Jump_Idle | Idle_B | loop |
-| land | Jump_Land | Melee_Unarmed_Idle | |
-| hit | Hit_A | Hit_A | |
-| launched | Hit_B | Hit_A | hold last frame |
-| knockdown | Death_A | Death_A | hold last frame |
-| getup | Lie_StandUp | Dodge_Backwards | |
-| stunned | Idle_B | Idle_B | loop |
-| death | Death_B | Death_A | hold last frame |
-| dash | Dodge_Forward | Dodge_Forward | |
-| block | Melee_Blocking | Melee_Blocking | loop |
-| cast | Ranged_Magic_Shoot | Melee_Unarmed_Punch | |
-| cast_long | Ranged_Magic_Spellcasting_Long | Melee_Block | loop |
-| channel | Ranged_Magic_Spellcasting | Melee_Blocking | loop |
-| attack | Melee_1H_Attack_Chop (unarmed: Punch_A) | Melee_1H_Slash | |
-| attack_1h_1 | Melee_1H_Attack_Slice_Diagonal | Melee_1H_Slash | |
-| attack_1h_2 | Melee_1H_Attack_Slice_Horizontal | Melee_Dualwield_Slash | |
-| attack_1h_3 | Melee_1H_Attack_Chop | Melee_1H_Stab | |
-| attack_2h | Melee_2H_Attack_Chop | Melee_2H_Attack | |
-| attack_spin | Melee_2H_Attack_Spin | Melee_Dualwield_SlashCombo | |
-| attack_stab | Melee_1H_Attack_Stab | Melee_1H_Stab | |
-| attack_slam | Melee_2H_Attack_Slice | Melee_2H_Slam | |
-| attack_dual | Melee_Dualwield_Attack_Slice | Melee_Dualwield_Slash | |
-| kick | Melee_Unarmed_Attack_Kick | Melee_Unarmed_Kick | |
-| punch | Melee_Unarmed_Attack_Punch_A | Melee_Unarmed_Punch | |
-| punch_combo | Melee_Dualwield_Attack_Stab | Melee_Dualwield_SlashCombo | |
-| shoot_1h | Ranged_1H_Shoot | Melee_1H_Stab | |
-| shoot_2h | Ranged_2H_Shoot | Melee_Block_Attack | |
-| shoot_dual | Ranged_Magic_Shoot | Melee_Dualwield_Slash | |
-| throw | Throw | Melee_1H_Slash | |
-| summon | Ranged_Magic_Summon | Melee_Unarmed_Smash | |
-| heal | Ranged_Magic_Raise | Idle_B | |
-| taunt | Skeletons_Taunt | Melee_Unarmed_Smash | |
-| grab | Melee_Block_Attack | Melee_Block_Attack | |
-| leap | Jump_Full_Long | Melee_2H_Slam | |
-| aerial | Melee_1H_Attack_Jump_Chop | Melee_2H_Slam | |
-| victory | Cheering | Melee_Unarmed_Smash | |
+| idle | Idle_A (stances: Fighting Idle / Spell_Simple_Idle / Pistol_Idle) | attack | Sword_Regular_A (fist: Punch_Jab, caster: Spell_Simple_Shoot) |
+| run | Run_Anime | attack_1h_1 / _2 / _3 | Sword_Regular_A / B / C |
+| walk | Walk | attack_2h | Sword_Regular_C |
+| jump / fall / land | Jump_Start / Jump_air / Jump_Land | attack_spin | kk_Melee_2H_Attack_Spin |
+| hit / launched | Hit_Chest / Hit_Knockback | attack_stab | Sword_Regular_A |
+| knockdown / getup | Death_B / LayToIdle | attack_slam | Attack_Ground_Pound |
+| stunned | Dizzy | attack_dual | kk_Melee_Dualwield_Attack_Slice |
+| death | Death_A | kick | kk_Melee_Unarmed_Attack_Kick |
+| dash | Sword_Dash_RM (root motion stripped) | punch / punch_combo | Punch_Jab / Punch_Cross |
+| block | Sword_Block | shoot_1h / shoot_dual | Pistol_Shoot |
+| cast | Spell_Simple_Shoot | shoot_2h | kk_Ranged_2H_Shoot |
+| cast_long | kk_Ranged_Magic_Spellcasting_Long | throw | OverhandThrow |
+| channel | Spell_Simple_Idle | summon / heal | kk_Ranged_Magic_Summon / kk_Ranged_Magic_Raise |
+| taunt | Angry | grab | Melee_Hook |
+| leap | NinjaJump_Start | aerial | kk_Melee_1H_Attack_Jump_Chop |
+| victory | Victory | | |
+
+KayKit rigs (mobs, bosses, summons) keep `CharacterVisual.ANIM_MAP` on the Rig_Medium / Rig_Large libraries
+(`anims/Rig_*.glb`, one library per rig built at runtime; Rig_Large position tracks other than root/hips are
+stripped, fixing the KayKit Large head offset). Main clips: idle Idle_A, run Running_A, walk Walking_A, hit Hit_A,
+launched Hit_B, death Death_B, cast Ranged_Magic_Shoot, attack Melee_1H_Attack_Chop, attack_2h Melee_2H_Attack_Chop,
+attack_spin Melee_2H_Attack_Spin, shoot_1h Ranged_1H_Shoot, summon Ranged_Magic_Summon, taunt Skeletons_Taunt,
+victory Cheering (full table in the ANIM_MAP constant).
 
 ---------------------------------------------------------------------------------------------------
 ## Weapons (WeaponFactory)
 
-Grip convention: origin = fist, blades/shafts along +Y, firearms muzzle along +X of the returned node
-(KayKit handslot aim axis), KayKit model units. KayKit meshes are used where the type matches
-(greatsword, short_sword = AvianSwordsman_Sword + rune glow, tachi = Ninja_Katana, battle_lance = spear_A +
-red tassel, staff = staff_A + crystal, staff_ring = druid_staff + ring, broom = Witch Broom, rifle = Gun_Rifle,
-gloves = fistweapon_C, gloves_qi = fistweapon_A + qi glow, dual_swords = dagger_B, dagger, cane =
-Skeleton_Staff + orb, knight_sword = sword_1handed, war_scythe = scythe + talismans, great_axe =
-axe_2handed, shield = shield_badge, grenade = Action Figure Grenade). Procedural stylised meshes:
-lightsaber, revolver / pistol, auto_pistol, hand_cannon, tonfa, claws, ninjato, cross, mech_box,
-umbrella (千机伞: `umbrella` folded, `umbrella_open` shield form, `umbrella_gun`).
+Every player weapon id of ARCHITECTURE §7.2 (+ `umbrella_open`, `umbrella_gun`, `gloves_left`, `sword`, `pistol`) is
+an original procedural model in `visuals/weapon_factory.gd` (toon + outline materials, HDR accents; no third-party
+mesh): 却邪-style lance, 冰雨-style light sword, star broom, brass hand cannon, 千机伞-style umbrella in 3 forms, etc.
+Grip convention: origin = fist, blades/shafts along +Y, firearms muzzle along +X, metres. Mob/boss weapons
+(`skeleton_*`, `orc_*`, `black_knight_*`, ...) stay KayKit meshes restyled with the toon shader.
 
 ---------------------------------------------------------------------------------------------------
 ## Folder guide for other modules
@@ -151,3 +133,42 @@ umbrella (千机伞: `umbrella` folded, `umbrella_open` shield form, `umbrella_g
 - `sfx/` - see `Fx.SFX_MAP` for the name -> file table (hit, hit_heavy, slash, swing, magic, explosion, shot,
   cannon, heal, buff, debuff, block, metal, footstep, death, ui_click, lightning, ice, glass, ultimate, dash,
   jump, land, throw, grab, summon, bell, coin, earth, fire, wood, trap, book).
+
+---------------------------------------------------------------------------------------------------
+## Fonts 字体 (SIL Open Font License 1.1)
+
+Each font ships unmodified with its `OFL.txt` beside it (copies in `licenses/OFL-<font>.txt`).
+
+| Font | Author | License | Used for | Folder |
+|---|---|---|---|---|
+| Noto Sans SC (variable) | Copyright 2014-2021 Adobe, RFN "Source" (Google Fonts) | SIL OFL 1.1 | UI body text, CN/EN | `fonts/notosanssc/` |
+| Ma Shan Zheng | Copyright 2018 The Ma Shan Zheng Project Authors | SIL OFL 1.1 | brush calligraphy: skill call-outs, titles | `fonts/mashanzheng/` |
+| Teko (variable) | Copyright 2023 The Teko Project Authors | SIL OFL 1.1 | HUD numerals, timers, cooldowns | `fonts/teko/` |
+| Russo One | Copyright 2011-2012 Jovanny Lemonad, RFN "Russo" | SIL OFL 1.1 | combo counter, scores, crits | `fonts/russoone/` |
+| Orbitron (variable) | Copyright 2018 The Orbitron Project Authors, RFN "Orbitron" | SIL OFL 1.1 | broadcast captions | `fonts/orbitron/` |
+
+---------------------------------------------------------------------------------------------------
+## Environments 场景 (ENV track: painted maps and dungeons)
+
+All six playable maps (`maps/arena_*.gd`, `pve/dungeon_frost_forest.gd`, `pve/dungeon_boneyard.gd`) are now built
+procedurally by `maps/env_kit.gd` + `maps/env_props.gd` with the painted shaders in `visuals/shaders/`
+(`painted_env*`, `arena_floor`, `anime_sky`, `painted_backdrop`). No third-party environment meshes are used by
+them any more; the KayKit Dungeon / Forest Nature files above stay in `env/` only as legacy assets.
+
+| File | Source | License |
+|---|---|---|
+| `env/painted/leaves_blossom.png`, `leaves_green.png`, `leaves_gold.png`, `leaves_violet.png` | Original art drawn in code by `env/painted/paint_env_textures.py` (Rongyao Arena project) | repository licence (original work, no attribution needed) |
+| `env/painted/maple_leaves.png`, `banner_blue.png`, `banner_red.png`, `fire_tongue.png` | Copies of the look-dev textures, original art drawn in code by `lookdev/tools/paint_textures.py` (see `lookdev/assets/LICENSES.md`) | repository licence (original work) |
+| `visuals/shaders/painted_env*.gdshader`, `arena_floor`, `anime_sky`, `painted_backdrop` | Original code (ported from `lookdev/shaders/`) | repository licence |
+
+No official 全职高手 / Glory art, logo or screenshot is used; the team crest on the banners is an original design.
+
+---------------------------------------------------------------------------------------------------
+## Icons 图标 (ICONS track: skill, status and class-emblem icons)
+
+| File | Source | License |
+|---|---|---|
+| `icons/skills/*.png`, `icons/status/*.png`, `icons/class/*.png` (+ `@2x`) | Original art drawn in code by `tools/icons/` (Rongyao Arena project; port of `lookdev/tools/icon_painter.py`). Python + numpy + Pillow only; no stock silhouettes (game-icons.net or other), no brushes, fonts or reference images are embedded | repository licence (original work, no attribution needed) |
+
+No official 全职高手 / Glory icon, emblem or crest is copied or traced; the class crests, weapons, 千机伞, 冰雨, the
+launcher cannon and 灭绝星尘 broom are our own drawings from the bible's written descriptions.

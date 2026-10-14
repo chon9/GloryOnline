@@ -1,16 +1,17 @@
 extends Control
-## Resource bar drawn in _draw: gradient fill, delayed damage trail, shield overlay, tick marks and text.
+## Slanted glossy resource bar (bible 6.2): dark back, trailing damage bar, gloss band, 10% ticks, shield overlay,
+## leading-edge highlight and Teko numbers.
 ## Call set_values(); the trail animates in _process only while it is catching up.
 
 const HudStyle := preload("res://ui/hud_style.gd")
-const HudIcons := preload("res://ui/hud_icons.gd")
+const GD := preload("res://ui/glory_draw.gd")
 
 var value: float = 1.0
 var max_value: float = 1.0
 var shield: float = 0.0
 var fill_color: Color = HudStyle.C_HP
 var low_color: Color = Color(0, 0, 0, 0)     # when alpha > 0, fill lerps toward it below 30%
-var trail_color: Color = HudStyle.C_TRAIL
+var trail_color: Color = HudStyle.C_TRAIL      # trailing "damage taken" bar
 var back_color: Color = Color(0.02, 0.025, 0.04, 0.85)
 var show_text: bool = true
 var text_mode: int = 0                        # 0 = "cur / max", 1 = percent, 2 = cur only, 3 = custom text
@@ -18,6 +19,8 @@ var custom_text: String = ""
 var font_size: int = 13
 var ticks: int = 0                            # tick marks every 1/ticks of the bar
 var radius: float = 4.0
+var frame_color: Color = HudStyle.UI_GOLD     # outline of the slanted bar (alpha 0 = none)
+var text_align: int = 0                       # 0 = centre, 1 = right
 var dead: bool = false
 
 var _trail: float = 1.0
@@ -71,54 +74,34 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var r := Rect2(Vector2.ZERO, size)
-	if r.size.x < 2.0 or r.size.y < 2.0:
+	if r.size.x < 8.0 or r.size.y < 3.0:
 		return
-	var rad := minf(radius, r.size.y * 0.5)
-	HudIcons.gradient_rect(self, r, back_color.lightened(0.04), back_color, rad)
-	var inner := r.grow(-1.5)
+	var ci := get_canvas_item()
 	var frac := clampf(value / maxf(max_value, 0.001), 0.0, 1.0)
 	var trail := clampf(_trail, frac, 1.0)
-	if trail > frac:
-		var tr := Rect2(inner.position + Vector2(inner.size.x * frac, 0), Vector2(inner.size.x * (trail - frac), inner.size.y))
-		draw_rect(tr, trail_color)
 	var c := fill_color
 	if low_color.a > 0.0 and frac < 0.3:
 		c = low_color.lerp(fill_color, frac / 0.3)
 	if dead:
 		c = Color(0.3, 0.3, 0.32)
-	if frac > 0.0:
-		var fr := Rect2(inner.position, Vector2(maxf(inner.size.x * frac, 2.0), inner.size.y))
-		HudIcons.gradient_rect(self, fr, c.lightened(0.28), c.darkened(0.25), maxf(rad - 1.0, 1.0))
-		# top highlight
-		draw_rect(Rect2(fr.position + Vector2(1, 1), Vector2(maxf(fr.size.x - 2.0, 0.0), fr.size.y * 0.32)), Color(1, 1, 1, 0.16))
-	if shield > 0.0:
-		var sf := clampf(shield / maxf(max_value, 0.001), 0.0, 1.0)
-		var start := frac
-		if frac + sf > 1.0:
-			start = 1.0 - sf
-		var sr := Rect2(inner.position + Vector2(inner.size.x * start, 0), Vector2(inner.size.x * sf, inner.size.y))
-		draw_rect(sr, Color(HudStyle.C_SHIELD.r, HudStyle.C_SHIELD.g, HudStyle.C_SHIELD.b, 0.55))
-		# diagonal hatching so the shield reads as an overlay
-		var step := 6.0
-		var x := sr.position.x
-		while x < sr.end.x:
-			var x2 := minf(x + sr.size.y * 0.6, sr.end.x)
-			draw_line(Vector2(x, sr.end.y), Vector2(x2, sr.position.y), Color(1, 1, 1, 0.55), 1.0)
-			x += step
-		draw_rect(sr, Color(1, 1, 1, 0.9), false, 1.0)
-	if ticks > 1:
-		for i in range(1, ticks):
-			var tx := inner.position.x + inner.size.x * float(i) / float(ticks)
-			draw_line(Vector2(tx, inner.position.y + 1), Vector2(tx, inner.end.y - 1), Color(0, 0, 0, 0.35), 1.0)
-	HudIcons.outline_rect(self, r, Color(0, 0, 0, 0.8), 1.0, rad)
+	var sf := clampf(shield / maxf(max_value, 0.001), 0.0, 1.0)
+	GD.bar(ci, r, frac, trail, c, trail_color, frame_color, ticks, sf)
 	if show_text and r.size.y >= 9.0:
 		var t := _text()
 		if t != "":
-			var f := HudStyle.font(true)
-			var w := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-			var pos := Vector2((r.size.x - w) * 0.5, (r.size.y + f.get_ascent(font_size) - f.get_descent(font_size)) * 0.5)
-			draw_string_outline(f, pos, t, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 3, Color(0, 0, 0, 0.9))
-			draw_string(f, pos, t, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, HudStyle.C_TEXT)
+			var numeric := not _has_cjk(t)
+			var f: Font = HudStyle.num(600) if numeric else HudStyle.font(true)
+			var fs := int(font_size * 1.35) if numeric else font_size
+			var w := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			var x := (r.size.x - w) * 0.5
+			if text_align == 1:
+				x = r.size.x - w - r.size.y * 0.9 - 4.0
+			var asc := f.get_ascent(fs)
+			var desc := f.get_descent(fs)
+			var y := (r.size.y + asc - desc) * 0.5
+			if numeric:
+				y = r.size.y * 0.5 + asc * 0.36
+			GD.text(ci, f, Vector2(x, y), t, fs, HudStyle.C_TEXT, 4)
 
 
 func _text() -> String:
@@ -134,3 +117,10 @@ func _text() -> String:
 			return str(int(ceil(value)))
 		_:
 			return custom_text
+
+
+static func _has_cjk(t: String) -> bool:
+	for i in t.length():
+		if t.unicode_at(i) >= 0x2E80:
+			return true
+	return false

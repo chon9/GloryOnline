@@ -181,7 +181,8 @@ func _run() -> void:
 			spikes += 1
 			if c.get("uses_shader"):
 				shader_spikes += 1
-	check(spikes > 0 and shader_spikes == 0, "earth spikes use the transparency fade path (%d spikes)" % spikes)
+	# anime look: spikes are cel solids that dissolve through the shared `fade` instance uniform (no per-node materials)
+	check(spikes > 0 and shader_spikes == spikes, "earth spikes fade through the fade uniform (%d spikes)" % spikes)
 	target.global_position = Vector3(0, 0, -20)
 	fx.spawn_projectile_visual(7000, "orb", Vector3(0, 0, 0), Vector3(10, 0, 0), 0.0, Color.WHITE, 1.0, 77, 1.0)
 	var hr: Node3D = fx._nodes[7000]
@@ -194,6 +195,61 @@ func _run() -> void:
 	var el := (Time.get_ticks_msec() - t0) / 1000.0
 	check(turned > 0.01 and turned <= 1.0 * el + 0.05, "homing_rate limits visual turning (%.2f rad in %.2f s)" % [turned, el])
 	fx.despawn(7000)
+	fx.call("clear_all")
+
+	# hit-stop (bible 5.3): Fx events freeze nearby visuals' AnimationMixers for N rendered frames, locally only
+	var ts0 := Engine.time_scale
+	var victim := Node3D.new()
+	var vap := AnimationPlayer.new()
+	victim.add_child(vap)
+	victim.add_to_group(&"fx_hitstop")
+	root.add_child(victim)
+	victim.global_position = Vector3(30, 0, 0)
+	var attacker := Node3D.new()
+	var aap := AnimationPlayer.new()
+	attacker.add_child(aap)
+	attacker.add_to_group(&"fx_hitstop")
+	root.add_child(attacker)
+	attacker.global_position = Vector3(28, 0, 0)
+	fx.play(&"hit_heavy", Vector3(30, 1, 0), Vector3(1, 0, 0), Color.WHITE, 1.0)
+	check(not vap.active and not aap.active, "hit_heavy freezes the victim and the attacker (hit-stop)")
+	check(Engine.time_scale == ts0, "hit-stop never touches Engine.time_scale")
+	for f in 4:
+		await process_frame
+	check(not vap.active, "heavy hit-stop still holds after 4 frames")
+	for f in 6:
+		await process_frame
+	check(vap.active and aap.active and victim.position.is_equal_approx(Vector3(30, 0, 0)), "hit-stop releases after 8 frames and restores the shake offset")
+	fx.play(&"hit_spark", Vector3(30, 1, 0), Vector3(1, 0, 0), Color.WHITE, 1.0)
+	check(not vap.active, "hit_spark: light hit-stop")
+	for f in 4:
+		await process_frame
+	check(vap.active, "light hit-stop lasts 3 frames")
+	fx.call("impact", Vector3(30, 1, 0), 4.0, Vector3.ZERO)
+	check(not vap.active and aap.active, "impact(strength 4) freezes the nearest visual only")
+	fx.set("hitstop_enabled", false)
+	fx.call("clear_all")
+	check(vap.active, "clear_all releases frozen visuals")
+	fx.play(&"hit_heavy", Vector3(30, 1, 0), Vector3(1, 0, 0), Color.WHITE, 1.0)
+	check(vap.active, "hitstop_enabled = false disables it")
+	fx.set("hitstop_enabled", true)
+	victim.queue_free()
+	attacker.queue_free()
+	fx.call("clear_all")
+
+	# pools: one-shot pieces are recycled, not re-created
+	await process_frame
+	fx.play(&"explosion", Vector3(0, 1, 0))
+	for f in 120:
+		await process_frame
+	var pooled: int = (fx._flash_pool as Array).size()
+	var nodes0 := fx.get_child_count()
+	fx.play(&"explosion", Vector3(0, 1, 0))
+	await process_frame
+	check(pooled > 0 and fx.get_child_count() == nodes0, "effects reuse pooled nodes (%d pooled, %d -> %d children)" % [pooled, nodes0, fx.get_child_count()])
+	fx.damage_number(Vector3.ZERO, 999.0, &"crit")
+	var num: Variant = (fx._numbers as Array).back()
+	check(num is Label3D and (num as Label3D).text == "999" and (num as Label3D).font != null, "crit number uses the numeral font")
 	fx.call("clear_all")
 
 	# stress: 10 fighters worth of effects in one frame stays bounded
