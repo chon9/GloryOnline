@@ -30,15 +30,15 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain 普攻
 	var b1 := sk(0, "jab", "刺拳", "Basic: Jab", 0.0, 0.0, 0.28, &"punch", 2.4, ["melee", "combo"],
 		[{"t": 0.09, "type": "melee", "range": 2.4, "arc": 100.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.35, "knockback": 0.8})},
-		{"t": 0.05, "type": "sfx", "name": "swing"}],
+		{"t": 0.05, "type": "sfx", "name": "swing_fist"}],
 		{"cancel_window": 0.14, "chain": ["jab", "cross", "spin_kick"], "desc": "左右快拳起手 Quick opening jab."})
 	sk(0, "cross", "直拳", "Basic: Cross", 0.0, 0.0, 0.3, &"punch_combo", 2.4, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.4, "arc": 100.0, "fx": "hit_spark", "hit": hit(0.7, {"hitstun": 0.38, "knockback": 1.0})},
-		{"t": 0.05, "type": "sfx", "name": "swing"}],
+		{"t": 0.05, "type": "sfx", "name": "swing_fist"}],
 		{"cancel_window": 0.15, "desc": "重直拳 Heavy cross punch."})
 	sk(0, "spin_kick", "旋身踢", "Basic: Spin Kick", 0.0, 0.0, 0.42, &"kick", 2.5, ["melee", "finisher"],
 		[{"t": 0.16, "type": "melee", "range": 2.5, "arc": 140.0, "hit": hit(0.9, {"knockback": 5.0, "hitstun": 0.5})},
-		{"t": 0.12, "type": "sfx", "name": "hit"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.18, "desc": "旋身踢收尾，击退 Spinning kick finisher, knocks back."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -46,7 +46,7 @@ func define() -> void:
 		["launcher", "melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.2, "arc": 100.0, "hit": hit(1.4, {"launch": 10.5, "knockback": 0.6})},
 		{"t": 0.12, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.2},
-		{"t": 0.08, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.22, "desc": "Lv1 高踢将敌人踢上空中 Lv1 high kick that launches the enemy."})
 
 	# ---------------------------------------------------------------- slot 2: Straight Punch
@@ -62,14 +62,14 @@ func define() -> void:
 		["gap_closer", "aoe", "finisher", "melee"],
 		[{"t": 0.0, "type": "leap", "to": "target", "distance": 7.0, "height": 3.2, "duration": 0.45,
 			"land": {"radius": 2.2, "fx": "land_dust", "hit": hit(2.0, {"otg": true, "knockdown": true, "knockback": 3.0, "juggle_cost": 20.0})}},
-		{"t": 0.46, "type": "sfx", "name": "earth"}],
+		{"t": 0.46, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.12, "desc": "跃起下踏，可踩倒地与空中敌人 Leaping stomp that hits airborne and downed foes."})
 
 	# ---------------------------------------------------------------- slot 4: Reinforced Iron Bones
 	var iron_bones := sk(4, "iron_bones", "钢筋铁骨", "Reinforced Iron Bones", 20.0, 80.0, 0.3, &"taunt", 0.0,
 		["buff_self", "defensive"],
 		[{"t": 0.05, "type": "buff", "target": "self", "statuses": [st("super_armor", 8.0), st("def_up", 8.0, 0.15)]},
-		{"t": 0.05, "type": "sfx", "name": "buff"}],
+		{"t": 0.05, "type": "sfx", "name": "shield_up"}],
 		{"desc": "8秒霸体并提升防御 8 s super armor plus 15% defense."})
 
 	# ---------------------------------------------------------------- slot 5: Emperor's Fist
@@ -80,7 +80,7 @@ func define() -> void:
 			"hit": hit(1.8, {"knockback": 12.0, "knockdown": true, "armor_break": true})},
 		{"t": 0.45, "type": "ground", "at": "forward", "shape": "line", "length": 7.0, "width": 2.2, "visual": "wind",
 			"max_hits": 1, "hit": hit(0.7, {"knockback": 7.0, "hitstun": 0.5})},
-		{"t": 0.45, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.45, "type": "sfx", "name": "qi_blast"}],
 		{"cancel_window": 0.15, "desc": "马步重拳，拳风波及前方 Horse-stance mega punch; its wind pressure hits along a line."})
 
 	# ---------------------------------------------------------------- slot 6: Empty-Handed Blade Block
@@ -94,7 +94,7 @@ func define() -> void:
 	var tiger_flurry := sk(7, "tiger_flurry", "猛虎乱舞", "Ferocious Tiger Flurry", 60.0, 200.0, 1.75, &"punch_combo", 4.0,
 		["ultimate", "melee", "gap_closer", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "fx": "cast_glow", "statuses": [st("super_armor", 2.0)]},
 		{"t": 0.0, "type": "dash", "direction": "target", "distance": 5.0, "speed": 28.0},
 		{"t": 0.3, "type": "multi_melee", "range": 2.4, "arc": 120.0, "count": 8, "interval": 0.1, "fx": "hit_spark",
@@ -159,7 +159,7 @@ func on_hit_taken(f: Fighter, src: Fighter, hit_d: Dictionary, dmg: float) -> fl
 	f.runner.vars["countered"] = true
 	f.runner.deal(src, counter, f.global_position)
 	CoreUtil.fx(&"play", [&"block_spark", f.center(), f.forward(), tint, 1.2])
-	CoreUtil.fx(&"sfx", [&"block", f.center()])
+	CoreUtil.fx(&"sfx", [&"parry", f.center()])
 	negate_hit(f, hit_d, &"striker_negated")
 	return 0.0
 

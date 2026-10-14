@@ -116,8 +116,36 @@ func show_result(res: Dictionary, is_host: bool, auto_return: float = 0.0) -> vo
 	var leave := Button.new()
 	leave.text = "离开  Leave to Menu"
 	leave.custom_minimum_size = Vector2(220, 48)
+	leave.set_meta(&"ui_sfx", &"ui_cancel")
 	leave.pressed.connect(func() -> void: leave_pressed.emit())
 	bar.add_child(leave)
+	_result_sfx(res)
+
+
+## Announcer line for the local player's result (+ crowd cheer on a PvP win). Fx missing -> silent.
+func _result_sfx(res: Dictionary) -> void:
+	var fx := get_node_or_null(^"/root/Fx")
+	if fx == null or not fx.has_method(&"ui_sfx"):
+		return
+	var w := int(res.get("winner_team", -1))
+	var raid := str(res.get("mode", "")) == "raid"
+	var my_team := -1
+	var world := World.get_instance()
+	if world != null and is_instance_valid(world):
+		var me := world.local_fighter()
+		if me != null and is_instance_valid(me):
+			my_team = me.team
+	if raid:
+		fx.call(&"ui_sfx", &"vo_you_win" if w == 0 else &"vo_you_lose")
+	elif w < 0:
+		fx.call(&"ui_sfx", &"vo_tie")
+	elif my_team < 0:
+		fx.call(&"ui_sfx", &"vo_winner")
+	elif my_team == w:
+		fx.call(&"ui_sfx", &"vo_you_win")
+		fx.call(&"ui_sfx", &"crowd_cheer")
+	else:
+		fx.call(&"ui_sfx", &"vo_you_lose")
 
 
 ## "蓝队 Blue Team 获胜 Wins!" -> [CN words, EN words].

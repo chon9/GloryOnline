@@ -27,20 +27,20 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.28, &"attack_1h_1", 2.4, ["melee", "combo"],
 		[{"t": 0.08, "type": "melee", "range": 2.3, "arc": 110.0, "hit": hit(0.62, {"knockback": 0.8})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.14, "chain": ["atk1", "atk2", "atk3", "atk4"], "desc": "双剑快斩 Quick twin-blade slash."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.28, &"attack_1h_2", 2.4, ["melee", "combo"],
 		[{"t": 0.08, "type": "melee", "range": 2.3, "arc": 110.0, "hit": hit(0.62, {"knockback": 0.8})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.14, "desc": "反手斩 Backhand slash."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.34, &"attack_dual", 2.4, ["melee", "combo"],
 		[{"t": 0.08, "type": "multi_melee", "range": 2.3, "arc": 110.0, "count": 2, "interval": 0.1,
 		"hit": hit(0.4, {"knockback": 0.5, "juggle_cost": 6.0})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.16, "desc": "双剑交错两连斩 Crossing double slash."})
 	sk(0, "atk4", "普攻·四", "Basic Attack IV", 0.0, 0.0, 0.42, &"attack_stab", 2.6, ["melee", "finisher"],
 		[{"t": 0.14, "type": "melee", "shape": "box", "range": 2.6, "width": 1.4, "hit": hit(1.0, {"knockback": 4.5, "hitstun": 0.45})},
-		{"t": 0.14, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_blade"}],
 		{"cancel_window": 0.12, "desc": "突刺收招 Thrusting finisher."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -50,7 +50,7 @@ func define() -> void:
 		{"t": 0.12, "type": "melee", "range": 2.5, "arc": 120.0, "hit": hit(1.3, {"launch": 10.5, "knockback": 0.6})},
 		{"t": 0.12, "type": "vfx", "name": "launch_burst", "at": "target"},
 		{"t": 0.14, "type": "launch_self", "vertical": 6.5},
-		{"t": 0.12, "type": "sfx", "name": "slash"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.25, "desc": "跃起上挑，将敌人挑飞并随之升空 Leaping upward slash that launches the target."})
 
 	# ---------------------------------------------------------------- slot 2: blink + stab (mark)
@@ -59,7 +59,7 @@ func define() -> void:
 		[{"t": 0.0, "type": "blink", "to": "behind_target", "distance": 10.0},
 		{"t": 0.08, "type": "melee", "range": 2.3, "arc": 120.0,
 		"hit": hit(1.5, {"hitstun": 0.55, "knockback": 0.6, "statuses": [st("mark", 6.0)]})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.2, "desc": "瞬移到敌人身后刺击并标记要害 Blink behind the target, stab and mark its vital point."})
 
 	# ---------------------------------------------------------------- slot 3: fast dash with two auras
@@ -78,7 +78,7 @@ func define() -> void:
 		["melee", "cc", "finisher"],
 		[{"t": 0.0, "type": "dash", "distance": 1.0, "speed": 14.0, "direction": "target"},
 		{"t": 0.14, "type": "custom", "method": "cut_throat"},
-		{"t": 0.14, "type": "sfx", "name": "slash"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.15, "desc": "无视霸体的割喉，背后命中造成重创并眩晕 Armor-breaking neck slash; from behind it deals heavy damage and stuns."})
 
 	# ---------------------------------------------------------------- slot 5: rapid stabs, long end lag
@@ -89,7 +89,7 @@ func define() -> void:
 		"hit": hit(0.22, {"hitstun": 0.3, "knockback": 0.6, "juggle_cost": 4.0})},
 		{"t": 0.65, "type": "melee", "range": 2.6, "arc": 100.0, "hit": hit(0.5, {"knockback": 6.0, "hitstun": 0.5})},
 		{"t": 0.65, "type": "vfx", "name": "slash_arc", "at": "forward", "scale": 1.3},
-		{"t": 0.05, "type": "sfx", "name": "slash"}],
+		{"t": 0.05, "type": "sfx", "name": "swing_spin"}],
 		{"desc": "连续快刺把敌人推开，收招硬直较长 Flurry of stabs that pushes the target back; long end lag."})
 
 	# ---------------------------------------------------------------- slot 6: hp for true damage
@@ -97,7 +97,7 @@ func define() -> void:
 		["melee", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "dark_burst", "color": Color(0.9, 0.1, 0.15)},
 		{"t": 0.18, "type": "custom", "method": "life_risking", "args": {"cost": LIFE_COST}},
-		{"t": 0.18, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.18, "type": "sfx", "name": "swing_blade"}],
 		{"cancel_window": 0.15, "requires": {"hp_above": 0.15},
 		"desc": "燃烧自身生命，造成等量真实伤害 Burn your own HP to deal the same amount as true damage."})
 
@@ -105,7 +105,7 @@ func define() -> void:
 	var ult := sk(7, "rend_kill_dodge_flash_exterminate", "裂/杀/闪/瞬/灭", "Rend / Kill / Dodge / Flash / Exterminate",
 		60.0, 200.0, 1.9, &"attack_dual", 6.0, ["ultimate", "melee", "gap_closer", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 2.0)]},
 		{"t": 0.05, "type": "dash", "distance": 6.0, "speed": 30.0, "direction": "target"},
 		# 裂 Rend
@@ -126,7 +126,7 @@ func define() -> void:
 		{"t": 1.35, "type": "anim", "anim": "attack_spin"},
 		{"t": 1.35, "type": "melee", "shape": "circle", "range": 2.8, "hit": hit(1.6, {"launch": 11.0, "knockback": 1.0})},
 		{"t": 1.35, "type": "vfx", "name": "launch_burst", "at": "target", "scale": 1.5},
-		{"t": 1.35, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 1.35, "type": "sfx", "name": "ultimate_release"}],
 		{"desc": "按顺序施展裂、杀、闪、瞬、灭五式连斩 The ordered five-form chain: Rend, Kill, Dodge, Flash, Exterminate."})
 
 	skills = [atk1, leaping, tele, shining, cut, storm, risk, ult]

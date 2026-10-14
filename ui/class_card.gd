@@ -138,6 +138,7 @@ func _ready() -> void:
 	_select = Button.new()
 	_select.text = "选择  Select"
 	_select.custom_minimum_size = Vector2(170, 46)
+	_select.set_meta(&"ui_sfx", &"ui_confirm")
 	_select.add_theme_font_size_override("font_size", 19)
 	_select.pressed.connect(func() -> void:
 		if preview_id != "":
@@ -270,6 +271,7 @@ func _make_chip(k: ClassKit) -> Button:
 	b.text = "%s\n%s" % [k.name_cn, k.name_en]
 	b.toggle_mode = true
 	b.focus_mode = Control.FOCUS_NONE
+	b.set_meta(&"ui_sfx", &"ui_select")
 	b.custom_minimum_size = Vector2(CHIP_W, CHIP_H)
 	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	b.clip_text = true

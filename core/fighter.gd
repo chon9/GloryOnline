@@ -167,6 +167,11 @@ var _vis_mask: int = -1
 var _vis_alpha: float = -1.0
 var _vis_hidden: bool = false
 var _vis_hp: float = -1.0
+# cosmetic audio (all peers, local): footsteps by distance run, jump on the jump animation edge
+const STEP_STRIDE: float = 1.9
+var _aud_anim: StringName = &""
+var _aud_pos: Vector3 = Vector3.ZERO
+var _aud_step: float = 0.0
 
 
 # ================================================================== setup
@@ -1635,6 +1640,28 @@ func _process(delta: float) -> void:
 	else:
 		rotation.y = lerp_angle(rotation.y, facing_yaw, 1.0 - exp(-30.0 * delta))
 	_update_visual()
+	_update_audio()
+
+
+## Cosmetic, local on every peer (state is replicated): a footstep every STEP_STRIDE metres while running (bosses
+## stomp), and a jump sound when the jump animation starts from the ground. Landing / knockdown / death sounds
+## come from the replicated land_dust / death effects.
+func _update_audio() -> void:
+	var k := anim_key
+	var p := global_position
+	if k != _aud_anim:
+		if k == &"jump" and _aud_anim != &"fall" and _aud_anim != &"launched":
+			CoreUtil.fx(&"local_sfx", [&"jump", p, uid])
+		_aud_anim = k
+	if k == &"run" and not is_stealthed:
+		_aud_step += Vector2(p.x - _aud_pos.x, p.z - _aud_pos.z).length()
+		var stride := STEP_STRIDE * (1.8 if kind == "boss" else 1.0)
+		if _aud_step >= stride:
+			_aud_step = 0.0 if _aud_step > stride * 3.0 else _aud_step - stride
+			CoreUtil.fx(&"footstep", [p, uid, kind == "boss"])
+	else:
+		_aud_step = STEP_STRIDE * 0.6   # first step comes quickly after starting to run
+	_aud_pos = p
 
 
 static func _now_s() -> float:

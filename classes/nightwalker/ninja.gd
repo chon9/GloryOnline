@@ -26,15 +26,15 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.3, &"attack_1h_1", 2.5, ["melee", "combo"],
 		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.68, {"knockback": 0.8})},
-		{"t": 0.09, "type": "sfx", "name": "slash"}],
+		{"t": 0.09, "type": "sfx", "name": "swing_katana"}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"], "desc": "忍刀横斩 Ninjato horizontal cut."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.3, &"attack_1h_2", 2.5, ["melee", "combo"],
 		[{"t": 0.09, "type": "melee", "range": 2.5, "arc": 110.0, "hit": hit(0.68, {"knockback": 0.8})},
-		{"t": 0.09, "type": "sfx", "name": "slash"}],
+		{"t": 0.09, "type": "sfx", "name": "swing_katana"}],
 		{"cancel_window": 0.15, "desc": "回身斩 Turning cut."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.42, &"attack_spin", 2.7, ["melee", "finisher"],
 		[{"t": 0.14, "type": "melee", "shape": "circle", "range": 2.6, "hit": hit(0.95, {"knockback": 4.0, "hitstun": 0.45})},
-		{"t": 0.14, "type": "sfx", "name": "slash"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_katana"}],
 		{"cancel_window": 0.12, "desc": "旋身斩收招 Spinning finisher."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -43,23 +43,23 @@ func define() -> void:
 		[{"t": 0.0, "type": "dash", "distance": 1.2, "speed": 16.0, "direction": "target"},
 		{"t": 0.12, "type": "melee", "range": 2.6, "arc": 120.0, "hit": hit(1.3, {"launch": 10.5, "knockback": 0.6})},
 		{"t": 0.12, "type": "vfx", "name": "launch_burst", "at": "target"},
-		{"t": 0.12, "type": "sfx", "name": "slash"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_katana"}],
 		{"cancel_window": 0.25, "desc": "自下而上的断灭斩，将敌人挑飞 Rising ninjato cut that launches the target."})
 
 	# ---------------------------------------------------------------- slot 2: stun star
 	var shuriken := sk(2, "shuriken", "手里剑", "Shuriken", 6.0, 25.0, 0.3, &"throw", 14.0,
 		["ranged", "cc", "interrupt"],
 		[{"t": 0.1, "type": "projectile", "visual": "shuriken", "speed": 30.0, "range": 16.0, "radius": 0.35, "aim": "target",
-		"color": Color(0.8, 0.85, 1.0), "sfx": "throw", "hit": hit(0.9, {"stun": 0.4, "hitstun": 0.3, "knockback": 0.5})}],
+		"color": Color(0.8, 0.85, 1.0), "sfx": "shuriken", "hit": hit(0.9, {"stun": 0.4, "hitstun": 0.3, "knockback": 0.5})}],
 		{"cancel_window": 0.12, "desc": "掷出手里剑，命中短暂眩晕 Throw a shuriken that briefly stuns."})
 
 	# ---------------------------------------------------------------- slot 3: spread volley
 	var storm := sk(3, "storm_shuriken", "疾风手里剑", "Storm Shuriken", 7.0, 50.0, 0.5, &"throw", 12.0,
 		["ranged", "aoe", "combo"],
 		[{"t": 0.1, "type": "projectile", "visual": "shuriken", "count": 5, "spread": 36.0, "speed": 28.0, "range": 14.0,
-		"radius": 0.4, "aim": "target", "sfx": "throw", "hit": hit(0.25, {"hitstun": 0.3, "knockback": 0.4, "juggle_cost": 5.0})},
+		"radius": 0.4, "aim": "target", "sfx": "shuriken", "hit": hit(0.25, {"hitstun": 0.3, "knockback": 0.4, "juggle_cost": 5.0})},
 		{"t": 0.3, "type": "projectile", "visual": "shuriken", "count": 5, "spread": 36.0, "speed": 28.0, "range": 14.0,
-		"radius": 0.4, "aim": "target", "sfx": "throw", "hit": hit(0.25, {"hitstun": 0.3, "knockback": 0.4, "juggle_cost": 5.0})}],
+		"radius": 0.4, "aim": "target", "sfx": "shuriken", "hit": hit(0.25, {"hitstun": 0.3, "knockback": 0.4, "juggle_cost": 5.0})}],
 		{"cancel_window": 0.15, "desc": "两轮扇形手里剑齐射 Two fan-shaped shuriken volleys."})
 
 	# ---------------------------------------------------------------- slot 4: decoy relocation
@@ -76,7 +76,7 @@ func define() -> void:
 	var smoke := sk(5, "smoke_bomb", "忍具·烟玉", "Smoke Bomb", 14.0, 50.0, 0.3, &"throw", 3.5,
 		["escape", "debuff", "zone", "defensive"],
 		[{"t": 0.08, "type": "vfx", "name": "smoke", "scale": 2.0},
-		{"t": 0.08, "type": "sfx", "name": "debuff"},
+		{"t": 0.08, "type": "sfx", "name": "smoke"},
 		{"t": 0.08, "type": "debuff", "target": "enemies", "radius": 3.5, "statuses": [st("blind", 1.5)], "fx": "smoke"},
 		{"t": 0.08, "type": "ground", "at": "self", "radius": 3.5, "duration": 4.0, "tick": 0.4, "affects": "allies",
 		"visual": "wind", "color": Color(0.55, 0.55, 0.6), "ally_effect": {"statuses": [st("stealth", 0.6)]}}],
@@ -86,7 +86,7 @@ func define() -> void:
 	var tunnel := sk(6, "underground_tunneling", "忍法·地心斩首术", "Underground Tunneling Technique", 12.0, 70.0, 0.9,
 		&"leap", 12.0, ["gap_closer", "cc", "melee"],
 		[{"t": 0.0, "type": "vfx", "name": "land_dust", "scale": 1.5},
-		{"t": 0.0, "type": "sfx", "name": "earth"},
+		{"t": 0.0, "type": "sfx", "name": "earth_light"},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("invuln", 0.65), st("stealth", 0.6)]},
 		{"t": 0.55, "type": "blink", "to": "target", "distance": 12.0},
 		{"t": 0.6, "type": "anim", "anim": "attack_slam"},
@@ -100,7 +100,7 @@ func define() -> void:
 	var sakura := sk(7, "moon_slaying_sakura", "忍法·樱杀碎月", "Moon-Slaying Sakura", 60.0, 200.0, 1.6, &"attack_spin", 12.0,
 		["ultimate", "aoe", "finisher", "ranged"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.8)]},
 		{"t": 0.25, "type": "ground", "at": "target", "shape": "line", "length": 12.0, "width": 3.0, "duration": 1.0,
 		"tick": 0.2, "visual": "wind", "color": Color(1.0, 0.6, 0.8),

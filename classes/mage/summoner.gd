@@ -41,16 +41,16 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: staff bolts
 	var b1 := sk(0, "staff_1", "普攻·法弹", "Staff Bolt", 0.0, 0.0, 0.35, &"cast", 15.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 24.0, "range": 16.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
+			"color": C_NATURE, "sfx": "magic_bolt", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		{"cancel_window": 0.05, "chain": ["staff_1", "staff_2", "staff_3"],
 		"desc": "法杖三段魔法弹 Three-shot staff bolt chain."})
 	sk(0, "staff_2", "普攻·法弹二", "Staff Bolt II", 0.0, 0.0, 0.35, &"attack_1h_2", 15.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 24.0, "range": 16.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "sfx": "magic", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
+			"color": C_NATURE, "sfx": "magic_bolt", "hit": hit(0.38, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		{"cancel_window": 0.05, "desc": "第二发魔法弹 Second bolt."})
 	sk(0, "staff_3", "普攻·法杖重击", "Staff Smite", 0.0, 0.0, 0.45, &"cast", 15.0, ["ranged", "finisher"],
 		[{"t": 0.15, "type": "projectile", "speed": 22.0, "range": 16.0, "radius": 0.45, "aim": "target", "visual": "orb",
-			"color": C_NATURE, "scale": 1.3, "sfx": "magic", "hit": hit(0.55, {"type": "magic", "hitstun": 0.3, "knockback": 3.5})}],
+			"color": C_NATURE, "scale": 1.3, "sfx": "magic_bolt", "hit": hit(0.55, {"type": "magic", "hitstun": 0.3, "knockback": 3.5})}],
 		{"cancel_window": 0.15, "desc": "较强的第三发法弹 Stronger third bolt with knockback."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -58,7 +58,7 @@ func define() -> void:
 		[{"t": 0.05, "type": "vfx", "name": "cast_glow"},
 		{"t": 0.15, "type": "ground", "at": "target", "radius": 1.8, "delay": 0.3, "visual": "thorn", "color": C_NATURE,
 			"hit": hit(1.2, {"type": "magic", "launch": 10.0, "knockback": 0.3, "element": "poison"})},
-		{"t": 0.45, "type": "sfx", "name": "earth", "at": "target"}],
+		{"t": 0.45, "type": "sfx", "name": "earth_light", "at": "target"}],
 		{"cancel_window": 0.2, "desc": "地面钻出藤刺，将目标挑飞 Thorns burst from the ground and launch the target."})
 
 	# ---------------------------------------------------------------- slot 2: Goblin
@@ -88,7 +88,7 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 5: Mark
 	var mark := sk(5, "mark", "印记", "Mark", 8.0, 50.0, 0.3, &"cast", 14.0, ["debuff", "ranged", "buff_ally"],
 		[{"t": 0.1, "type": "projectile", "speed": 30.0, "range": 16.0, "radius": 0.45, "aim": "target", "visual": "star",
-			"color": Color(1.0, 0.35, 0.3), "sfx": "magic",
+			"color": Color(1.0, 0.35, 0.3), "sfx": "curse",
 			"hit": hit(0.5, {"type": "magic", "hitstun": 0.2, "knockback": 0.3,
 				"statuses": [st("mark", 8.0), st("def_down", 8.0, 0.15)]})},
 		{"t": 0.1, "type": "custom", "method": "command_mark", "args": {"dur": 5.0}}],
@@ -104,11 +104,11 @@ func define() -> void:
 		["ultimate", "aoe", "ranged"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.3)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.3, "type": "ground", "at": "target", "radius": 4.0, "delay": 0.4, "visual": "rune", "color": C_NATURE,
 			"hit": hit(2.6, {"type": "magic", "launch": 9.0, "knockback": 1.0})},
 		{"t": 0.75, "type": "custom", "method": "sacrifice_spirits", "args": {"radius": 4.0, "dmg": 1.4, "extra_dmg": 0.3}},
-		{"t": 0.75, "type": "sfx", "name": "explosion", "at": "target"}],
+		{"t": 0.75, "type": "sfx", "name": "ultimate_release", "at": "target"}],
 		{"desc": "引爆目标处魔阵并献祭所有元素精灵引发爆炸 Detonates a rune at the target and sacrifices every elemental spirit in explosions (full damage once per enemy)."})
 
 	skills = [b1, thorn, goblin, spirit, flower, mark, swap, ult]
@@ -139,7 +139,7 @@ func define() -> void:
 			"skills": [
 				sk(0, "flower_spit", "毒液", "Poison Spit", 1.5, 0.0, 0.35, &"cast", 9.0, ["ranged"],
 					[{"t": 0.15, "type": "projectile", "speed": 18.0, "range": 10.0, "radius": 0.35, "aim": "target",
-						"visual": "flask", "color": Color(0.5, 1.0, 0.3), "sfx": "magic",
+						"visual": "flask", "color": Color(0.5, 1.0, 0.3), "sfx": "poison",
 						"hit": hit(0.3, {"type": "magic", "element": "poison", "hitstun": 0.25, "statuses": [st("poison", 3.0, 1.0)]})}],
 					{"desc": "喷吐毒液 Poison spit."}),
 				sk(1, "flower_vines", "藤蔓缠绕", "Vine Bind", 7.0, 0.0, 0.4, &"cast", 8.0, ["cc"],
@@ -170,7 +170,7 @@ func _spirit_def(cn: String, en: String, sid: String, visual: String, rider: Dic
 		"stats": {"hp": 600.0, "mp": 0.0, "patk": 200.0, "matk": 320.0, "pdef": 220.0, "mdef": 300.0, "move_speed": 7.0},
 		"skills": [sk(0, sid + "_bolt", cn + "弹", en + " Bolt", 1.8, 0.0, 0.35, &"cast", 10.0, ["ranged"],
 			[{"t": 0.15, "type": "projectile", "speed": 24.0, "range": 11.0, "radius": 0.35, "aim": "target",
-				"visual": visual, "color": c, "scale": 0.7, "sfx": "magic", "hit": h}],
+				"visual": visual, "color": c, "scale": 0.7, "sfx": "magic_bolt", "hit": h}],
 			{"desc": en})],
 	}
 

@@ -83,6 +83,7 @@ func _ready() -> void:
 	_net().lobby_list_received.connect(_on_lobby_list)
 	_net().connection_failed.connect(func(r: String) -> void: _show_message(r))
 	_sync_view()
+	_music_sync()
 	if _game().pending_message != "":
 		_show_message(_game().pending_message)
 		_game().pending_message = ""
@@ -370,7 +371,7 @@ func _build_settings_panel() -> Control:
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 16)
-	grid.add_theme_constant_override("v_separation", 14)
+	grid.add_theme_constant_override("v_separation", 10)
 	v.add_child(grid)
 	grid.add_child(_field_label("名字 Name"))
 	var name_edit := LineEdit.new()
@@ -379,15 +380,24 @@ func _build_settings_panel() -> Control:
 	name_edit.max_length = 24
 	name_edit.custom_minimum_size = Vector2(280, 0)
 	grid.add_child(name_edit)
-	grid.add_child(_field_label("音量 Volume"))
-	var vol := HSlider.new()
-	vol.min_value = 0.0
-	vol.max_value = 1.0
-	vol.step = 0.05
-	vol.value = float(_game().prefs.get("volume", 0.8))
-	vol.custom_minimum_size = Vector2(280, 24)
-	vol.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	grid.add_child(vol)
+	# Audio: one slider per bus (applied live; Save writes them to user://settings.cfg).
+	var vol_sliders: Dictionary = {}
+	for row: Array in _game().VOLUME_ROWS:
+		var key: String = row[0]
+		grid.add_child(_field_label(str(row[1])))
+		var vs := HSlider.new()
+		vs.name = "Volume_" + key
+		vs.min_value = 0.0
+		vs.max_value = 1.0
+		vs.step = 0.05
+		vs.value = float(_game().prefs.get(key, 0.8))
+		vs.custom_minimum_size = Vector2(280, 24)
+		vs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		vs.value_changed.connect(func(x: float) -> void:
+			_game().prefs[key] = x
+			_game().apply_bus_volumes())
+		grid.add_child(vs)
+		vol_sliders[key] = vs
 	grid.add_child(_field_label("鼠标灵敏度 Mouse"))
 	var sens := HSlider.new()
 	sens.min_value = 0.2
@@ -424,7 +434,9 @@ func _build_settings_panel() -> Control:
 	save.text = "保存  Save"
 	save.pressed.connect(func() -> void:
 		_game().prefs["player_name"] = name_edit.text.strip_edges()
-		_game().prefs["volume"] = vol.value
+		for k: Variant in vol_sliders:
+			_game().prefs[k] = (vol_sliders[k] as HSlider).value
+		_game().prefs["volume"] = _game().prefs["master_volume"]
 		_game().prefs["mouse_sensitivity"] = sens.value
 		_game().prefs["bot_difficulty"] = diff.selected
 		for k: Variant in fx_sliders:
@@ -497,6 +509,13 @@ func _on_lobby_list(lobbies: Array) -> void:
 func _show_message(t: String) -> void:
 	if _msg != null:
 		_msg.text = t
+
+
+## Music for the menu / lobby (local only; the Music autoload may be absent in stripped test setups).
+func _music_sync() -> void:
+	var m := get_node_or_null("/root/Music")
+	if m != null:
+		m.call("sync_to_game")
 
 
 func _game() -> Node:

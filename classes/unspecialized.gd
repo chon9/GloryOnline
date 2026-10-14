@@ -53,19 +53,19 @@ func define() -> void:
 		["melee", "combo"],
 		[_form("lance"),
 		{"t": 0.1, "type": "melee", "range": 2.8, "arc": 70.0, "hit": hit(0.6, {"knockback": 0.6})},
-		{"t": 0.1, "type": "sfx", "name": "swing"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_staff"}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"],
 		"desc": "千机伞矛形连刺 Spear-form umbrella thrust."})
 	sk(0, "atk2", "普攻·回刺", "Basic: Return Thrust", 0.0, 0.0, 0.34, &"attack_1h_2", 2.8, ["melee", "combo"],
 		[_form("lance"),
 		{"t": 0.1, "type": "melee", "range": 2.8, "arc": 80.0, "hit": hit(0.6, {"knockback": 0.6})},
-		{"t": 0.1, "type": "sfx", "name": "swing"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_staff"}],
 		{"cancel_window": 0.15, "desc": "第二段刺击 Second thrust."})
 	sk(0, "atk3", "普攻·横扫", "Basic: Umbrella Sweep", 0.0, 0.0, 0.48, &"attack_2h", 3.0, ["melee", "finisher"],
 		[_form("lance"),
 		{"t": 0.16, "type": "melee", "range": 3.0, "arc": 140.0, "hit": hit(0.85, {"knockback": 4.0})},
 		{"t": 0.16, "type": "vfx", "name": "slash_arc", "color": tint},
-		{"t": 0.16, "type": "sfx", "name": "slash"}],
+		{"t": 0.16, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.2, "desc": "横扫击退 Sweeping blow that knocks back."})
 
 	# ---------------------------------------------------------------- slot 1: 天击 Sky Strike (Battle Mage Lv1 launcher)
@@ -74,7 +74,7 @@ func define() -> void:
 		[_form("lance"),
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 80.0, "hit": hit(1.25, {"launch": 11.0, "knockback": 0.8})},
 		{"t": 0.12, "type": "vfx", "name": "launch_burst", "at": "forward", "color": tint},
-		{"t": 0.12, "type": "sfx", "name": "slash"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.2, "desc": "矛形上挑，将目标挑飞 Lance-form upward thrust that launches the target."})
 
 	# ---------------------------------------------------------------- slot 2: 龙牙 Dragon Tooth (Battle Mage)
@@ -84,7 +84,7 @@ func define() -> void:
 		{"t": 0.02, "type": "dash", "distance": 2.2, "speed": 22.0, "direction": "target", "stop_on_hit": true},
 		{"t": 0.14, "type": "melee", "range": 2.9, "arc": 60.0, "hit": hit(1.5, {"stun": 0.6, "knockback": 1.5})},
 		{"t": 0.14, "type": "vfx", "name": "hit_heavy", "at": "forward", "color": tint},
-		{"t": 0.14, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_spear"}],
 		{"cancel_window": 0.18, "desc": "高优先级突刺，短暂眩晕 Fast high-priority stab with a brief stun."})
 
 	# ---------------------------------------------------------------- slot 3: 反坦克炮 Anti-Tank Missile (Launcher)
@@ -92,7 +92,7 @@ func define() -> void:
 		["ranged", "cc", "aoe"],
 		[_form("gun"),
 		{"t": 0.18, "type": "projectile", "count": 3, "spread": 10.0, "speed": 26.0, "range": 16.0, "radius": 0.5,
-		"aim": "target", "visual": "missile", "sfx": "cannon",
+		"aim": "target", "visual": "missile", "sfx": "missile",
 		"explode": {"radius": 1.2, "hit": hit(0.15, {"knockback": 2.0})},
 		"hit": hit(0.6, {"stun": 0.4, "knockback": 3.0})},
 		{"t": 0.18, "type": "vfx", "name": "explosion", "at": "forward", "scale": 0.4}],
@@ -104,7 +104,7 @@ func define() -> void:
 		[_form("blade"),
 		{"t": 0.15, "type": "melee", "range": 3.0, "arc": 150.0, "hit": hit(1.2, {"knockback": 3.0})},
 		{"t": 0.17, "type": "projectile", "speed": 24.0, "range": 8.0, "radius": 0.8, "pierce": true, "aim": "forward",
-		"from": "center", "visual": "wave", "color": Color(0.75, 0.85, 1.0), "sfx": "slash",
+		"from": "center", "visual": "wave", "color": Color(0.75, 0.85, 1.0), "sfx": "energy_shot",
 		"hit": hit(0.7, {"knockback": 2.0})},
 		{"t": 0.15, "type": "vfx", "name": "slash_arc", "color": Color(0.75, 0.85, 1.0), "scale": 1.3}],
 		{"cancel_window": 0.2, "desc": "刀形拔刀弧斩并放出剑气 Blade form: arc draw slash that sends out a sword aura."})
@@ -116,7 +116,7 @@ func define() -> void:
 		{"t": 0.0, "type": "leap", "to": "target", "distance": 7.0, "height": 3.0, "duration": 0.5,
 		"land": {"radius": 2.0, "hit": hit(1.4, {"knockdown": true, "otg": true, "knockback": 1.0})}},
 		{"t": 0.5, "type": "vfx", "name": "land_dust", "scale": 1.2},
-		{"t": 0.5, "type": "sfx", "name": "land"}],
+		{"t": 0.5, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.1, "desc": "跃起向下踩踏，可踩倒地目标 Leaping downward stomp; also hits downed foes."})
 
 	# ---------------------------------------------------------------- slot 6: 盾击 Shield Attack (Knight)
@@ -126,7 +126,7 @@ func define() -> void:
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("block", 1.2, 0.6)]},
 		{"t": 0.15, "type": "melee", "range": 2.4, "arc": 100.0, "hit": hit(1.2, {"stun": 1.0, "knockback": 2.5})},
 		{"t": 0.15, "type": "vfx", "name": "block_spark", "at": "forward"},
-		{"t": 0.15, "type": "sfx", "name": "metal"}],
+		{"t": 0.15, "type": "sfx", "name": "shield"}],
 		{"cancel_window": 0.15, "desc": "伞面张开格挡并盾击眩晕 Shield form: guard, then bash that dizzies."})
 
 	# ---------------------------------------------------------------- slot 7: 千机连携 Myriad Combo (ultimate, a string of canon Lv<=20 borrowed skills)
@@ -135,10 +135,10 @@ func define() -> void:
 		[_form("shield"),
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 2.1)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash", "color": tint},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.02, "type": "dash", "distance": 3.0, "speed": 22.0, "direction": "target", "stop_on_hit": true},
 		{"t": 0.15, "type": "melee", "range": 2.6, "arc": 110.0, "hit": hit(0.55, {"stun": 0.4, "knockback": 0.5})},
-		{"t": 0.15, "type": "sfx", "name": "metal"},
+		{"t": 0.15, "type": "sfx", "name": "shield"},
 		# 龙牙连刺 lance flurry -> 天击 launch
 		{"t": 0.38, "type": "custom", "method": "form", "args": {"form": "lance"}},
 		{"t": 0.4, "type": "multi_melee", "range": 3.0, "arc": 90.0, "count": 3, "interval": 0.1,
@@ -147,17 +147,17 @@ func define() -> void:
 		{"t": 0.75, "type": "vfx", "name": "launch_burst", "at": "forward", "color": tint},
 		# 格林机枪 Gatling Gun bursts on the airborne target
 		{"t": 0.95, "type": "custom", "method": "form", "args": {"form": "gun"}},
-		{"t": 1.0, "type": "projectile", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
+		{"t": 1.0, "type": "projectile", "sfx": "gun_pistol", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
 		"aim": "target", "visual": "bullet", "hit": hit(0.13, {"hitstun": 0.25, "knockback": 0.2})},
-		{"t": 1.12, "type": "projectile", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
+		{"t": 1.12, "type": "projectile", "sfx": "gun_pistol", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
 		"aim": "target", "visual": "bullet", "hit": hit(0.13, {"hitstun": 0.25, "knockback": 0.2})},
-		{"t": 1.24, "type": "projectile", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
+		{"t": 1.24, "type": "projectile", "sfx": "gun_pistol", "count": 3, "spread": 6.0, "speed": 34.0, "range": 12.0, "radius": 0.45,
 		"aim": "target", "visual": "bullet", "hit": hit(0.13, {"hitstun": 0.25, "knockback": 0.2})},
 		# 拔刀斩 finishing draw
 		{"t": 1.45, "type": "custom", "method": "form", "args": {"form": "blade"}},
 		{"t": 1.5, "type": "melee", "shape": "circle", "range": 3.6, "hit": hit(0.9, {"knockdown": true, "knockback": 6.0, "otg": true})},
 		{"t": 1.5, "type": "vfx", "name": "slash_arc", "color": Color(0.75, 0.85, 1.0), "scale": 1.8},
-		{"t": 1.5, "type": "sfx", "name": "slash"},
+		{"t": 1.5, "type": "sfx", "name": "swing_heavy"},
 		{"t": 1.85, "type": "custom", "method": "form", "args": {"form": "lance"}}],
 		{"desc": "千机伞连换四形：盾击、龙牙连刺接天击挑空、格林机枪、拔刀斩收尾 Umbrella cycles four forms: Shield Attack, Dragon Tooth flurry into Sky Strike, 格林机枪 Gatling Gun bursts, Sword Draw finish."})
 

@@ -36,11 +36,11 @@ func define() -> void:
 
 	# ---------------------------------------------------------------- slot 0: penetrating rifle shots
 	var r1 := sk(0, "rifle_1", "普攻·步枪", "Rifle Shot", 0.0, 0.0, 0.65, &"shoot_2h", 18.0, ["ranged", "combo"],
-		[_rifle(0.15, 0.5, 1.0), {"t": 0.15, "type": "sfx", "name": "shot"}],
+		[_rifle(0.15, 0.5, 1.0), {"t": 0.15, "type": "sfx", "name": "gun_rifle"}],
 		{"cancel_window": 0.12, "chain": ["rifle_1", "rifle_2"],
 		"desc": "步枪穿透射击，命中一条线上的敌人。 Penetrating rifle shot."})
 	sk(0, "rifle_2", "普攻·步枪重击", "Rifle Heavy Shot", 0.0, 0.0, 0.75, &"shoot_2h", 18.0, ["ranged", "combo"],
-		[_rifle(0.18, 0.65, 2.5), {"t": 0.18, "type": "sfx", "name": "shot"}],
+		[_rifle(0.18, 0.65, 2.5), {"t": 0.18, "type": "sfx", "name": "gun_rifle"}],
 		{"cancel_window": 0.15, "desc": "更重的穿透射击。 Heavier penetrating shot."})
 
 	# ---------------------------------------------------------------- slot 1: launcher mine
@@ -49,20 +49,20 @@ func define() -> void:
 		[{"t": 0.12, "type": "trap", "trap_id": "earth", "visual": "earth", "at": "target", "distance": 5.0, "max_distance": 12.0,
 		"radius": 1.8, "arm_time": 0.35, "duration": 15.0, "max_active": 3, "color": Color(1.0, 0.7, 0.3),
 		"hit": hit(1.1, {"launch": 10.5, "knockback": 0.5, "hitstun": 0.5, "gadget": true})},
-		{"t": 0.12, "type": "sfx", "name": "trap"}],
+		{"t": 0.12, "type": "sfx", "name": "trap_set"}],
 		{"cancel_window": 0.15, "desc": "抛出跳雷，敌人踩中后弹起爆炸将其炸上浮空。 Pop-up mine: it springs up under the enemy and launches them."})
 
 	# ---------------------------------------------------------------- slot 2: kamikaze robot
 	var seeker := sk(2, "mechanical_seeker", "机械追踪", "Mechanical Seeker", 8.0, 40.0, 0.4, &"summon", 12.0, ["summon", "ranged"],
 		[{"t": 0.15, "type": "summon", "summon_id": "seeker", "count": 1, "duration": 8.0, "offset": 1.5, "max_active": 3},
-		{"t": 0.15, "type": "sfx", "name": "metal"}],
+		{"t": 0.15, "type": "sfx", "name": "reload"}],
 		{"charges": 2, "desc": "放出追踪机器人，冲向敌人自爆。 Releases a robot that chases the enemy and self-destructs."})
 
 	# ---------------------------------------------------------------- slot 3: rocket punch
 	var rocket := sk(3, "rocket_punch", "火箭拳", "Rocket Punch", 7.0, 40.0, 0.4, &"punch", 16.0, ["ranged", "cc"],
-		[{"t": 0.12, "type": "projectile", "speed": 28.0, "range": 16.0, "radius": 0.5, "aim": "target", "visual": "missile",
+		[{"t": 0.12, "type": "projectile", "sfx": "missile", "speed": 28.0, "range": 16.0, "radius": 0.5, "aim": "target", "visual": "missile",
 		"scale": 1.4, "color": STEEL, "hit": hit(1.6, {"knockdown": true, "knockback": 8.0, "gadget": true})},
-		{"t": 0.12, "type": "sfx", "name": "cannon"}],
+		{"t": 0.12, "type": "sfx", "name": "gun_shotgun"}],
 		{"cancel_window": 0.15, "desc": "发射火箭推进的机械拳，击倒命中的敌人。 A rocket-propelled fist that knocks the enemy down."})
 
 	# ---------------------------------------------------------------- slot 4: weight trap
@@ -72,7 +72,7 @@ func define() -> void:
 		"radius": 2.2, "arm_time": 0.3, "duration": 15.0, "max_active": 2, "color": STEEL,
 		"hit": hit(0.5, {"hitstun": 0.5, "knockback": 0.0, "gadget": true}),
 		"on_trigger_statuses": [st("weight", 5.0, 0.5), st("slow", 5.0, 0.3)]},
-		{"t": 0.12, "type": "sfx", "name": "trap"}],
+		{"t": 0.12, "type": "sfx", "name": "trap_set"}],
 		{"cancel_window": 0.15, "desc": "布置磁场线圈陷阱，触发后大幅增加敌人负重。 Coil trap that weighs down whoever triggers it."})
 
 	# ---------------------------------------------------------------- slot 5: timed flight
@@ -88,14 +88,14 @@ func define() -> void:
 		["aoe", "escape", "cc", "defensive"],
 		[{"t": 0.2, "type": "ground", "at": "self", "radius": 4.5, "visual": "wind", "color": Color(0.8, 0.95, 1.0),
 		"hit": hit(1.2, {"knockback": 14.0, "knockdown": true, "gadget": true})},
-		{"t": 0.2, "type": "sfx", "name": "explosion"}],
+		{"t": 0.2, "type": "sfx", "name": "explosion_crunch"}],
 		{"cancel_window": 0.15, "desc": "放下空气压缩机，巨大气浪吹飞周围敌人。 A compressor blast that blows every nearby enemy away."})
 
 	# ---------------------------------------------------------------- slot 7: ultimate
 	var air_drops := sk(7, "air_drops", "机械空投", "Air Drops", 75.0, 300.0, 1.1, &"summon", 14.0,
 		["ultimate", "aoe", "summon", "ranged"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.2)], "fx": "cast_glow"},
-		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"}, {"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"}, {"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.3, "type": "summon", "summon_id": "bomber", "count": 2, "duration": 10.0, "offset": 2.0, "max_active": 2},
 		{"t": 0.4, "type": "custom", "method": "air_drop", "args": {"n": 8, "r": 3.0, "dmg": 0.5}}],
 		{"desc": "呼叫轰炸无人机，对目标区域螺旋空投炸弹。 Calls bomber drones and a spiral carpet of air-dropped bombs."})
@@ -110,7 +110,7 @@ func define() -> void:
 			"skills": [sk(0, "seeker_blast", "自爆", "Self-Destruct", 0.5, 0.0, 0.3, &"attack", 1.8, ["melee", "aoe"],
 				[{"t": 0.1, "type": "melee", "shape": "circle", "range": 2.4, "fx": "explosion",
 				"hit": hit(1.6, {"knockback": 6.0, "knockdown": true})},
-				{"t": 0.1, "type": "sfx", "name": "explosion"},
+				{"t": 0.1, "type": "sfx", "name": "explosion_small"},
 				{"t": 0.12, "type": "custom", "method": "seeker_detonate", "args": {}}],
 				{"desc": "冲到敌人身边自爆。 Explodes next to the enemy."})],
 		},
@@ -134,7 +134,7 @@ func define() -> void:
 
 
 func _rifle(t: float, dmg: float, kb: float) -> Dictionary:
-	return {"t": t, "type": "projectile", "speed": 50.0, "range": 22.0, "radius": 0.3, "pierce": true, "aim": "target",
+	return {"t": t, "type": "projectile", "sfx": "gun_rifle", "speed": 50.0, "range": 22.0, "radius": 0.3, "pierce": true, "aim": "target",
 		"visual": "bullet", "scale": 1.2, "color": Color(0.8, 0.95, 1.0),
 		"hit": hit(dmg, {"hitstun": 0.35, "knockback": kb, "juggle_cost": 7.0, "rifle": true})}
 

@@ -70,6 +70,7 @@ func _ready() -> void:
 	mode = create_mode()
 	add_child(mode)
 	mode.match_ended.connect(_on_match_ended)
+	if get_node_or_null("/root/Music") != null: get_node("/root/Music").call("enter_match", self)  # local music/ambience
 	if not _game().my_slot().is_empty():
 		controller = PlayerController.new()
 		controller.name = "Controller"

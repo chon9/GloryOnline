@@ -76,6 +76,10 @@ func add_kill(killer: Fighter, victim: Fighter, viewer: Fighter = null) -> void:
 	else:
 		t = "%s  [color=#ff7060]阵亡[/color] [color=#9aa3b5][font_size=12]Fell[/font_size][/color]" % name_bb(victim, "?")
 	var involved := viewer != null and (viewer == killer or viewer == victim)
+	if viewer != null and viewer == killer and killer != victim:
+		var fx := get_node_or_null(^"/root/Fx")
+		if fx != null and fx.has_method(&"ui_sfx"):
+			fx.call(&"ui_sfx", &"ui_kill")
 	var src: Fighter = killer if killer != null and is_instance_valid(killer) else victim
 	var acc := HudStyle.C_ALLY
 	if src != null and is_instance_valid(src):

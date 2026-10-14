@@ -32,22 +32,22 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain 普攻
 	var b1 := sk(0, "claw_swipe", "爪击", "Basic: Claw Swipe", 0.0, 0.0, 0.28, &"attack_1h_1", 2.0, ["melee", "combo"],
 		[{"t": 0.09, "type": "melee", "range": 2.0, "arc": 110.0, "hit": hit(0.7, {"hitstun": 0.35, "knockback": 0.8, CLAW_KEY: true})},
-		{"t": 0.05, "type": "sfx", "name": "slash"}],
+		{"t": 0.05, "type": "sfx", "name": "swing_claw"}],
 		{"cancel_window": 0.14, "chain": ["claw_swipe", "claw_rake", "knee_attack"], "desc": "利爪横扫 Raking claw swipe."})
 	sk(0, "claw_rake", "反手爪", "Basic: Claw Rake", 0.0, 0.0, 0.3, &"attack_1h_2", 2.0, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.0, "arc": 110.0, "hit": hit(0.7, {"hitstun": 0.38, "knockback": 1.0, CLAW_KEY: true})},
-		{"t": 0.05, "type": "sfx", "name": "slash"}],
+		{"t": 0.05, "type": "sfx", "name": "swing_claw"}],
 		{"cancel_window": 0.15, "desc": "反手抓挠 Backhand claw rake."})
 	sk(0, "knee_attack", "膝撞", "Basic: Knee Attack", 0.0, 0.0, 0.4, &"kick", 2.0, ["melee", "finisher"],
 		[{"t": 0.15, "type": "melee", "range": 2.0, "arc": 100.0, "hit": hit(0.9, {"knockback": 4.5, "hitstun": 0.5})},
-		{"t": 0.12, "type": "sfx", "name": "hit"}],
+		{"t": 0.12, "type": "sfx", "name": "kick"}],
 		{"cancel_window": 0.18, "desc": "膝撞收尾 Knee strike finisher."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
 	var uppercut := sk(1, "uppercut", "勾拳", "Uppercut", 4.0, 40.0, 0.42, &"attack_2h", 2.2, ["launcher", "melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.2, "arc": 100.0, "hit": hit(1.4, {"launch": 10.5, "knockback": 0.6, CLAW_KEY: true})},
 		{"t": 0.12, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.2},
-		{"t": 0.08, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.22, "desc": "Lv1 上勾拳挑空 Lv1 rising uppercut that launches."})
 
 	# ---------------------------------------------------------------- slot 2: Strangle
@@ -60,20 +60,20 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 3: Brick Buster
 	var brick := sk(3, "brick_buster", "砖袭", "Brick Buster", 8.0, 55.0, 0.5, &"attack_slam", 2.2, ["cc", "melee", "interrupt"],
 		[{"t": 0.2, "type": "custom", "method": "brick_buster", "args": {"range": 2.2}},
-		{"t": 0.2, "type": "sfx", "name": "earth"}],
+		{"t": 0.2, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.15, "desc": "Lv20 板砖拍头造成眩晕，背后拍更久 Lv20 brick to the head: dizzy, longer from behind."})
 
 	# ---------------------------------------------------------------- slot 4: Sand Toss
 	var sand := sk(4, "sand_toss", "抛沙", "Sand Toss", 9.0, 45.0, 0.4, &"throw", 4.5, ["debuff", "cc", "aoe"],
 		[{"t": 0.12, "type": "melee", "range": 4.5, "arc": 70.0, "fx": "smoke", "color": Color(0.85, 0.75, 0.5),
 			"hit": hit(0.4, {"hitstun": 0.6, "knockback": 0.5, "statuses": [st("blind", 4.0)]})},
-		{"t": 0.12, "type": "sfx", "name": "throw"}],
+		{"t": 0.12, "type": "sfx", "name": "earth_light"}],
 		{"cancel_window": 0.15, "desc": "Lv20 扬沙致盲（4秒） Lv20 throws sand in the face: blinds for 4 s."})
 
 	# ---------------------------------------------------------------- slot 5: Molotov
 	var molotov := sk(5, "molotov", "燃烧瓶", "Molotov", 9.0, 60.0, 0.45, &"throw", 12.0, ["ranged", "aoe", "debuff"],
 		[{"t": 0.15, "type": "projectile", "speed": 15.0, "range": 14.0, "radius": 0.35, "gravity": 18.0, "aim": "target",
-			"visual": "flask", "color": Color(1.0, 0.5, 0.15), "sfx": "throw",
+			"visual": "flask", "color": Color(1.0, 0.5, 0.15), "sfx": "throw_light",
 			"hit": hit(0.8, {"knockback": 2.0, "statuses": [st("burn", 4.0, 1.0)]}),
 			"explode": {"radius": 2.6, "hit": hit(0.6, {"element": "fire", "hitstun": 0.4, "statuses": [st("burn", 4.0, 1.0)]})}}],
 		{"cancel_window": 0.15, "desc": "扔出燃烧瓶，爆炸并点燃范围内敌人 Thrown fire bottle that bursts and sets foes ablaze."})
@@ -92,7 +92,7 @@ func define() -> void:
 	var t4t := sk(7, "tooth_for_tooth", "以牙还牙", "Tooth for Tooth", 50.0, 200.0, 1.5, &"punch_combo", 3.0,
 		["ultimate", "melee", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "custom", "method": "tooth_for_tooth", "args": {}},
 		{"t": 0.05, "type": "buff", "target": "self", "fx": "cast_glow", "statuses": [st("super_armor", 1.6)]},
 		{"t": 0.05, "type": "dash", "direction": "target", "distance": 4.0, "speed": 26.0},

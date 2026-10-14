@@ -39,15 +39,15 @@ func define() -> void:
 	var blood := Color(0.95, 0.08, 0.12)
 	# ------------------------------------------------------------ 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.45, &"attack_2h", 3.0, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.18, "type": "melee", "range": 3.0, "arc": 130.0, "color": c, "hit": hit(0.75, {"knockback": 1.5, "hitstun": 0.4})}],
 		{"cancel_window": 0.18, "chain": ["atk1", "atk2", "atk3"], "desc": "大剑横斩 Heavy horizontal cleave."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.5, &"attack_slam", 3.0, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.2, "type": "melee", "range": 3.0, "arc": 110.0, "color": c, "hit": hit(0.8, {"knockback": 1.5, "hitstun": 0.45})}],
 		{"cancel_window": 0.2, "desc": "下劈 Overhead chop."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.6, &"attack_spin", 3.0, ["melee", "finisher", "aoe"],
-		[{"t": 0.0, "type": "sfx", "name": "slash"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.25, "type": "melee", "shape": "circle", "range": 3.0, "color": c,
 		"hit": hit(1.05, {"knockback": 5.0, "hitstun": 0.6})}],
 		{"cancel_window": 0.2, "desc": "回旋斩 Spinning cleave that knocks back."})
@@ -55,7 +55,7 @@ func define() -> void:
 	# ------------------------------------------------------------ 1: Lv1 launcher
 	var backslash := sk(1, "backwards_slash", "倒斩", "Backwards Slash", 4.0, 30.0, 0.45, &"attack_2h", 2.8,
 		["launcher", "melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "slash"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.15, "type": "custom", "method": "rage_step", "args": {"reach": BERSERK_REACH, "step":
 			{"type": "melee", "range": 2.8, "arc": 120.0, "color": c,
 			"hit": hit(1.2, {"launch": 12.5, "knockback": 0.5, "hitstun": 0.6})}}},
@@ -69,13 +69,13 @@ func define() -> void:
 		{"t": 0.0, "type": "leap", "to": "target", "distance": 6.0, "height": 3.0, "duration": 0.5,
 		"land": {"radius": 3.2, "fx": "explosion", "hit": hit(1.9, {"knockdown": true, "knockback": 3.0})}},
 		{"t": 0.45, "type": "anim", "anim": "attack_slam"},
-		{"t": 0.5, "type": "sfx", "name": "earth"}],
+		{"t": 0.5, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.2, "desc": "跃起砸地冲击波，暴走时霸体 Leaping ground slam shockwave; super armor while Berserk."})
 
 	# ------------------------------------------------------------ 3: Gore Cross
 	var gore := sk(3, "gore_cross", "十字斩", "Gore Cross", 7.0, 45.0, 0.55, &"attack_2h", 3.0,
 		["melee", "combo", "debuff"],
-		[{"t": 0.0, "type": "sfx", "name": "slash"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.15, "type": "melee", "range": 3.0, "arc": 120.0, "color": blood,
 		"hit": hit(0.8, {"hitstun": 0.45, "knockback": 0.5, "statuses": [st("bleed", 5.0, 0.6)]})},
 		{"t": 0.32, "type": "anim", "anim": "attack_slam"},
@@ -89,7 +89,7 @@ func define() -> void:
 		[{"t": 0.0, "type": "custom", "method": "blood_price", "args": {"frac": 0.03}},
 		{"t": 0.0, "type": "vfx", "name": "dark_burst", "color": blood, "scale": 0.5},
 		{"t": 0.2, "type": "projectile", "visual": "blood", "speed": 28.0, "range": 16.0, "radius": 0.45, "aim": "target",
-		"color": blood, "scale": 1.2, "sfx": "throw",
+		"color": blood, "scale": 1.2, "sfx": "blood",
 		"hit": hit(1.4, {"knockback": 2.0, "statuses": [st("bleed", 3.0, 1.0)]})}],
 		{"cancel_window": 0.15, "desc": "割手放出血箭（消耗3%生命） Cuts own hand (3% HP) to fire a blood arrow."})
 
@@ -110,14 +110,14 @@ func define() -> void:
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("atk_up", 12.0, 0.2), st("haste", 12.0, 0.15)],
 		"color": blood},
 		{"t": 0.0, "type": "custom", "method": "enter_berserk", "args": {"dur": 12.0}},
-		{"t": 0.0, "type": "sfx", "name": "buff"}],
+		{"t": 0.0, "type": "sfx", "name": "growl"}],
 		{"cancel_window": 0.3, "desc": "暴走12秒：攻击+20%、移速+15%，持续流失生命 Berserk 12 s: +20% attack, +15% speed, drains HP."})
 
 	# ------------------------------------------------------------ 7: ultimate
 	var storm := sk(7, "crimson_storm", "怒血狂涛", "Crimson Storm", 70.0, 220.0, 1.6, &"attack_slam", 5.0,
 		["ultimate", "aoe", "melee", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash", "color": blood},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.8)]},
 		{"t": 0.35, "type": "ground", "at": "self", "radius": 4.0, "visual": "blood", "color": blood,
 		"hit": hit(1.1, {"launch": 8.0, "knockback": 1.0})},
@@ -126,7 +126,7 @@ func define() -> void:
 		{"t": 1.1, "type": "anim", "anim": "attack_slam"},
 		{"t": 1.15, "type": "ground", "at": "self", "radius": 7.0, "visual": "blood", "color": blood,
 		"hit": hit(1.6, {"launch": 6.0, "knockdown": true, "knockback": 9.0, "statuses": [st("bleed", 6.0, 1.2)]})},
-		{"t": 1.15, "type": "sfx", "name": "explosion"}],
+		{"t": 1.15, "type": "sfx", "name": "ultimate_release"}],
 		{"desc": "Lv70 大招：三重血浪爆发 Three expanding blood explosions around the Berserker."})
 
 	skills = [atk1, backslash, mountain, gore, blood_sword, grip, enrage, storm]

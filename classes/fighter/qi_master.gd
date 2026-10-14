@@ -33,15 +33,15 @@ func define() -> void:
 	var b1 := sk(0, "palm", "气掌", "Basic: Qi Palm", 0.0, 0.0, 0.3, &"punch", 2.4, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.4, "arc": 90.0, "color": QI_COLOR, "fx": "hit_spark",
 			"hit": hit(0.6, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})},
-		{"t": 0.06, "type": "sfx", "name": "swing"}],
+		{"t": 0.06, "type": "sfx", "name": "qi"}],
 		{"cancel_window": 0.14, "chain": ["palm", "palm2", "qi_push"], "desc": "裹气的掌击 Qi-wrapped palm strike."})
 	sk(0, "palm2", "回身掌", "Basic: Turning Palm", 0.0, 0.0, 0.3, &"punch_combo", 2.4, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.4, "arc": 90.0, "color": QI_COLOR, "fx": "hit_spark",
 			"hit": hit(0.6, {"type": "magic", "hitstun": 0.38, "knockback": 1.2})},
-		{"t": 0.06, "type": "sfx", "name": "swing"}],
+		{"t": 0.06, "type": "sfx", "name": "qi"}],
 		{"cancel_window": 0.15, "desc": "回身第二掌 Second turning palm."})
 	sk(0, "qi_push", "气劲", "Basic: Qi Push", 0.0, 0.0, 0.4, &"cast", 9.0, ["ranged", "finisher"],
-		[{"t": 0.14, "type": "projectile", "speed": 20.0, "range": 9.0, "radius": 0.45, "aim": "target", "visual": "qi",
+		[{"t": 0.14, "type": "projectile", "sfx": "qi", "speed": 20.0, "range": 9.0, "radius": 0.45, "aim": "target", "visual": "qi",
 			"color": QI_COLOR, "scale": 0.8, "hit": hit(0.75, {"type": "magic", "knockback": 4.0, "hitstun": 0.45})}],
 		{"cancel_window": 0.18, "desc": "推出一团短程气劲 Pushes out a short qi burst."})
 
@@ -50,24 +50,24 @@ func define() -> void:
 		["launcher", "ranged", "combo"],
 		[{"t": 0.1, "type": "ground", "at": "target", "distance": 9.0, "max_distance": 11.0, "radius": 1.6, "delay": 0.35,
 			"visual": "wind", "color": QI_COLOR, "hit": hit(1.3, {"type": "magic", "launch": 10.5, "knockback": 0.5})},
-		{"t": 0.1, "type": "sfx", "name": "magic"}],
+		{"t": 0.1, "type": "sfx", "name": "qi_blast"}],
 		{"cancel_window": 0.2, "desc": "Lv1 远程浮空：脚下逆流气柱，出手后不可打断 Lv1 longest-range launcher; a delayed qi geyser under the foe."})
 
 	# ---------------------------------------------------------------- slot 2: Qi Bullet
 	var qi_bullet := sk(2, "qi_bullet", "气波弹", "Qi Bullet", 3.0, 35.0, 0.4, &"cast", 15.0, ["ranged", "combo"],
-		[{"t": 0.15, "type": "projectile", "speed": 11.0, "range": 16.0, "radius": 0.6, "aim": "target", "visual": "qi",
+		[{"t": 0.15, "type": "projectile", "sfx": "qi", "speed": 11.0, "range": 16.0, "radius": 0.6, "aim": "target", "visual": "qi",
 			"color": QI_COLOR, "scale": 1.4, "hit": hit(1.5, {"type": "magic", "knockback": 3.5, "hitstun": 0.55})}],
 		{"cancel_window": 0.2, "desc": "缓慢飞行的大气弹 A slow, heavy magic qi orb."})
 
 	# ---------------------------------------------------------------- slot 3: Dragon Wave
 	var dragon_wave := sk(3, "dragon_wave", "念龙波", "Dragon Wave", 9.0, 70.0, 0.55, &"channel", 16.0,
 		["ranged", "debuff", "buff_ally"],
-		[{"t": 0.2, "type": "projectile", "speed": 14.0, "range": 18.0, "radius": 0.7, "aim": "target", "visual": "dragon",
+		[{"t": 0.2, "type": "projectile", "sfx": "qi_blast", "speed": 14.0, "range": 18.0, "radius": 0.7, "aim": "target", "visual": "dragon",
 			"color": QI_COLOR, "scale": 1.3, "homing": 3.0, "pierce": true,
 			"hit": hit(1.6, {"type": "magic", "knockback": 2.5, "hitstun": 0.5,
 				"statuses": [st("def_down", 6.0, 0.15), st("slow", 4.0, 0.3)]})},
 		{"t": 0.2, "type": "custom", "method": "dragon_inspire", "args": {"radius": 10.0, "dur": 8.0, "power": 0.12}},
-		{"t": 0.2, "type": "sfx", "name": "magic"}],
+		{"t": 0.2, "type": "sfx", "name": "wind"}],
 		{"cancel_window": 0.15, "desc": "可操控的气龙：削弱敌人防御与速度，鼓舞身边队友 Steerable qi dragon: weakens foes, empowers nearby allies."})
 
 	# ---------------------------------------------------------------- slot 4: Cloud Grasping Fist
@@ -80,7 +80,7 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 5: Nen Guard
 	var nen_guard := sk(5, "nen_guard", "念气罩", "Nen Guard", 15.0, 80.0, 0.3, &"cast", 0.0, ["buff_self", "defensive"],
 		[{"t": 0.05, "type": "buff", "target": "self", "color": QI_COLOR, "shield": 0.18, "shield_dur": 10.0, "statuses": []},
-		{"t": 0.05, "type": "sfx", "name": "buff"}],
+		{"t": 0.05, "type": "sfx", "name": "shield_up"}],
 		{"desc": "气罩吸收伤害（18%生命，10秒） Qi barrier absorbing 18% max HP for 10 s."})
 
 	# ---------------------------------------------------------------- slot 6: Spirit Reaches to the Rainbow
@@ -95,14 +95,14 @@ func define() -> void:
 	var qi_blast := sk(7, "qi_blast", "气功爆破", "Qi Blast", 60.0, 220.0, 2.0, &"channel", 10.0,
 		["ultimate", "ranged", "aoe", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash", "color": QI_COLOR},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "fx": "cast_glow", "color": QI_COLOR, "statuses": [st("super_armor", 2.1)]},
 		{"t": 0.1, "type": "ground", "at": "target", "distance": 8.0, "radius": 3.2, "duration": 1.5, "tick": 0.25,
 			"visual": "wind", "color": QI_COLOR, "hit": hit(0.3, {"type": "magic", "hitstun": 0.45, "knockback": 0.0, "juggle_cost": 3.0})},
 		{"t": 1.75, "type": "ground", "at": "target", "distance": 8.0, "radius": 4.0, "visual": "lightning", "color": QI_COLOR,
 			"hit": hit(2.4, {"type": "magic", "knockback": 14.0, "knockdown": true})},
 		{"t": 1.75, "type": "vfx", "name": "explosion", "at": "target", "color": QI_COLOR},
-		{"t": 1.75, "type": "sfx", "name": "explosion"}],
+		{"t": 1.75, "type": "sfx", "name": "ultimate_release"}],
 		{"cancel_window": 0.15, "desc": "Lv70 大招：持续气爆伤害后巨大击飞 Lv70 sustained qi detonation, then a huge knockback."})
 
 	skills = [b1, countercurrent, qi_bullet, dragon_wave, cloud_grasp, nen_guard, rainbow, qi_blast]

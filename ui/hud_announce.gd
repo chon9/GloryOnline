@@ -28,6 +28,13 @@ func _init() -> void:
 func show_text(text: String, seconds: float = 2.0, color: Color = HudStyle.C_GOLD, interrupt: bool = false) -> void:
 	if text.strip_edges() == "":
 		return
+	var s := announce_sfx(text)
+	if s != &"":
+		var fx := get_node_or_null(^"/root/Fx")
+		if fx != null and fx.has_method(&"ui_sfx"):
+			fx.call(&"ui_sfx", s)
+			if s == &"vo_3" or s == &"vo_2" or s == &"vo_1":
+				fx.call(&"ui_sfx", &"ui_tick")
 	if interrupt or not _active:
 		_queue.clear()
 		_start(text, seconds, color)
@@ -149,6 +156,37 @@ static func _has_cjk(t: String) -> bool:
 
 static func _is_cjk(c: int) -> bool:
 	return (c >= 0x3000 and c <= 0x9FFF) or (c >= 0xFF00 and c <= 0xFFEF)
+
+
+## Announcer voice / UI sound for a match announcement ("3", "开始 Fight!", "第2回合 Round 2", "时间到 Time up!",
+## "平局 Draw", arena "Bout"); "" = none. "<team> 获胜 Victory!" stays silent: it is shown for whichever team won,
+## so the result sound (cheer / you win / you lose) is left to results.gd, which knows the local team.
+static func announce_sfx(text: String) -> StringName:
+	var t := text.strip_edges()
+	match t:
+		"3":
+			return &"vo_3"
+		"2":
+			return &"vo_2"
+		"1":
+			return &"vo_1"
+	if t.contains("Fight!"):
+		return &"vo_fight"
+	if t.contains("Time up"):
+		return &"vo_time"
+	if t.contains("Draw"):
+		return &"vo_tie"
+	if t.contains("Victory"):
+		return &""
+	if t.contains("Bout"):
+		return &"vo_ready"
+	var i := t.find("Round ")
+	if i >= 0:
+		var n := t.substr(i + 6).to_int()
+		if n >= 1 and n <= 3:
+			return StringName("vo_round_%d" % n)
+		return &"vo_final_round" if n > 3 else &""
+	return &""
 
 
 ## Splits "中文 English" after the last CJK character (when the rest is non-CJK text): [cn, en] or [text, ""].

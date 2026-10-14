@@ -35,14 +35,14 @@ func define() -> void:
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·十字击", "Basic Attack: Cross Strike", 0.0, 0.0, 0.34, &"attack_1h_1", 2.4, ["melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.4, "arc": 100.0, "hit": hit(0.6, {"hitstun": 0.3, "knockback": 1.0})},
-		{"t": 0.1, "type": "sfx", "name": "swing"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_staff"}],
 		{"cancel_window": 0.14, "chain": ["atk1", "atk2", "atk3"], "desc": "十字架敲击 Cross bash."})
 	sk(0, "atk2", "普攻·回击", "Basic Attack: Return Strike", 0.0, 0.0, 0.34, &"attack_1h_2", 2.4, ["melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.4, "arc": 100.0, "hit": hit(0.6, {"hitstun": 0.3, "knockback": 1.0})},
-		{"t": 0.1, "type": "sfx", "name": "swing"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_staff"}],
 		{"cancel_window": 0.14, "desc": "反手敲击 Backhand bash."})
 	sk(0, "atk3", "普攻·圣光弹", "Basic Attack: Holy Bolt", 0.0, 0.0, 0.42, &"shoot_1h", 12.0, ["ranged", "finisher"],
-		[{"t": 0.15, "type": "projectile", "visual": "orb", "speed": 26.0, "range": 13.0, "radius": 0.35, "aim": "target",
+		[{"t": 0.15, "type": "projectile", "sfx": "magic_bolt", "visual": "orb", "speed": 26.0, "range": 13.0, "radius": 0.35, "aim": "target",
 		"color": Color(1.0, 0.95, 0.65), "hit": hit(0.7, {"type": "magic", "element": "holy", "hitstun": 0.35, "knockback": 2.0})}],
 		{"cancel_window": 0.12, "desc": "十字架射出圣光弹 The cross fires a small holy bolt."})
 
@@ -51,7 +51,7 @@ func define() -> void:
 		["launcher", "aoe", "ranged", "cc", "defensive"],
 		[{"t": 0.12, "type": "ground", "at": "target", "radius": 2.3, "delay": 0.25, "visual": "holy",
 		"hit": hit(1.0, {"type": "magic", "launch": 10.0, "knockback": 0.0, "element": "holy"})},
-		{"t": 0.1, "type": "sfx", "name": "magic"}],
+		{"t": 0.1, "type": "sfx", "name": "holy_cast"}],
 		{"cancel_window": 0.15, "desc": "圣职基础技：法阵将敌人击飞，用于自保 Priest Lv1 rune circle that launches the enemy (self-peel)."})
 
 	# ------------------------------------------------------------ slot 2: cast-time heal + HoT
@@ -67,17 +67,17 @@ func define() -> void:
 	var cure := sk(3, "cure", "回复术", "Cure (Small/Great/Holy)", 12.0, 110.0, 0.25, &"heal", 14.0,
 		["heal"],
 		[{"t": 0.05, "type": "heal", "target": "ally_lowest", "radius": 15.0, "amount": 0.16, "matk_scale": 0.2},
-		{"t": 0.05, "type": "sfx", "name": "heal"}],
+		{"t": 0.05, "type": "sfx", "name": "holy_cast"}],
 		{"cancel_window": 0.1, "desc": "瞬发大量治疗，冷却较长 Instant burst heal with a long cooldown."})
 
 	# ------------------------------------------------------------ slot 4: Sacred Fire
 	var sacred := sk(4, "sacred_fire", "神圣之火", "Sacred Fire", 10.0, 70.0, 0.45, &"cast", 13.0,
 		["ranged", "debuff", "interrupt"],
-		[{"t": 0.18, "type": "projectile", "visual": "orb", "speed": 24.0, "range": 14.0, "radius": 0.45, "aim": "target",
+		[{"t": 0.18, "type": "projectile", "sfx": "fire_cast", "visual": "orb", "speed": 24.0, "range": 14.0, "radius": 0.45, "aim": "target",
 		"color": Color(1.0, 0.75, 0.3), "scale": 1.3,
 		"hit": hit(1.1, {"type": "magic", "element": "fire", "hitstun": 0.4,
 		"statuses": [st("burn", 5.0, 1.0), st("silence", 2.0)]})},
-		{"t": 0.15, "type": "sfx", "name": "cast"}],
+		{"t": 0.15, "type": "sfx", "name": "fire_cast"}],
 		{"cancel_window": 0.15, "desc": "圣火灼烧敌人并使其沉默 Holy fire that burns over time and silences."})
 
 	# ------------------------------------------------------------ slot 5: Hypnosis
@@ -93,7 +93,7 @@ func define() -> void:
 		[{"t": 0.0, "type": "launch_self", "vertical": 11.0, "forward": -5.0},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("haste", 4.0, 0.35)], "fx": "holy_burst"},
 		{"t": 0.0, "type": "custom", "method": "angel_wings", "args": {"dur": HOVER_TIME}},
-		{"t": 0.0, "type": "sfx", "name": "jump"}],
+		{"t": 0.0, "type": "sfx", "name": "wind"}],
 		{"desc": "展开天使之翼后跃悬空缓降，脱离近战 Spreads angel wings: leaps back and hovers, slowly gliding down."})
 
 	# ------------------------------------------------------------ slot 7: ultimate - Revive
@@ -101,11 +101,11 @@ func define() -> void:
 		["ultimate", "heal", "buff_ally"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.8)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 1.3, "type": "heal", "target": "ally_lowest", "radius": 18.0, "amount": 0.4, "revive": true},
 		{"t": 1.35, "type": "ground", "at": "self", "radius": 6.0, "duration": 4.0, "tick": 0.5, "affects": "allies",
 		"visual": "holy", "ally_effect": {"heal": 0.02}},
-		{"t": 1.3, "type": "sfx", "name": "heal"}],
+		{"t": 1.3, "type": "sfx", "name": "heal_big"}],
 		{"desc": "复活倒下的队友（无阵亡时为重伤队友大量治疗）并留下治疗圣域 Revives a fallen ally (or big-heals the lowest) and leaves a healing sanctuary."})
 
 	skills = [atk1, rising, heal_s, cure, sacred, hypnosis, wings, revive]

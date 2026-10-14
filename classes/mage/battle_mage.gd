@@ -48,16 +48,16 @@ func define() -> void:
 
 	# ---------------------------------------------------------------- slot 0: basic lance chain
 	var a1 := sk(0, "lance_1", "普攻·突刺", "Lance Thrust", 0.0, 0.0, 0.32, &"attack_stab", 3.0, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_spear"},
 		{"t": 0.12, "type": "melee", "range": 3.0, "arc": 60.0, "hit": hit(0.75, {"hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "chain": ["lance_1", "lance_2", "lance_3"],
 		"desc": "战矛三段连击，第三段发射全部炫纹 Three-hit lance chain; the third hit fires all Chasers."})
 	sk(0, "lance_2", "普攻·横扫", "Lance Sweep", 0.0, 0.0, 0.32, &"attack_1h_2", 3.0, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_spear"},
 		{"t": 0.12, "type": "melee", "range": 3.0, "arc": 110.0, "hit": hit(0.75, {"hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "desc": "横扫 Sweeping second hit."})
 	sk(0, "lance_3", "普攻·炫纹突", "Chaser Thrust", 0.0, 0.0, 0.5, &"attack_2h", 3.2, ["melee", "finisher"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_spear"},
 		{"t": 0.15, "type": "melee", "range": 3.2, "arc": 80.0, "hit": hit(1.0, {"knockback": 4.0, "hitstun": 0.45})},
 		{"t": 0.2, "type": "custom", "method": "fire_chasers", "args": {"count": MAX_CHASERS}}],
 		{"cancel_window": 0.2, "desc": "重刺并发射全部炫纹 Heavy thrust that launches every stored Chaser."})
@@ -65,7 +65,7 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
 	var sky := sk(1, "sky_strike", "天击", "Sky Strike", 4.0, 40.0, 0.45, &"attack_2h", 2.8,
 		["launcher", "melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 90.0, "fx": "slash_arc",
 			"hit": hit(1.4, {"launch": 11.0, "knockback": 0.8, "hitstun": 0.5})},
 		{"t": 0.14, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.6}],
@@ -77,20 +77,20 @@ func define() -> void:
 		[{"t": 0.0, "type": "dash", "distance": 1.5, "speed": 20.0, "direction": "target"},
 		{"t": 0.12, "type": "melee", "range": 3.4, "arc": 50.0, "fx": "hit_heavy",
 			"hit": hit(1.6, {"stun": 0.8, "knockback": 1.0, "hitstun": 0.4})},
-		{"t": 0.12, "type": "sfx", "name": "slash"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_spear"}],
 		{"cancel_window": 0.2, "desc": "快速前刺，短暂眩晕，生成无属性炫纹 Fast high-priority stab that stuns briefly; adds a Neutral Chaser."})
 
 	# ---------------------------------------------------------------- slot 3: Falling Flower Palm (blow-away, fire chaser)
 	var palm := sk(3, "falling_flower_palm", "落花掌", "Falling Flower Palm", 7.0, 60.0, 0.45, &"punch", 2.6,
 		["melee", "finisher", "combo"],
 		[{"t": 0.15, "type": "custom", "method": "falling_flower", "args": {"range": 2.6, "arc": 100.0}},
-		{"t": 0.15, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.15, "type": "sfx", "name": "qi_blast"}],
 		{"cancel_window": 0.15, "desc": "掌击将目标击飞，对空中目标伤害更高；生成火炫纹 Palm blast that blows the target away, stronger vs airborne; adds a Fire Chaser."})
 
 	# ---------------------------------------------------------------- slot 4: Circle Swing (360 knockdown, shadow chaser)
 	var circle := sk(4, "circle_swing", "圆舞棍", "Circle Swing", 9.0, 70.0, 0.6, &"attack_spin", 3.4,
 		["melee", "aoe", "cc"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_spin"},
 		{"t": 0.2, "type": "melee", "shape": "circle", "range": 3.4, "fx": "slash_arc",
 			"hit": hit(1.9, {"knockdown": true, "knockback": 5.0, "armor_break": true})}],
 		{"cancel_window": 0.2, "desc": "360度横扫，范围击倒，可破霸体；生成暗炫纹 360-degree sweep that knocks down and breaks super armor; adds a Shadow Chaser."})
@@ -103,7 +103,7 @@ func define() -> void:
 			"color": Color(0.6, 0.75, 1.0),
 			"hit": hit(2.2, {"type": "magic", "element": "lightning", "knockback": 6.0, "hitstun": 0.55})},
 		{"t": 0.2, "type": "vfx", "name": "lightning_strike", "at": "forward", "distance": 3.5},
-		{"t": 0.2, "type": "sfx", "name": "lightning"}],
+		{"t": 0.2, "type": "sfx", "name": "lightning_cast"}],
 		{"cancel_window": 0.2, "desc": "雷电长矛贯穿前方5米直线 Piercing lightning spear thrust along a 6 m line; adds a Light Chaser."})
 
 	# ---------------------------------------------------------------- slot 6: Dragon Breaks the Ranks (long charge)
@@ -120,7 +120,7 @@ func define() -> void:
 		["ultimate", "aoe", "melee", "launcher"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.9)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.2, "type": "melee", "shape": "circle", "range": 3.5, "fx": "slash_arc", "hit": hit(1.2, {"launch": 7.0, "knockback": 1.0})},
 		{"t": 0.55, "type": "anim", "anim": "attack_2h"},
 		{"t": 0.55, "type": "melee", "shape": "circle", "range": 3.5, "height": 3.5, "fx": "slash_arc", "hit": hit(1.2, {"launch": 8.0, "knockback": 1.0})},
@@ -226,7 +226,7 @@ func fire_chasers(f: Fighter, args: Dictionary, runner: SkillRunner) -> void:
 				h["element"] = "holy"
 		runner.execute_step({"type": "projectile", "speed": 20.0, "range": 18.0, "radius": 0.45, "homing": 7.0,
 			"aim": "target", "from": "center", "visual": "orb", "color": CHASER_COLORS.get(el, tint), "scale": 0.6,
-			"spread": 0.0, "sfx": "magic", "hit": h})
+			"spread": 0.0, "sfx": "fire_cast", "hit": h})
 		# Self buff granted by firing the orb.
 		match el:
 			"neutral":

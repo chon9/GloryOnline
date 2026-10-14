@@ -1129,3 +1129,52 @@ for mobs, bosses and summons, restyled with the same toon shader. Public API unc
   pattern up close. **ENV** - hundred_blossoms' bridge / torii stand in the middle of the fight and often frame the
   camera through red beams. **CHARS** - `anime_body.gd:497` "Nonexistent 'int' constructor" and `:250`
   "get_script on a previously freed instance" errors seen during real matches (2026-10-14).
+
+## AUDIO (music, ambience, buses, audio settings)
+
+- **Buses**: `res://default_bus_layout.tres` (the engine default path, so project.godot needs no setting):
+  Master (hard limiter) -> Music (effect 0 "Duck" AudioEffectAmplify), SFX (compressor + hard limiter), UI, Ambience.
+- **Prefs**: `Game.prefs` adds master_volume, music_volume, sfx_volume, ui_volume, ambience_volume (0..1, saved
+  under [audio] in user://settings.cfg). The legacy "volume" key stays an alias of master_volume (whichever changed
+  since the last sync wins). `Game.apply_bus_volumes()` sets every bus (muted at 0; Ambience has a -4 dB base
+  offset); `Game.VOLUME_ROWS` drives the sliders in the main-menu settings and the pause menu.
+- **Music autoload** (`autoload/music.gd`, registered after Game): local only, no RPCs. Follows Game.state_changed
+  (menu / lobby), `main_menu._ready -> Music.sync_to_game()`, and `match_scene._ready -> Music.enter_match(self)`,
+  which picks the match track (duel/team -> battle_pvp, arena -> battle_arena, raid -> raid_explore_<raid id>),
+  the zone ambience and connects the mode's score_changed (raid: boss engaged -> raid_boss_<boss>, enraged ->
+  raid_boss_enrage, phase change -> duck) and match_ended (victory / defeat stinger -> results). Boss state is
+  read from the raid score every peer already receives, so boss_brain.gd needed no change.
+  `Music.duck(db, seconds)` is the public ducking API (Fx calls it for ultimates). `Music.audible` is false on
+  headless runs: state, slots and fades still run but no player starts (no audio device; avoids leaked playbacks).
+
+## SFX (sound-effect library, Fx sound engine)
+
+- **Library**: `assets/sfx/<category>/<name>_NN.ogg` (blade, metal, blunt, body, movement, gun, explosion, magic_fire /
+  ice / lightning / holy / dark / poison / wind / earth, energy, boss, ui, voice, crowd); 375 OGG files, sources and
+  licences in assets/CREDITS.md "Sound effects". The synth_*.wav placeholders and unused Kenney files are gone.
+- **`Fx.SFX_MAP`** entries are now Dictionaries (`set`+`n` or `files`, `alias`, `layers`, `db`, `vr`, `p`, `pr`, `max`,
+  `pri`, `far`, `fam`, `ui`, `bus`, `duck`; doc comment above the map). Every pre-0.2 name still works (aliases).
+  Generic names resolve per caster: `swing` / `slash` / `hit` / `hit_heavy` / `shot` by the caster kit's weapon_type
+  (`Fx.WEAPON_CLASS`, substring rules for mob weapons), `footstep` by map id (`Fx.SURFACE_BY_MAP`). "none" is silent.
+- **API**: `Fx.sfx(name, pos, caster := 0)` (caster defaults to `context_caster` and is replicated, like `play`);
+  new local-only `Fx.local_sfx(name, pos, caster)`, `Fx.ui_sfx(name)` (non-positional, UI bus), `Fx.footstep(pos,
+  caster, heavy)`, `Fx.voice_stats()`, `Fx.sfx_files(name)`, counters `Fx.sfx_stats`.
+- **Mixing**: 24 positional voices (bus SFX) + 6 UI voices (bus UI; Master when a bus is missing); per-name polyphony
+  (`max`), global cap with priority (entry `pri` x10 + own 3 / enemy 2 / ally 1 - distance/15; ultimates and bosses
+  steal from footsteps), 30 ms same-sound guard, family de-duplication (an effect's automatic sound yields to the
+  kit's explicit one). Attenuation: unit_size 10 m, max 65 m; `far` sounds 20 m / 110 m. Bookkeeping runs headless
+  too (playback itself stays off headless), so caps are testable. Ultimates and boss roars call `Music.duck`.
+- **Automatic sounds** (all peers, from replicated effects): hit_spark / hit_heavy -> victim hit by the attacker's
+  weapon (magic damage -> hit_magic, crit adds a thump; uses the damage number shown just before), block_spark,
+  land_dust (land / wall slam / knockdown / stomp by scale), death, explosion (small / large by scale), element
+  bursts, heal / buff / debuff / smoke / blink (quick recovery at scale < 0.8) / dash / summon / launch,
+  ultimate_flash -> ultimate_charge (+ boss_roar at scale >= 2.5); telegraphed areas (delay > 0.25 s) hum and their
+  detonation plays the element sound. `core/fighter.gd` adds local footsteps (every 1.9 m of running, bosses stomp)
+  and a jump sound on the jump animation edge.
+- **UI**: every BaseButton gets click / toggle + hover sounds through `SceneTree.node_added`; meta `ui_sfx`
+  (`&"ui_confirm"`, `&"ui_cancel"`, `&"ui_select"`, `&"none"`) overrides. HUD announcements speak (Kenney
+  announcer: 3-2-1, fight, round N, time, draw), the kill feed dings for the local killer, results say you win /
+  you lose (+ crowd cheer on a PvP win).
+- **Kits / mobs**: every sfx step and projectile `sfx` key names a specific sound (gun_revolver, swing_saber,
+  fire_cast, shield, ...); projectiles that had no key (default "shot") got one. Mob defs gained cosmetic sfx steps
+  (swings, grunts, roars). Test: `tests/test_audio_sfx.gd`.

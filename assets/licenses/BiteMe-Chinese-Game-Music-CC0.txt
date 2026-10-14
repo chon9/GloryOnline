@@ -1,0 +1,12 @@
+Chinese Game Music v1.0 - BiteMe Games
+Source: https://bitemegames.itch.io/chinese-game-music
+
+Licence as published on the itch.io page (checked 2026-10-14):
+  License: Creative Commons Zero v1.0 Universal (CC0 1.0)
+  "You can use this asset for commercial projects, without attribution required. You cannot resell this edit."
+
+Used in Rongyao Arena (free game, public source repository; the asset is not sold):
+  assets/music/lobby/lotus_pond_loop.ogg       <- "Lotus Pond - Loop.wav"
+  assets/music/battle_pvp/dragon_dance_loop.ogg <- "Dragon Dance - Loop.wav"
+Changes: constant volume change (loudness normalization) and conversion from WAV to OGG Vorbis.
+CC0 legal code: CC0-1.0-legalcode.txt in this folder.

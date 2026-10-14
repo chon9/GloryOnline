@@ -36,6 +36,14 @@ const SFX_DIR := "res://assets/sfx/"
 const MAX_LIVE_NODES := 260
 const HARD_LIVE_NODES := 560
 const MAX_VOICES := 24
+## 3D attenuation tuned for 40-60 m arenas: full volume inside ~10 m, about -12 dB at 40 m, silent past MAX_DIST.
+## "far" sounds (explosions, big guns, ultimates, boss roars) carry across the whole map.
+const UNIT_SIZE := 10.0
+const MAX_DIST := 65.0
+const FAR_UNIT_SIZE := 20.0
+const FAR_MAX_DIST := 110.0
+const BUS_SFX := &"SFX"
+const BUS_UI := &"UI"
 const POOL_FLASH := 360
 const POOL_BURST := 160
 const POOL_NUMBERS := 48
@@ -63,43 +71,276 @@ const PROJ_COLORS: Dictionary = {
 }
 const NUMBER_COLORS: Dictionary = DamageNumber.COLORS
 
-## sfx name -> candidate files (one is picked at random). Unknown names fall back to "hit".
+## --- SFX library (assets/sfx/<category>/, see assets/CREDITS.md) ------------------------------------------------
+## sound name -> entry. Entry keys (all optional):
+##   set + n   files "<set>_01.ogg" .. "<set>_<n>.ogg" under SFX_DIR (one picked at random, never the same twice)
+##   files     explicit file list (relative to SFX_DIR)
+##   alias     play another entry instead            layers  extra entries played together (whoosh + impact, thump...)
+##   db        base volume (dB)                      vr      random volume range (+-dB, default 1.5)
+##   p         base pitch (default 1)                pr      random pitch range (+-fraction, default 0.06)
+##   max       max simultaneous voices of this name (default 4)
+##   pri       priority 0 (footsteps, layers) .. 3 (ultimates, bosses); own > enemy > ally is added on top
+##   far       big sound heard across the whole 40-60 m arena     fam   family for de-duplication (see _do_sfx)
+##   ui        non-positional (UI bus unless `bus` says otherwise)  duck  ducks the Music bus (Music.duck)
+## Generic names (hit, hit_heavy, swing, slash, shot, footstep) are resolved per caster weapon / map surface first.
+## Unknown names fall back to "hit" with a one-time warning. "none" is silent.
 const SFX_MAP: Dictionary = {
-	&"hit": ["impactPunch_medium_000.ogg", "impactPunch_medium_001.ogg", "impactPunch_medium_002.ogg"],
-	&"hit_heavy": ["impactPunch_heavy_000.ogg", "impactPunch_heavy_001.ogg", "impactPunch_heavy_002.ogg"],
-	&"slash": ["knifeSlice.ogg", "knifeSlice2.ogg", "drawKnife1.ogg"],
-	&"swing": ["synth_whoosh.wav", "cloth1.ogg"],
-	&"magic": ["synth_magic.wav"],
-	&"cast": ["synth_magic.wav"],
-	&"explosion": ["synth_explosion.wav"],
-	&"shot": ["synth_shot.wav"],
-	&"cannon": ["synth_cannon.wav"],
-	&"heal": ["synth_heal.wav"],
-	&"buff": ["synth_buff.wav"],
-	&"debuff": ["synth_debuff.wav"],
-	&"block": ["impactMetal_medium_000.ogg", "impactPlate_medium_000.ogg"],
-	&"metal": ["impactMetal_heavy_000.ogg", "impactMetal_heavy_001.ogg"],
-	&"footstep": ["footstep00.ogg", "footstep01.ogg", "footstep02.ogg", "footstep03.ogg"],
-	&"death": ["impactSoft_heavy_000.ogg"],
-	&"ui_click": ["synth_ui_click.wav"],
-	&"lightning": ["synth_lightning.wav"],
-	&"ice": ["synth_ice.wav", "impactGlass_light_000.ogg"],
-	&"glass": ["impactGlass_heavy_000.ogg", "impactGlass_medium_000.ogg"],
-	&"ultimate": ["synth_ultimate.wav"],
-	&"dash": ["synth_whoosh.wav"],
-	&"jump": ["cloth3.ogg"],
-	&"land": ["impactSoft_medium_000.ogg"],
-	&"throw": ["synth_whoosh.wav"],
-	&"grab": ["impactPunch_medium_001.ogg", "dropLeather.ogg"],
-	&"summon": ["synth_magic.wav"],
-	&"bell": ["impactBell_heavy_000.ogg", "impactBell_heavy_001.ogg"],
-	&"coin": ["handleCoins.ogg"],
-	&"earth": ["impactMining_000.ogg", "impactMining_001.ogg"],
-	&"fire": ["synth_whoosh.wav"],
-	&"wood": ["impactWood_heavy_000.ogg"],
-	&"trap": ["metalLatch.ogg", "metalClick.ogg"],
-	&"book": ["bookFlip1.ogg", "bookOpen.ogg"],
+	# ---- weapon swings
+	&"swing_light": {"set": "blade/swing_light", "n": 6, "db": -3.0, "pr": 0.1, "fam": &"swing"},
+	&"swing_fist": {"set": "blade/swing_light", "n": 6, "db": -5.0, "p": 1.15, "pr": 0.1, "fam": &"swing"},
+	&"swing_claw": {"set": "blade/swing_dagger", "n": 3, "db": -3.0, "p": 1.1, "fam": &"swing"},
+	&"swing_dagger": {"set": "blade/swing_dagger", "n": 3, "db": -2.0, "fam": &"swing"},
+	&"swing_blade": {"set": "blade/swing_blade", "n": 6, "db": -1.0, "fam": &"swing"},
+	&"swing_katana": {"set": "blade/swing_blade", "n": 6, "db": -1.0, "p": 1.08, "fam": &"swing"},
+	&"swing_saber": {"set": "blade/swing_blade", "n": 6, "db": -1.5, "p": 1.04, "layers": [&"saber_hum"], "fam": &"swing"},
+	&"saber_hum": {"set": "energy/shield", "n": 3, "db": -12.0, "p": 1.7, "pr": 0.08, "max": 3, "pri": 0},
+	&"swing_heavy": {"set": "blade/swing_heavy", "n": 6, "pr": 0.05, "fam": &"swing"},
+	&"swing_scythe": {"set": "blade/swing_heavy", "n": 6, "p": 0.9, "fam": &"swing"},
+	&"swing_spear": {"set": "blade/swing_heavy", "n": 6, "db": -1.5, "p": 1.12, "fam": &"swing"},
+	&"swing_staff": {"set": "blade/swing_light", "n": 6, "db": -3.0, "p": 0.85, "fam": &"swing"},
+	&"swing_spin": {"set": "blade/swing_heavy", "n": 6, "p": 0.95, "layers": [&"dash"], "fam": &"swing"},
+	&"unsheathe": {"set": "blade/unsheathe", "n": 3, "db": -2.0},
+	&"slash_hit": {"set": "blade/slash_hit", "n": 5, "db": -1.0, "fam": &"hit", "max": 5},
+	&"stab": {"set": "blade/slash_hit", "n": 5, "db": -1.0, "p": 1.15, "layers": [&"hit_body_soft"], "fam": &"hit", "max": 5},
+	# ---- hits on the victim (Fx picks the variant from the attacker's weapon; heavy / crit add a low thump)
+	&"hit_body_soft": {"set": "blunt/punch_light", "n": 5, "db": -10.0, "pr": 0.1, "max": 4, "pri": 0},
+	&"hit_blade": {"set": "blade/slash_hit", "n": 5, "db": -1.0, "layers": [&"hit_body_soft"], "fam": &"hit", "max": 5},
+	&"hit_saber": {"set": "blade/slash_hit", "n": 5, "db": -2.0, "p": 1.1, "layers": [&"saber_hum", &"hit_body_soft"], "fam": &"hit", "max": 5},
+	&"hit_blade_heavy": {"set": "blade/slash_hit", "n": 5, "p": 0.85, "layers": [&"blunt_heavy"], "fam": &"hit", "max": 5, "pri": 2},
+	&"hit_blunt": {"set": "blunt/punch_light", "n": 5, "fam": &"hit", "max": 5},
+	&"hit_blunt_heavy": {"set": "blunt/punch_heavy", "n": 5, "layers": [&"thump"], "fam": &"hit", "max": 5, "pri": 2},
+	&"hit_wood": {"set": "blunt/wood", "n": 4, "db": -1.0, "layers": [&"hit_body_soft"], "fam": &"hit"},
+	&"hit_pole": {"set": "metal/haft", "n": 3, "db": -1.0, "layers": [&"hit_body_soft"], "fam": &"hit"},
+	&"hit_claw": {"set": "blade/slash_hit", "n": 5, "db": -2.0, "p": 1.2, "layers": [&"hit_body_soft"], "fam": &"hit", "max": 5},
+	&"hit_bullet": {"set": "blunt/punch_light", "n": 5, "db": -3.0, "p": 1.3, "fam": &"hit", "max": 5},
+	&"hit_arrow": {"set": "blade/slash_hit", "n": 5, "db": -3.0, "p": 1.3, "fam": &"hit"},
+	&"hit_magic": {"set": "blunt/punch_light", "n": 5, "db": -7.0, "p": 0.85, "layers": [&"shimmer"], "fam": &"hit"},
+	&"crit": {"set": "blunt/thump", "n": 2, "db": -2.0, "pr": 0.05, "max": 3, "pri": 2},
+	&"thump": {"set": "blunt/thump", "n": 2, "db": -4.0, "pr": 0.05, "max": 3},
+	&"thump_soft": {"set": "blunt/thump", "n": 2, "db": -12.0, "pr": 0.05, "max": 2, "pri": 0},
+	&"blunt_light": {"set": "blunt/punch_light", "n": 5, "fam": &"hit", "max": 5},
+	&"blunt_medium": {"set": "blunt/punch_heavy", "n": 5, "fam": &"hit", "max": 5},
+	&"blunt_heavy": {"set": "blunt/blunt_heavy", "n": 5, "layers": [&"thump"], "fam": &"hit"},
+	&"kick": {"set": "blunt/kick", "n": 3, "fam": &"hit"},
+	&"wood": {"set": "blunt/wood", "n": 4},
+	# ---- metal: guard, parry, shields
+	&"block": {"set": "metal/block", "n": 5, "db": -1.0, "pri": 2, "fam": &"block"},
+	&"parry": {"set": "metal/clash", "n": 8, "pri": 2, "fam": &"block"},
+	&"shield": {"set": "metal/shield", "n": 5, "db": -1.0, "pri": 2, "fam": &"block"},
+	&"clash": {"set": "metal/clash", "n": 8, "fam": &"block"},
+	&"metal": {"set": "metal/metal_heavy", "n": 4},
+	&"metal_light": {"set": "metal/metal_light", "n": 3},
+	&"metal_tick": {"set": "metal/metal_light", "n": 3, "db": -12.0, "p": 1.5, "pri": 0},
+	&"mace": {"set": "metal/mace", "n": 3, "layers": [&"thump"], "fam": &"hit"},
+	&"chain": {"set": "metal/chain", "n": 3},
+	# ---- guns, launchers, thrown
+	&"gun_revolver": {"set": "gun/revolver", "n": 5, "db": -1.0, "pr": 0.04, "far": true, "fam": &"gun"},
+	&"gun_pistol": {"set": "gun/pistol", "n": 6, "db": -2.0, "pr": 0.05, "fam": &"gun"},
+	&"gun_pistol_heavy": {"set": "gun/pistol", "n": 6, "db": -1.0, "p": 0.88, "pr": 0.04, "layers": [&"thump_soft"], "fam": &"gun"},
+	&"gun_pistol_stun": {"set": "gun/pistol", "n": 6, "db": -2.0, "p": 0.95, "pr": 0.04, "layers": [&"energy_shot"], "fam": &"gun"},
+	&"gun_rifle": {"set": "gun/rifle", "n": 5, "db": -1.0, "pr": 0.04, "max": 3, "far": true, "fam": &"gun"},
+	&"gun_sniper": {"set": "gun/rifle", "n": 5, "p": 0.85, "pr": 0.03, "max": 2, "far": true, "pri": 2, "layers": [&"thump"], "fam": &"gun"},
+	&"gun_gatling": {"set": "gun/smg", "n": 5, "db": -3.0, "pr": 0.06, "fam": &"gun"},
+	&"gun_shotgun": {"set": "gun/shotgun", "n": 4, "db": -1.0, "max": 3, "far": true, "fam": &"gun"},
+	&"gun_cannon": {"set": "gun/cannon", "n": 5, "pr": 0.05, "max": 3, "far": true, "layers": [&"thump"], "fam": &"gun"},
+	&"missile": {"set": "gun/missile", "n": 3, "db": -2.0, "max": 3, "fam": &"gun"},
+	&"laser": {"set": "gun/laser", "n": 4, "db": -2.0, "max": 3},
+	&"beam": {"set": "gun/laser", "n": 4, "db": -1.0, "p": 0.8, "max": 2, "layers": [&"crackle"]},
+	&"energy_shot": {"set": "gun/laser_small", "n": 3, "db": -3.0},
+	&"reload": {"set": "gun/click", "n": 3, "db": -3.0, "pri": 0},
+	&"bow_shot": {"set": "blade/swing_light", "n": 6, "db": -2.0, "p": 1.25, "layers": [&"bow_twang"], "fam": &"gun"},
+	&"bow_twang": {"set": "blunt/wood", "n": 4, "db": -10.0, "p": 1.6, "pri": 0},
+	&"throw": {"set": "blade/swing_heavy", "n": 6, "db": -2.0, "p": 1.1, "fam": &"swing"},
+	&"throw_light": {"set": "blade/swing_light", "n": 6, "db": -3.0, "p": 0.95, "fam": &"swing"},
+	&"grenade_throw": {"set": "blade/swing_light", "n": 6, "db": -3.0, "p": 0.9, "layers": [&"grenade_pin"], "fam": &"swing"},
+	&"grenade_pin": {"set": "gun/click", "n": 3, "db": -6.0, "p": 1.2, "pr": 0.05, "pri": 0},
+	&"shuriken": {"set": "blade/swing_light", "n": 6, "db": -3.0, "p": 1.35, "layers": [&"metal_tick"], "fam": &"swing"},
+	&"trap_set": {"set": "gun/click", "n": 3, "db": -2.0},
+	# ---- explosions
+	&"explosion_small": {"set": "explosion/small", "n": 6, "db": -1.0, "far": true, "fam": &"explosion"},
+	&"explosion_large": {"set": "explosion/large", "n": 4, "max": 3, "far": true, "pri": 2, "layers": [&"thump"], "fam": &"explosion"},
+	&"explosion_crunch": {"set": "explosion/crunch", "n": 3, "db": -1.0, "fam": &"explosion"},
+	# ---- elements
+	&"fire_cast": {"set": "magic_fire/fire_cast", "n": 3, "fam": &"fire"},
+	&"fire_charge": {"set": "magic_fire/fire_charge", "n": 1, "pr": 0.08},
+	&"fire_hit": {"set": "magic_fire/fire_hit", "n": 3, "fam": &"fire"},
+	&"fire_burst": {"set": "magic_fire/fire_burst", "n": 4, "fam": &"fire"},
+	&"fire_big": {"set": "magic_fire/fire_big", "n": 1, "far": true, "pri": 2, "max": 2, "fam": &"fire"},
+	&"ice_cast": {"set": "magic_ice/ice_cast", "n": 3, "fam": &"ice"},
+	&"ice_charge": {"set": "magic_ice/ice_charge", "n": 1, "pr": 0.08},
+	&"ice_hit": {"set": "magic_ice/ice_hit", "n": 3, "fam": &"ice"},
+	&"ice_big": {"set": "magic_ice/ice_big", "n": 1, "far": true, "pri": 2, "max": 2, "layers": [&"shatter"], "fam": &"ice"},
+	&"freeze": {"set": "magic_ice/freeze", "n": 3, "layers": [&"ice_hit"], "fam": &"ice"},
+	&"shatter": {"set": "magic_ice/shatter", "n": 4, "db": -2.0, "fam": &"ice"},
+	&"lightning": {"set": "magic_lightning/zap_hit", "n": 3, "layers": [&"crackle"], "fam": &"lightning"},
+	&"lightning_cast": {"set": "magic_lightning/zap_cast", "n": 3, "fam": &"lightning"},
+	&"lightning_charge": {"set": "magic_lightning/zap_charge", "n": 1, "pr": 0.08},
+	&"crackle": {"set": "magic_lightning/crackle", "n": 3, "db": -7.0, "max": 3, "pri": 0},
+	&"thunder": {"set": "magic_lightning/thunder", "n": 2, "max": 2, "far": true, "pri": 2, "layers": [&"lightning"], "fam": &"lightning"},
+	&"holy": {"set": "magic_holy/holy_hit", "n": 3, "layers": [&"bell_soft"], "fam": &"holy"},
+	&"holy_cast": {"set": "magic_holy/chime", "n": 2, "db": -1.0, "fam": &"holy"},
+	&"bell": {"set": "magic_holy/bell", "n": 3},
+	&"bell_soft": {"set": "magic_holy/bell", "n": 3, "db": -9.0, "p": 1.2, "pri": 0},
+	&"gong": {"set": "magic_holy/gong", "n": 2, "max": 2, "far": true, "pri": 2},
+	&"heal": {"set": "magic_holy/heal", "n": 2, "db": -2.0, "max": 3, "fam": &"heal"},
+	&"heal_big": {"set": "magic_holy/heal_full", "n": 1, "max": 2, "pri": 2, "fam": &"heal"},
+	&"dark": {"set": "magic_dark/shade", "n": 5, "fam": &"dark"},
+	&"shade_soft": {"set": "magic_dark/shade", "n": 5, "db": -9.0, "pri": 0},
+	&"curse": {"set": "magic_dark/curse", "n": 2, "fam": &"dark"},
+	&"dark_chant": {"set": "magic_dark/chant", "n": 1, "max": 2, "pri": 2},
+	&"spirit": {"set": "magic_dark/spirit", "n": 2},
+	&"blood": {"set": "magic_poison/slime", "n": 4, "p": 0.8, "layers": [&"slash_hit"], "fam": &"dark"},
+	&"poison": {"set": "magic_poison/bubble", "n": 3, "layers": [&"slime"], "fam": &"poison"},
+	&"slime": {"set": "magic_poison/slime", "n": 4, "db": -4.0},
+	&"wind": {"set": "magic_wind/wind", "n": 3, "fam": &"wind"},
+	&"wind_soft": {"set": "magic_wind/wind", "n": 3, "db": -9.0, "pri": 0},
+	&"earth": {"set": "magic_earth/rock_break", "n": 3, "layers": [&"thump"], "fam": &"earth"},
+	&"earth_light": {"set": "magic_earth/stones", "n": 3, "fam": &"earth"},
+	&"stomp": {"set": "magic_earth/rock_fall", "n": 3, "far": true, "layers": [&"thump"], "fam": &"earth"},
+	&"mining": {"set": "magic_earth/mining", "n": 3},
+	# ---- arcane / energy / status
+	&"cast": {"set": "energy/cast", "n": 5, "db": -1.0, "fam": &"cast"},
+	&"magic": {"set": "energy/spell", "n": 3, "db": -2.0, "fam": &"cast"},
+	&"magic_bolt": {"set": "energy/cast", "n": 5, "db": -2.0, "p": 1.1, "fam": &"cast"},
+	&"qi": {"set": "energy/cast", "n": 5, "p": 0.75, "layers": [&"wind_soft"], "fam": &"cast"},
+	&"qi_blast": {"set": "magic_lightning/zap_cast", "n": 3, "p": 0.7, "layers": [&"wind"], "fam": &"cast"},
+	&"summon": {"set": "energy/summon", "n": 2, "max": 2, "pri": 2, "fam": &"summon"},
+	&"buff": {"set": "energy/buff", "n": 2, "db": -2.0, "fam": &"buff"},
+	&"shield_up": {"set": "energy/shield", "n": 3, "layers": [&"bell_soft"], "fam": &"buff"},
+	&"debuff": {"set": "magic_dark/curse", "n": 2, "db": -2.0, "layers": [&"shade_soft"], "fam": &"debuff"},
+	&"blink": {"set": "energy/teleport", "n": 3, "fam": &"blink"},
+	&"teleport": {"alias": &"blink"},
+	&"telegraph": {"set": "energy/telegraph", "n": 2, "db": -4.0, "max": 3},
+	&"shimmer": {"set": "energy/shimmer", "n": 1, "db": -5.0, "pri": 0},
+	&"launch": {"set": "movement/dash", "n": 3, "db": -3.0, "p": 0.85, "fam": &"launch"},
+	&"smoke": {"set": "magic_wind/wind", "n": 3, "db": -4.0, "p": 1.3, "fam": &"smoke"},
+	&"ultimate_charge": {"set": "energy/buff", "n": 2, "db": 1.0, "pr": 0.03, "max": 2, "pri": 3, "far": true,
+		"layers": [&"ult_rise"], "fam": &"ult", "duck": true},
+	&"ult_rise": {"files": ["magic_fire/fire_charge_01.ogg", "magic_lightning/zap_charge_01.ogg", "magic_ice/ice_charge_01.ogg"],
+		"db": -2.0, "p": 0.85, "max": 2, "pri": 3, "far": true},
+	&"ultimate_release": {"files": ["magic_fire/fire_big_01.ogg", "explosion/large_01.ogg", "explosion/large_02.ogg"],
+		"db": 1.0, "max": 2, "pri": 3, "far": true, "layers": [&"thump"], "fam": &"ult_release", "duck": true},
+	# ---- body / movement
+	&"dash": {"set": "movement/dash", "n": 3, "db": -2.0, "fam": &"dash"},
+	&"jump": {"set": "body/cloth", "n": 4, "db": -5.0, "max": 3, "pri": 0, "layers": [&"jump_whoosh"], "fam": &"jump"},
+	&"jump_whoosh": {"set": "blade/swing_light", "n": 6, "db": -11.0, "p": 0.75, "max": 3, "pri": 0},
+	&"land": {"set": "body/land", "n": 4, "db": -3.0, "max": 3, "pri": 0, "fam": &"land"},
+	&"knockdown": {"set": "body/fall", "n": 4, "layers": [&"cloth_soft"], "fam": &"land"},
+	&"wall_slam": {"set": "body/fall", "n": 4, "p": 0.9, "layers": [&"thump"], "fam": &"land"},
+	&"recover": {"set": "body/cloth", "n": 4, "db": -2.0, "layers": [&"jump_whoosh"], "fam": &"blink"},
+	&"death": {"set": "body/fall", "n": 4, "db": 1.0, "p": 0.9, "pri": 2, "layers": [&"armor"], "fam": &"death"},
+	&"armor": {"set": "body/armor", "n": 2, "db": -6.0, "pri": 0},
+	&"cloth_soft": {"set": "body/cloth", "n": 4, "db": -9.0, "pri": 0},
+	&"grab": {"set": "body/grab", "n": 4, "layers": [&"hit_body_soft"], "fam": &"grab"},
+	&"footstep_stone": {"set": "movement/step_stone", "n": 10, "db": -7.0, "pr": 0.08, "vr": 2.0, "max": 6, "pri": 0},
+	&"footstep_grass": {"set": "movement/step_grass", "n": 5, "db": -7.0, "pr": 0.08, "vr": 2.0, "max": 6, "pri": 0},
+	&"footstep_snow": {"set": "movement/step_snow", "n": 6, "db": -7.0, "pr": 0.08, "vr": 2.0, "max": 6, "pri": 0},
+	&"footstep_dirt": {"set": "movement/step_dirt", "n": 6, "db": -7.0, "pr": 0.08, "vr": 2.0, "max": 6, "pri": 0},
+	&"boss_step": {"set": "magic_earth/rock_fall", "n": 3, "db": -9.0, "p": 0.7, "max": 2, "far": true, "layers": [&"thump_soft"]},
+	# ---- bosses and mobs
+	&"boss_roar": {"set": "boss/roar", "n": 5, "db": 1.0, "p": 0.85, "pr": 0.05, "max": 2, "pri": 3, "far": true,
+		"layers": [&"growl"], "duck": true},
+	&"growl": {"set": "boss/growl", "n": 3, "db": -3.0, "max": 2, "pri": 2, "far": true},
+	&"boss_stomp": {"set": "magic_earth/rock_break", "n": 3, "db": 1.0, "pri": 3, "far": true, "layers": [&"thump", &"blunt_heavy"], "fam": &"earth"},
+	&"golem": {"set": "boss/golem", "n": 4, "p": 0.75, "max": 2, "pri": 2, "far": true},
+	&"orc": {"set": "boss/ogre", "n": 3, "max": 3},
+	&"mob_snarl": {"set": "boss/snarl", "n": 3, "max": 3},
+	&"wolf": {"set": "boss/snarl", "n": 3, "p": 1.25, "max": 3},
+	&"mob_hurt": {"set": "boss/hurt", "n": 4, "max": 3, "pri": 0},
+	&"mob_death": {"set": "boss/die", "n": 3, "max": 3},
+	&"monster": {"set": "boss/monster", "n": 3, "max": 3},
+	&"skeleton": {"set": "boss/bones", "n": 4, "db": -2.0, "max": 3},
+	# ---- UI (non-positional, UI bus)
+	&"ui_click": {"set": "ui/click", "n": 4, "ui": true, "db": -4.0, "pr": 0.03, "vr": 0.5, "max": 2},
+	&"ui_hover": {"set": "ui/hover", "n": 3, "ui": true, "db": -9.0, "pr": 0.03, "vr": 0.5, "max": 2},
+	&"ui_confirm": {"set": "ui/confirm", "n": 2, "ui": true, "db": -3.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_cancel": {"set": "ui/back", "n": 2, "ui": true, "db": -3.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_back": {"alias": &"ui_cancel"},
+	&"ui_error": {"set": "ui/error", "n": 2, "ui": true, "db": -3.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_tick": {"set": "ui/tick", "n": 2, "ui": true, "db": -2.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_toggle": {"set": "ui/toggle", "n": 2, "ui": true, "db": -4.0, "pr": 0.02, "vr": 0.0, "max": 2},
+	&"ui_select": {"set": "ui/select", "n": 2, "ui": true, "db": -4.0, "pr": 0.02, "vr": 0.0, "max": 2},
+	&"ui_open": {"set": "ui/open", "n": 1, "ui": true, "db": -4.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_close": {"set": "ui/close", "n": 1, "ui": true, "db": -4.0, "pr": 0.0, "vr": 0.0, "max": 2},
+	&"ui_kill": {"set": "ui/kill", "n": 2, "ui": true, "db": -2.0, "pr": 0.02, "vr": 0.0, "max": 2},
+	# ---- announcer (Kenney voiceover, English) + crowd
+	&"vo_fight": {"files": ["voice/vo_fight.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_ready": {"files": ["voice/vo_ready.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_begin": {"files": ["voice/vo_begin.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_round_1": {"files": ["voice/vo_round_1.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_round_2": {"files": ["voice/vo_round_2.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_round_3": {"files": ["voice/vo_round_3.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_final_round": {"files": ["voice/vo_final_round.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_you_win": {"files": ["voice/vo_you_win.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_you_lose": {"files": ["voice/vo_you_lose.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_winner": {"files": ["voice/vo_winner.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_game_over": {"files": ["voice/vo_game_over.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_prepare": {"files": ["voice/vo_prepare_yourself.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_multi_kill": {"files": ["voice/vo_multi_kill.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_combo": {"files": ["voice/vo_combo.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_flawless": {"files": ["voice/vo_flawless_victory.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_sudden_death": {"files": ["voice/vo_sudden_death.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_time": {"files": ["voice/vo_time.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_tie": {"files": ["voice/vo_it_s_a_tie.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_1": {"files": ["voice/vo_1.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_2": {"files": ["voice/vo_2.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"vo_3": {"files": ["voice/vo_3.ogg"], "ui": true, "pr": 0.0, "vr": 0.0, "max": 1, "fam": &"vo"},
+	&"crowd_cheer": {"set": "crowd/cheer", "n": 3, "ui": true, "bus": &"SFX", "db": -8.0, "pr": 0.02, "max": 1},
+	# ---- legacy names (pre-0.2 kits / tests); generic ones are resolved per weapon first (see _resolve_sfx)
+	&"hit": {"alias": &"hit_blunt"},
+	&"hit_heavy": {"alias": &"hit_blunt_heavy"},
+	&"swing": {"alias": &"swing_light"},
+	&"slash": {"alias": &"swing_blade"},
+	&"shot": {"alias": &"gun_pistol"},
+	&"cannon": {"alias": &"gun_cannon"},
+	&"explosion": {"alias": &"explosion_small"},
+	&"fire": {"alias": &"fire_burst"},
+	&"ice": {"alias": &"ice_hit"},
+	&"ultimate": {"alias": &"ultimate_charge"},
+	&"footstep": {"alias": &"footstep_stone"},
+	&"glass": {"alias": &"shatter"},
+	&"coin": {"alias": &"reload"},
+	&"trap": {"alias": &"trap_set"},
+	&"book": {"alias": &"cloth_soft"},
+	&"none": {"files": []},
 }
+
+## Weapon (ClassKit.weapon_type, or a mob weapon id) -> sound class. Unlisted ids are matched by substring.
+const WEAPON_CLASS: Dictionary = {
+	"lightsaber": "saber", "tachi": "katana", "ninjato": "katana", "short_sword": "blade", "knight_sword": "blade",
+	"dual_swords": "dagger", "dagger": "dagger", "greatsword": "heavy", "great_axe": "heavy", "war_scythe": "scythe",
+	"battle_lance": "spear", "staff": "staff", "staff_ring": "staff", "cane": "staff", "broom": "staff", "umbrella": "staff",
+	"cross": "mace", "gloves": "fist", "gloves_qi": "fist", "tonfa": "tonfa", "claws": "claw",
+	"revolver": "gun", "auto_pistol": "gun", "rifle": "gun", "hand_cannon": "cannon",
+}
+## Generic sound name -> weapon class -> concrete name.
+const GENERIC_SFX: Dictionary = {
+	&"swing": {"saber": &"swing_saber", "katana": &"swing_katana", "blade": &"swing_blade", "dagger": &"swing_dagger",
+		"heavy": &"swing_heavy", "scythe": &"swing_scythe", "spear": &"swing_spear", "staff": &"swing_staff", "mace": &"swing_heavy",
+		"fist": &"swing_fist", "tonfa": &"swing_fist", "claw": &"swing_claw", "gun": &"swing_fist", "cannon": &"swing_heavy",
+		"beast": &"swing_claw", "bow": &"swing_light"},
+	&"hit": {"saber": &"hit_saber", "katana": &"hit_blade", "blade": &"hit_blade", "dagger": &"hit_blade",
+		"heavy": &"hit_blade_heavy", "scythe": &"hit_blade_heavy", "spear": &"hit_pole", "staff": &"hit_pole", "mace": &"hit_blunt_heavy",
+		"fist": &"hit_blunt", "tonfa": &"hit_wood", "claw": &"hit_claw", "gun": &"hit_bullet", "cannon": &"hit_blunt",
+		"beast": &"hit_claw", "bow": &"hit_arrow"},
+	&"hit_heavy": {"saber": &"hit_blade_heavy", "katana": &"hit_blade_heavy", "blade": &"hit_blade_heavy",
+		"dagger": &"hit_blade_heavy", "heavy": &"hit_blade_heavy", "scythe": &"hit_blade_heavy", "claw": &"hit_blade_heavy",
+		"beast": &"hit_blade_heavy"},
+	&"shot": {"gun": &"gun_pistol", "cannon": &"gun_gatling", "bow": &"bow_shot", "staff": &"magic_bolt", "fist": &"qi",
+		"claw": &"throw_light", "dagger": &"throw_light", "beast": &"throw_light", "saber": &"energy_shot", "katana": &"energy_shot",
+		"blade": &"energy_shot", "heavy": &"energy_shot", "scythe": &"energy_shot", "spear": &"energy_shot", "mace": &"magic_bolt",
+		"tonfa": &"throw_light"},
+}
+const GENERIC_SHOT_BY_WEAPON: Dictionary = {"revolver": &"gun_revolver", "auto_pistol": &"gun_pistol", "rifle": &"gun_rifle",
+	"hand_cannon": &"gun_cannon"}
+## Footstep surface per map id (map zone); unknown maps use stone.
+const SURFACE_BY_MAP: Dictionary = {"classic_arena": &"footstep_stone", "hundred_blossoms": &"footstep_grass",
+	"old_castle": &"footstep_stone", "lava_cave": &"footstep_dirt", "boneyard": &"footstep_dirt", "frost_forest": &"footstep_snow"}
+## Area visual -> detonation sound (telegraphed areas only; instant ones are voiced by their skill's sfx step).
+const AREA_SFX: Dictionary = {"fire": &"fire_burst", "ice": &"ice_hit", "lightning": &"lightning", "holy": &"holy",
+	"dark": &"dark", "poison": &"poison", "wind": &"wind", "earth": &"earth", "blood": &"blood", "rune": &"cast",
+	"thorn": &"earth_light"}
+const UI_VOICES := 6
 
 ## Hit-stop (bible 5.3) from Fx events: hit_spark/block_spark 3 f, crit numbers 5 f, hit_heavy 8 f,
 ## ultimate_flash 12 f, plus explicit impact() calls. Local, cosmetic; set false to disable.
@@ -139,6 +380,25 @@ var _cam_ok := false
 var _streams: Dictionary = {}
 var _voices: Array[AudioStreamPlayer3D] = []
 var _voice_i := 0
+# Logical voice bookkeeping (kept even when headless/silent, so caps and priorities are testable):
+var _v_name: Array[StringName] = []
+var _v_end: PackedFloat64Array = []
+var _v_pri: PackedFloat32Array = []
+var _ui_voices: Array[AudioStreamPlayer] = []
+var _u_name: Array[StringName] = []
+var _u_end: PackedFloat64Array = []
+var _sfx_files: Dictionary = {}       # name -> expanded file list
+var _sfx_last_file: Dictionary = {}   # name -> last file index (no immediate repeats)
+var _sfx_last: Dictionary = {}        # name -> [time, pos] (same-sound spam guard)
+var _fam_last: Dictionary = {}        # family -> [time, pos] of the last sound (auto-sound de-duplication)
+var _fam_exp: Dictionary = {}         # family -> [time, pos] of the last explicit (non-auto) sound
+var _weapon_cache: Dictionary = {}    # fighter uid -> weapon class
+var _last_num: Array = [-10.0, Vector3.ZERO, &"phys"]   # last damage number [time, pos, kind]
+var _surface_world: Node = null
+var _surface: StringName = &"footstep_stone"
+var _ui_hover_t := -10.0
+## Counters for tests / debugging: sounds started, dropped by the voice cap, skipped as duplicates.
+var sfx_stats: Dictionary = {"played": 0, "dropped": 0, "deduped": 0, "stolen": 0}
 var _nodes: Dictionary = {}          # id -> Node3D (projectile / area visuals)
 var _world: Node = null
 var _warned: Dictionary = {}
@@ -189,6 +449,39 @@ func _ready() -> void:
 	var tree := get_tree()
 	if tree and tree.has_signal(&"scene_changed"):
 		tree.scene_changed.connect(clear_all)
+	if tree and not tree.node_added.is_connected(_on_node_added):
+		tree.node_added.connect(_on_node_added)
+
+
+## Every button in the game gets UI sounds: click (or toggle) on press, a soft hover tick. A button can pick its
+## press sound with meta "ui_sfx" (e.g. &"ui_confirm", &"ui_cancel"; &"none" silences it, hover included).
+func _on_node_added(n: Node) -> void:
+	if not (n is BaseButton) or n.has_meta(&"_fx_ui"):
+		return
+	var b := n as BaseButton
+	b.set_meta(&"_fx_ui", true)
+	b.pressed.connect(_on_ui_pressed.bind(b))
+	b.mouse_entered.connect(_on_ui_hover.bind(b))
+
+
+func _on_ui_pressed(b: BaseButton) -> void:
+	if not is_instance_valid(b):
+		return
+	var s: Variant = b.get_meta(&"ui_sfx", null)
+	if s == null:
+		s = &"ui_toggle" if b.toggle_mode else &"ui_click"
+	if StringName(s) != &"none":
+		ui_sfx(StringName(s))
+
+
+func _on_ui_hover(b: BaseButton) -> void:
+	if not is_instance_valid(b) or b.disabled or StringName(b.get_meta(&"ui_sfx", &"")) == &"none":
+		return
+	var now := _now_s()
+	if now - _ui_hover_t < 0.06:
+		return
+	_ui_hover_t = now
+	ui_sfx(&"ui_hover")
 
 
 func _process(delta: float) -> void:
@@ -350,11 +643,52 @@ func damage_number(pos: Vector3, amount: float, kind: StringName) -> void:
 		_do_number(pos, amount, kind)
 
 
-func sfx(name: StringName, pos: Vector3) -> void:
+## Positional sound at `pos`, played on every peer. caster: fighter uid (0 = Fx.context_caster); it picks
+## weapon-specific variants of generic names (swing, hit, shot...) and the voice priority (own > enemy > ally).
+func sfx(name: StringName, pos: Vector3, caster := 0) -> void:
+	var cu := caster if caster != 0 else context_caster
 	if _should_broadcast():
-		_rpc_sfx.rpc(name, pos)
+		_rpc_sfx.rpc(name, pos, cu)
 	else:
-		_do_sfx(name, pos)
+		_do_sfx(name, pos, cu)
+
+
+## Positional sound on this peer only (cosmetic code that already runs on every peer: footsteps, jumps).
+func local_sfx(name: StringName, pos: Vector3, caster := 0) -> void:
+	_do_sfx(name, pos, caster)
+
+
+## Non-positional UI sound on the "UI" bus, this peer only (buttons, countdown ticks, announcer, kill ding).
+func ui_sfx(name: StringName) -> void:
+	_do_sfx(name, Vector3.ZERO, 0)
+
+
+## One footstep of fighter `caster` at `pos` on the current map's surface (local; called by every peer).
+func footstep(pos: Vector3, caster := 0, heavy := false) -> void:
+	_do_sfx(&"boss_step" if heavy else _surface_sfx(), pos, caster)
+
+
+## Sound voices currently in use (logical: counted even when headless). by_name: name -> count.
+func voice_stats() -> Dictionary:
+	var now := _now_s()
+	var by: Dictionary = {}
+	var n := 0
+	for i in _v_end.size():
+		if _v_end[i] > now:
+			n += 1
+			by[_v_name[i]] = int(by.get(_v_name[i], 0)) + 1
+	var u := 0
+	for i in _u_end.size():
+		if _u_end[i] > now:
+			u += 1
+			by[_u_name[i]] = int(by.get(_u_name[i], 0)) + 1
+	return {"active": n, "ui_active": u, "by_name": by, "cap": MAX_VOICES}
+
+
+## Expanded file list (relative to SFX_DIR) of an SFX_MAP entry (aliases followed). Empty for unknown / silent.
+func sfx_files(name: StringName) -> Array:
+	var e := _sfx_entry(name)
+	return _files_of(e[0], e[1]) if not (e[1] as Dictionary).is_empty() else []
 
 
 ## Impact frame + hit-stop at `pos` (the victim's centre). strength: 1 light (3 f), 2 medium (5 f),
@@ -414,6 +748,17 @@ func _stop_voices() -> void:
 		if is_instance_valid(v):
 			v.stop()
 			v.stream = null
+	for u in _ui_voices:
+		if is_instance_valid(u):
+			u.stop()
+			u.stream = null
+	_v_end.fill(0.0)
+	_u_end.fill(0.0)
+	_sfx_last.clear()
+	_fam_last.clear()
+	_fam_exp.clear()
+	_weapon_cache.clear()
+	_surface_world = null
 
 
 ## Full teardown (tests / app exit): clear_all + frees the pooled AudioStreamPlayer3D voices, the VFX pools and
@@ -425,6 +770,15 @@ func shutdown() -> void:
 			v.queue_free()
 	_voices.clear()
 	_voice_i = 0
+	for u in _ui_voices:
+		if is_instance_valid(u):
+			u.queue_free()
+	_ui_voices.clear()
+	_v_name.clear()
+	_v_end.clear()
+	_v_pri.clear()
+	_u_name.clear()
+	_u_end.clear()
 	for arr in [_flash_pool, _burst_pool, _number_pool, _light_pool]:
 		for n in arr:
 			if is_instance_valid(n):
@@ -457,11 +811,25 @@ func _ensure_voices() -> void:
 	for i in MAX_VOICES:
 		var p := AudioStreamPlayer3D.new()
 		p.name = "Voice%d" % i
-		p.unit_size = 8.0
-		p.max_distance = 70.0
-		p.attenuation_filter_cutoff_hz = 12000.0
+		p.unit_size = UNIT_SIZE
+		p.max_distance = MAX_DIST
+		p.attenuation_filter_cutoff_hz = 9000.0
+		p.attenuation_filter_db = -18.0
+		p.doppler_tracking = AudioStreamPlayer3D.DOPPLER_TRACKING_DISABLED
 		add_child(p)
 		_voices.append(p)
+	_v_name.resize(MAX_VOICES)
+	_v_end.resize(MAX_VOICES)
+	_v_end.fill(0.0)
+	_v_pri.resize(MAX_VOICES)
+	for i in UI_VOICES:
+		var u := AudioStreamPlayer.new()
+		u.name = "UiVoice%d" % i
+		add_child(u)
+		_ui_voices.append(u)
+	_u_name.resize(UI_VOICES)
+	_u_end.resize(UI_VOICES)
+	_u_end.fill(0.0)
 
 
 func _exit_tree() -> void:
@@ -512,8 +880,8 @@ func _rpc_number(pos: Vector3, amount: float, kind: StringName) -> void:
 	_do_number(pos, amount, kind)
 
 @rpc("authority", "call_local", "unreliable")
-func _rpc_sfx(name: StringName, pos: Vector3) -> void:
-	_do_sfx(name, pos)
+func _rpc_sfx(name: StringName, pos: Vector3, caster: int) -> void:
+	_do_sfx(name, pos, caster)
 
 @rpc("authority", "call_local", "unreliable")
 func _rpc_impact(pos: Vector3, strength: float, dir: Vector3, caster: int) -> void:
@@ -554,6 +922,7 @@ func _do_play(name: StringName, pos: Vector3, dir: Vector3, color: Color, scale:
 			&"ultimate_flash":
 				_do_impact(pos + Vector3(0, 1.0, 0), 4.0, Vector3.ZERO, Lib.pal(color, "buff")[1])
 	_end_ctx()
+	_auto_sfx(name, pos, s, caster)
 
 
 # =============================================================================================
@@ -1161,6 +1530,9 @@ func _do_area(id: int, visual: String, shape: String, pos: Vector3, yaw: float, 
 		var tc := a.color.lerp(Color(1.0, 0.22, 0.12), 0.65)
 		a.telegraph = Ground.shape_mesh(a, tc, 1.0, true)
 	_nodes[id] = a
+	# subtle warning hum for telegraphed zones (the detonation sound plays in _area_start)
+	if a.delay > 0.25:
+		_do_sfx(&"telegraph", pos, caster, true)
 
 
 ## CORE's follow_caster areas re-issue their visual as despawn(old) + spawn(new id) when the caster moves.
@@ -1218,6 +1590,8 @@ func _area_start(a: AreaVis) -> void:
 			if is_instance_valid(e):
 				_dim_particles(e, a.k)
 	_cur_k = 1.0
+	if a.delay > 0.05:
+		_do_sfx(AREA_SFX.get(a.visual, &"cast"), a.global_position, a.caster, true)
 
 
 ## Periodic accents while a zone is active (lightning strikes, ember bursts...).
@@ -1383,6 +1757,7 @@ func _do_number(pos: Vector3, amount: float, kind: StringName) -> void:
 	l.visible = true
 	l.global_position = pos + Vector3(randf_range(-0.25, 0.25), 0.2, randf_range(-0.25, 0.25))
 	_numbers.append(l)
+	_last_num = [_now_s(), pos - Vector3(0, 0.9, 0), kind]
 	if kind == &"crit" and auto_hitstop:
 		_do_impact(pos - Vector3(0, 0.9, 0), 2.0, Vector3.ZERO)
 
@@ -1395,34 +1770,385 @@ func _retire_number(n: VfxDamageNumber) -> void:
 		n.queue_free()
 
 
-func _do_sfx(name: StringName, pos: Vector3) -> void:
+func _do_sfx(name: StringName, pos: Vector3, caster := 0, auto := false) -> void:
 	if not is_inside_tree():
 		return
 	_ensure_voices()
 	if _voices.is_empty():
 		return
-	var list: Array = SFX_MAP.get(name, [])
-	if list.is_empty():
-		if not _warned.has("sfx_" + name):
-			_warned["sfx_" + name] = true
-			push_warning("Fx.sfx: unknown sound '%s' (using hit)" % name)
-		list = SFX_MAP[&"hit"]
-	var file: String = list[randi() % list.size()]
+	var nm := _resolve_sfx(name, caster)
+	_play_sfx(nm, pos, caster, auto, 0)
+
+
+## Generic names -> weapon / surface specific ones (swing -> swing_katana for a tachi, shot -> gun_revolver...).
+func _resolve_sfx(name: StringName, caster: int) -> StringName:
+	if name == &"footstep":
+		return _surface_sfx()
+	if name == &"slash" and caster != 0:
+		var sw := _resolve_sfx(&"swing", caster)
+		return sw if sw != &"swing" else name
+	if not GENERIC_SFX.has(name) or caster == 0:
+		return name
+	if name == &"shot":
+		var wt := _weapon_type(caster)
+		if GENERIC_SHOT_BY_WEAPON.has(wt):
+			return GENERIC_SHOT_BY_WEAPON[wt]
+	var wc := _weapon_class(caster)
+	var tbl: Dictionary = GENERIC_SFX[name]
+	if tbl.has(wc):
+		return tbl[wc]
+	if name == &"hit_heavy" and GENERIC_SFX[&"hit"].has(wc):
+		return &"hit_blunt_heavy"
+	return name
+
+
+## [resolved name, entry] following aliases; unknown names fall back to "hit" (one warning each).
+func _sfx_entry(name: StringName) -> Array:
+	var nm := name
+	for i in 6:
+		var e: Variant = SFX_MAP.get(nm)
+		if e == null:
+			if not _warned.has("sfx_" + nm):
+				_warned["sfx_" + nm] = true
+				push_warning("Fx.sfx: unknown sound '%s' (using hit)" % nm)
+			nm = &"hit_blunt"
+			continue
+		var d: Dictionary = e
+		if d.has("alias"):
+			nm = d["alias"]
+			continue
+		return [nm, d]
+	return [&"none", {}]
+
+
+func _files_of(nm: StringName, e: Dictionary) -> Array:
+	var cached: Variant = _sfx_files.get(nm)
+	if cached != null:
+		return cached
+	var out: Array = []
+	if e.has("files"):
+		out = (e["files"] as Array).duplicate()
+	elif e.has("set"):
+		for i in int(e.get("n", 1)):
+			out.append("%s_%02d.ogg" % [e["set"], i + 1])
+	_sfx_files[nm] = out
+	return out
+
+
+func _stream(file: String) -> AudioStream:
 	var st: AudioStream = _streams.get(file)
 	if st == null:
+		if not ResourceLoader.exists(SFX_DIR + file):
+			if not _warned.has("sfxfile_" + file):
+				_warned["sfxfile_" + file] = true
+				push_warning("Fx.sfx: missing file '%s'" % file)
+			return null
 		st = load(SFX_DIR + file)
-		if st == null:
+		if st != null:
+			_streams[file] = st
+	return st
+
+
+func _play_sfx(name: StringName, pos: Vector3, caster: int, auto: bool, depth: int) -> void:
+	var r := _sfx_entry(name)
+	var nm: StringName = r[0]
+	var e: Dictionary = r[1]
+	var files := _files_of(nm, e) if not e.is_empty() else []
+	if files.is_empty():
+		return
+	var now := _now_s()
+	var ui := bool(e.get("ui", false))
+	# Spam guards: the same sound twice within 30 ms at (almost) the same spot, or a second sound of the same
+	# family (e.g. a kit's explicit "explosion" step + the explosion effect's own sound) close in time and space.
+	var last: Variant = _sfx_last.get(nm)
+	if last != null and now - float(last[0]) < 0.03 and (ui or (last[1] as Vector3).distance_to(pos) < 2.0):
+		sfx_stats["deduped"] += 1
+		return
+	# An automatic (effect-driven) sound yields to any same-family sound in the last 150 ms; an explicit one only
+	# to another explicit one in the last 60 ms, so a kit's own sound is never lost to an effect's generic one.
+	var fam: StringName = e.get("fam", &"")
+	if depth == 0 and fam != &"":
+		var fl: Variant = _fam_last.get(fam) if auto else _fam_exp.get(fam)
+		var win := 0.15 if auto else 0.06
+		if fl != null and now - float(fl[0]) < win and (ui or (fl[1] as Vector3).distance_to(pos) < 4.0):
+			sfx_stats["deduped"] += 1
 			return
-		_streams[file] = st
-	var v := _voices[_voice_i]
-	_voice_i = (_voice_i + 1) % _voices.size()
-	v.stop()
-	v.stream = st
-	v.pitch_scale = randf_range(0.93, 1.07)
-	v.volume_db = -2.0
-	v.global_position = pos
-	if not _audio_silent():
-		v.play()
+		_fam_last[fam] = [now, pos]
+		if not auto:
+			_fam_exp[fam] = [now, pos]
+	_sfx_last[nm] = [now, pos]
+	var far := bool(e.get("far", false))
+	# Priority: entry base (0..3) x10, + relation of the caster to the local player, - distance to the listener.
+	var rel := _rel_of(caster) if caster > 0 else REL_UNKNOWN
+	var pri := float(e.get("pri", 1)) * 10.0
+	match rel:
+		REL_OWN:
+			pri += 3.0
+		REL_ENEMY:
+			pri += 2.0
+		REL_ALLY:
+			pri += 1.0
+		_:
+			pri += 1.5
+	if not ui:
+		var cam := _camera()
+		if cam != null:
+			var dist := cam.global_position.distance_to(pos)
+			if dist > (FAR_MAX_DIST if far else MAX_DIST) + 5.0:
+				sfx_stats["dropped"] += 1
+				return
+			pri -= dist / 15.0
+	var maxp := int(e.get("max", 4))
+	# pick a file (never the same one twice in a row)
+	var fi := randi() % files.size()
+	if files.size() > 1 and fi == int(_sfx_last_file.get(nm, -1)):
+		fi = (fi + 1 + randi() % (files.size() - 1)) % files.size()
+	_sfx_last_file[nm] = fi
+	var st := _stream(files[fi])
+	if st == null:
+		return
+	var pitch := float(e.get("p", 1.0)) * (1.0 + randf_range(-1.0, 1.0) * float(e.get("pr", 0.06)))
+	pitch = clampf(pitch, 0.3, 3.0)
+	var vr := float(e.get("vr", 1.5))
+	var vol := float(e.get("db", 0.0)) + randf_range(-vr, vr)
+	var length := maxf(st.get_length() / pitch, 0.05)
+	if ui:
+		var ui_i := _alloc(_u_name, _u_end, PackedFloat32Array(), nm, maxp, pri, now, true)
+		if ui_i < 0:
+			sfx_stats["dropped"] += 1
+			return
+		var u := _ui_voices[ui_i]
+		u.stop()
+		u.stream = st
+		u.pitch_scale = pitch
+		u.volume_db = vol
+		u.bus = _bus(e.get("bus", BUS_UI))
+		_u_name[ui_i] = nm
+		_u_end[ui_i] = now + length
+		if not _audio_silent():
+			u.play()
+	else:
+		var i := _alloc(_v_name, _v_end, _v_pri, nm, maxp, pri, now, false)
+		if i < 0:
+			sfx_stats["dropped"] += 1
+			return
+		var v := _voices[i]
+		v.stop()
+		v.stream = st
+		v.pitch_scale = pitch
+		v.volume_db = vol
+		v.unit_size = FAR_UNIT_SIZE if far else UNIT_SIZE
+		v.max_distance = FAR_MAX_DIST if far else MAX_DIST
+		v.bus = _bus(e.get("bus", BUS_SFX))
+		v.global_position = pos
+		_v_name[i] = nm
+		_v_end[i] = now + length
+		_v_pri[i] = pri
+		if not _audio_silent():
+			v.play()
+	sfx_stats["played"] += 1
+	if bool(e.get("duck", false)) and depth == 0:
+		_duck_music(-7.0 if rel == REL_OWN or rel == REL_UNKNOWN else -4.0, clampf(length, 1.2, 2.5))
+	if depth < 2:
+		for l: Variant in e.get("layers", []):
+			_play_sfx(l, pos, caster, auto, depth + 1)
+
+
+## Voice index for a new sound, or -1 when it is dropped. Per-name polyphony first (steals the oldest voice of the
+## same name), then a free voice, then the lowest-priority active voice if it ranks below the new one.
+func _alloc(names: Array[StringName], ends: PackedFloat64Array, pris: PackedFloat32Array, nm: StringName, maxp: int, pri: float, now: float, ui: bool) -> int:
+	var same := 0
+	var oldest_same := -1
+	var oldest_same_end := INF
+	var free := -1
+	var low := -1
+	var low_pri := INF
+	for i in ends.size():
+		if ends[i] > now:
+			if names[i] == nm:
+				same += 1
+				if ends[i] < oldest_same_end:
+					oldest_same_end = ends[i]
+					oldest_same = i
+			if not ui and pris[i] < low_pri:
+				low_pri = pris[i]
+				low = i
+		elif free < 0:
+			free = i
+	if same >= maxp:
+		if not ui and pris[oldest_same] > pri + 0.5:
+			return -1
+		sfx_stats["stolen"] += 1
+		return oldest_same
+	if free >= 0:
+		return free
+	if ui:
+		return -1
+	if low >= 0 and low_pri < pri:
+		sfx_stats["stolen"] += 1
+		return low
+	return -1
+
+
+func _bus(b: Variant) -> StringName:
+	var n := StringName(b)
+	return n if AudioServer.get_bus_index(n) >= 0 else &"Master"
+
+
+static func _now_s() -> float:
+	return float(Time.get_ticks_usec()) / 1000000.0
+
+
+## Music autoload (built by the music track) ducks its bus; absent -> no-op.
+func _duck_music(db: float, seconds: float) -> void:
+	var m := get_node_or_null(^"/root/Music")
+	if m != null and m.has_method(&"duck"):
+		m.call(&"duck", db, seconds)
+
+
+## Weapon of fighter `uid` (weapon_form override > kit weapon_type).
+func _weapon_type(uid: int) -> String:
+	var f := _find_fighter(uid)
+	if f == null:
+		return ""
+	var wf: Variant = f.get("weapon_form")
+	if wf is String and wf != "":
+		return wf
+	var k: Variant = f.get("kit")
+	if k is Object and is_instance_valid(k):
+		var wt: Variant = (k as Object).get("weapon_type")
+		if wt is String:
+			return wt
+	return ""
+
+
+## Sound class of fighter `uid`'s weapon (WEAPON_CLASS, then substring rules for mob weapons; mobs with none are
+## beasts). Cached per uid until the next clear_all().
+func _weapon_class(uid: int) -> String:
+	var c: Variant = _weapon_cache.get(uid)
+	if c != null:
+		return c
+	var f := _find_fighter(uid)
+	var wt := _weapon_type(uid)
+	var wc := ""
+	if WEAPON_CLASS.has(wt):
+		wc = WEAPON_CLASS[wt]
+	elif wt == "":
+		wc = "beast" if f != null and str(f.get("kind")) != "player" and str(f.get("kind")) != "bot" else ""
+	elif "bow" in wt:
+		wc = "bow"
+	elif "dagger" in wt:
+		wc = "dagger"
+	elif "mace" in wt or "hammer" in wt:
+		wc = "mace"
+	elif "axe" in wt:
+		wc = "heavy"
+	elif "sword" in wt or "blade" in wt:
+		wc = "blade"
+	elif "staff" in wt or "wand" in wt:
+		wc = "staff"
+	if f != null:
+		_weapon_cache[uid] = wc
+	return wc
+
+
+## Footstep sound for the current map (map id -> surface); refreshed when the World changes.
+func _surface_sfx() -> StringName:
+	var w := _get_world()
+	if w != _surface_world:
+		_surface_world = w
+		_surface = &"footstep_stone"
+		var id := ""
+		var p: Node = w.get_parent() if w != null else null
+		if p != null:
+			var m: Variant = p.get("map")
+			if m is Object and is_instance_valid(m):
+				id = str((m as Object).get("map_id"))
+		if SURFACE_BY_MAP.has(id):
+			_surface = SURFACE_BY_MAP[id]
+	return _surface
+
+
+## Victim-side hit sound: magic damage gets a soft energy hit; physical hits sound like the attacker's weapon.
+## Uses the damage number that core shows just before the hit effect (same peer, same frame).
+func _hit_sfx(pos: Vector3, caster: int, heavy: bool, projectile: bool) -> StringName:
+	var magic := false
+	var crit := false
+	if _now_s() - float(_last_num[0]) < 0.08 and (_last_num[1] as Vector3).distance_to(pos) < 2.5:
+		magic = _last_num[2] == &"magic"
+		crit = _last_num[2] == &"crit"
+	var wc := _weapon_class(caster) if caster > 0 else ""
+	var nm: StringName
+	if magic:
+		nm = &"hit_magic"
+	elif projectile and wc != "gun" and wc != "bow" and wc != "cannon":
+		nm = &"hit_blunt"
+	elif heavy or crit:
+		nm = (GENERIC_SFX[&"hit_heavy"] as Dictionary).get(wc, &"hit_blunt_heavy")
+	else:
+		nm = (GENERIC_SFX[&"hit"] as Dictionary).get(wc, &"hit_blunt")
+	if crit and not heavy:
+		_do_sfx(&"crit", pos, caster, true)
+	return nm
+
+
+## Automatic sounds for named effects (every peer; the effect itself is already replicated).
+func _auto_sfx(name: StringName, pos: Vector3, scale: float, caster: int) -> void:
+	var s := StringName()
+	match name:
+		&"hit_spark":
+			s = _hit_sfx(pos, caster, false, scale < 0.75)
+		&"hit_heavy":
+			s = _hit_sfx(pos, caster, true, false)
+		&"block_spark":
+			s = &"block"
+		&"land_dust":
+			if scale > 1.2:
+				s = &"stomp"
+			elif scale >= 0.95:
+				s = &"knockdown"
+			elif scale >= 0.7:
+				s = &"wall_slam"
+			else:
+				s = &"land"
+		&"death":
+			s = &"death"
+		&"explosion":
+			s = &"explosion_large" if scale >= 1.4 else &"explosion_small"
+		&"ice_burst":
+			s = &"ice_hit"
+		&"lightning_strike":
+			s = &"lightning"
+		&"fire_burst":
+			s = &"fire_burst"
+		&"holy_burst":
+			s = &"holy"
+		&"dark_burst":
+			s = &"dark"
+		&"poison_cloud":
+			s = &"poison"
+		&"heal_burst":
+			s = &"heal"
+		&"buff_aura":
+			s = &"buff"
+		&"debuff_puff":
+			s = &"debuff"
+		&"smoke":
+			s = &"smoke"
+		&"blink":
+			s = &"recover" if scale < 0.8 else &"blink"
+		&"dash_trail":
+			s = &"dash"
+		&"summon_circle":
+			s = &"summon"
+		&"launch_burst":
+			s = &"launch"
+		&"ultimate_flash":
+			s = &"ultimate_charge"
+			if scale >= 2.5:
+				_do_sfx(&"boss_roar", pos, caster, true)
+	if s != &"":
+		_do_sfx(s, pos, caster, true)
 
 
 # =============================================================================================

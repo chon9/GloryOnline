@@ -28,6 +28,24 @@ const MODE_NAMES: Dictionary = {
 const DIFFICULTY_NAMES: Array[String] = ["简单 Easy", "普通 Normal", "困难 Hard", "大神 Master"]
 const LOAD_TIMEOUT: float = 25.0
 const CLIENT_LEAVE_DELAY: float = 0.5
+## Audio bus -> volume pref (0..1, linear) and a fixed offset in dB on top (ambience sits under the music).
+## Buses come from res://default_bus_layout.tres (Master -> Music, SFX, UI, Ambience).
+const BUS_PREFS: Dictionary = {
+	"Master": "master_volume",
+	"Music": "music_volume",
+	"SFX": "sfx_volume",
+	"UI": "ui_volume",
+	"Ambience": "ambience_volume",
+}
+const BUS_BASE_DB: Dictionary = {"Ambience": -4.0}
+## Audio sliders of the settings UIs (main menu + pause menu): [pref key, label].
+const VOLUME_ROWS: Array = [
+	["master_volume", "主音量 Master"],
+	["music_volume", "音乐 Music"],
+	["sfx_volume", "音效 SFX"],
+	["ui_volume", "界面 UI"],
+	["ambience_volume", "环境 Ambience"],
+]
 const SETTING_KEYS: Array[String] = ["mode", "map_id", "bot_difficulty", "pvp_damage_scale", "round_time",
 	"rounds_to_win", "raid_id", "team_size"]
 
@@ -49,7 +67,12 @@ var pending_message: String = ""
 var _reject_reason: String = ""
 ## Local preferences (never synced).
 var prefs: Dictionary = {
-	"volume": 0.8,
+	"volume": 0.8,  # legacy alias of master_volume (kept working: writing it changes the master volume)
+	"master_volume": 0.8,
+	"music_volume": 0.7,
+	"sfx_volume": 1.0,
+	"ui_volume": 0.8,
+	"ambience_volume": 0.8,
 	"mouse_sensitivity": 1.0,
 	"bot_difficulty": 1,
 	"player_name": "",
@@ -72,6 +95,8 @@ var _load_elapsed: float = 0.0
 var _next_slot: int = 1
 var _rng := RandomNumberGenerator.new()
 var _change_to: String = ""
+## Master volume both "volume" and "master_volume" agreed on at the last sync (see _sync_volume_alias).
+var _alias_master: float = 0.8
 
 
 func _ready() -> void:
@@ -152,7 +177,12 @@ func load_prefs() -> void:
 	var cf := ConfigFile.new()
 	if cf.load(prefs_path) != OK:
 		return
-	prefs["volume"] = clampf(float(cf.get_value("audio", "volume", prefs["volume"])), 0.0, 1.0)
+	var legacy: float = clampf(float(cf.get_value("audio", "volume", prefs["volume"])), 0.0, 1.0)
+	prefs["master_volume"] = clampf(float(cf.get_value("audio", "master_volume", legacy)), 0.0, 1.0)
+	prefs["volume"] = prefs["master_volume"]
+	_alias_master = float(prefs["master_volume"])
+	for k: String in ["music_volume", "sfx_volume", "ui_volume", "ambience_volume"]:
+		prefs[k] = clampf(float(cf.get_value("audio", k, prefs[k])), 0.0, 1.0)
 	prefs["mouse_sensitivity"] = clampf(float(cf.get_value("input", "mouse_sensitivity", prefs["mouse_sensitivity"])), 0.1, 5.0)
 	prefs["bot_difficulty"] = clampi(int(cf.get_value("game", "bot_difficulty", prefs["bot_difficulty"])), 0, 3)
 	prefs["player_name"] = str(cf.get_value("game", "player_name", prefs["player_name"]))
@@ -163,8 +193,11 @@ func load_prefs() -> void:
 
 
 func save_prefs() -> Error:
+	_sync_volume_alias()
 	var cf := ConfigFile.new()
 	cf.set_value("audio", "volume", float(prefs["volume"]))
+	for k: String in BUS_PREFS.values():
+		cf.set_value("audio", k, float(prefs.get(k, 1.0)))
 	cf.set_value("input", "mouse_sensitivity", float(prefs["mouse_sensitivity"]))
 	cf.set_value("game", "bot_difficulty", int(prefs["bot_difficulty"]))
 	cf.set_value("game", "player_name", str(prefs["player_name"]))
@@ -176,16 +209,35 @@ func save_prefs() -> Error:
 
 
 func apply_prefs() -> void:
-	var v := float(prefs["volume"])
-	if AudioServer.bus_count > 0:
-		AudioServer.set_bus_volume_db(0, linear_to_db(maxf(v, 0.0001)))
-		AudioServer.set_bus_mute(0, v <= 0.001)
+	_sync_volume_alias()
+	apply_bus_volumes()
 	var fx := get_node_or_null("/root/Fx")
 	if fx != null and "ally_intensity" in fx:
 		fx.set("own_intensity", float(prefs.get("fx_own", 1.0)))
 		fx.set("ally_intensity", float(prefs.get("fx_ally", 0.5)))
 		fx.set("enemy_intensity", float(prefs.get("fx_enemy", 0.7)))
 	prefs_changed.emit()
+
+
+## Sets every audio bus of BUS_PREFS from its 0..1 pref (muted at 0). Missing buses are skipped.
+func apply_bus_volumes() -> void:
+	for bus: String in BUS_PREFS:
+		var idx := AudioServer.get_bus_index(bus)
+		if idx < 0:
+			continue
+		var v := clampf(float(prefs.get(BUS_PREFS[bus], 1.0)), 0.0, 1.0)
+		AudioServer.set_bus_volume_db(idx, linear_to_db(maxf(v, 0.0001)) + float(BUS_BASE_DB.get(bus, 0.0)))
+		AudioServer.set_bus_mute(idx, v <= 0.001)
+
+
+## Keeps the legacy "volume" key and "master_volume" equal: whichever changed since the last sync wins
+## (old code/tests writing prefs["volume"] still change the master volume).
+func _sync_volume_alias() -> void:
+	var legacy := float(prefs.get("volume", _alias_master))
+	if not is_equal_approx(legacy, _alias_master):
+		prefs["master_volume"] = legacy
+	prefs["volume"] = float(prefs.get("master_volume", legacy))
+	_alias_master = float(prefs["master_volume"])
 
 
 ## CameraRig.mouse_sensitivity for the current preference.

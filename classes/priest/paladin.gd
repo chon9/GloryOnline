@@ -31,16 +31,16 @@ func define() -> void:
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·斧劈", "Basic Attack: Axe Chop", 0.0, 0.0, 0.42, &"attack_2h", 2.8, ["melee", "combo"],
 		[{"t": 0.16, "type": "melee", "range": 2.8, "arc": 110.0, "hit": hit(0.85, {"hitstun": 0.4, "knockback": 1.2})},
-		{"t": 0.14, "type": "sfx", "name": "swing"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"], "desc": "巨斧下劈 Heavy axe chop."})
 	sk(0, "atk2", "普攻·横扫", "Basic Attack: Axe Sweep", 0.0, 0.0, 0.42, &"attack_1h_2", 2.8, ["melee", "combo"],
 		[{"t": 0.16, "type": "melee", "range": 2.8, "arc": 140.0, "hit": hit(0.85, {"hitstun": 0.4, "knockback": 1.2})},
-		{"t": 0.14, "type": "sfx", "name": "swing"}],
+		{"t": 0.14, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.15, "desc": "巨斧横扫 Wide axe sweep."})
 	sk(0, "atk3", "普攻·重砸", "Basic Attack: Axe Slam", 0.0, 0.0, 0.58, &"attack_slam", 2.6, ["melee", "finisher"],
 		[{"t": 0.26, "type": "melee", "range": 2.6, "arc": 90.0, "fx": "hit_heavy",
 		"hit": hit(1.15, {"knockdown": true, "knockback": 3.0})},
-		{"t": 0.26, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.26, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.12, "desc": "霸体重砸击倒 Super-armored overhead slam that knocks down."})
 
 	# ------------------------------------------------------------ slot 1: launcher
@@ -50,7 +50,7 @@ func define() -> void:
 		"hit": hit(0.85, {"launch": 9.5, "knockback": 0.6})},
 		{"t": 0.3, "type": "melee", "range": 3.0, "arc": 100.0, "fx": "holy_burst",
 		"hit": hit(0.7, {"type": "magic", "element": "holy", "knockback": 0.4})},
-		{"t": 0.16, "type": "sfx", "name": "metal"}],
+		{"t": 0.16, "type": "sfx", "name": "holy"}],
 		{"cancel_window": 0.18, "desc": "物理挑斩接圣光追击，将敌人击飞 Physical upswing plus a holy follow-up that launches."})
 
 	# ------------------------------------------------------------ slot 2: Rising Emblem (Priest Lv1)
@@ -58,7 +58,7 @@ func define() -> void:
 		["launcher", "aoe", "ranged", "combo"],
 		[{"t": 0.12, "type": "ground", "at": "target", "radius": 2.3, "delay": 0.25, "visual": "holy",
 		"hit": hit(1.05, {"type": "magic", "launch": 10.0, "knockback": 0.0, "element": "holy"})},
-		{"t": 0.1, "type": "sfx", "name": "magic"}],
+		{"t": 0.1, "type": "sfx", "name": "holy_cast"}],
 		{"cancel_window": 0.15, "desc": "圣职基础技：法阵将敌人击飞 Priest Lv1 rune circle that launches the target."})
 
 	# ------------------------------------------------------------ slot 3: Halo Smash
@@ -66,7 +66,7 @@ func define() -> void:
 		["melee", "aoe", "finisher", "cc"],
 		[{"t": 0.3, "type": "ground", "at": "forward", "distance": 1.6, "radius": 3.0, "visual": "holy",
 		"hit": hit(1.9, {"knockdown": true, "knockback": 3.5, "otg": true})},
-		{"t": 0.3, "type": "sfx", "name": "earth"}],
+		{"t": 0.3, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.15, "desc": "霸体光环重砸地面，击倒范围敌人（可追打倒地）Super-armored halo slam that knocks down (hits downed foes)."})
 
 	# ------------------------------------------------------------ slot 4: Recovery (HoT)
@@ -81,7 +81,7 @@ func define() -> void:
 		["defensive", "buff_self"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("block", 2.0, 1.0)], "shield": 0.08, "shield_dur": 2.5,
 		"fx": "holy_burst"},
-		{"t": 0.0, "type": "sfx", "name": "block"}],
+		{"t": 0.0, "type": "sfx", "name": "shield_up"}],
 		{"desc": "短暂完全格挡正面攻击并获得圣光护盾 Brief full frontal block plus a holy shield."})
 
 	# ------------------------------------------------------------ slot 6: Life Activation
@@ -97,7 +97,7 @@ func define() -> void:
 		["ultimate", "aoe", "cc", "defensive", "interrupt", "heal"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.6)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.3, "type": "ground", "at": "self", "radius": 4.5, "visual": "holy",
 		"hit": hit(1.4, {"type": "magic", "element": "holy", "knockback": 9.0, "hitstun": 0.6, "armor_break": true})},
 		{"t": 0.75, "type": "ground", "at": "self", "radius": 5.5, "visual": "holy",
@@ -105,7 +105,7 @@ func define() -> void:
 		{"t": 1.1, "type": "ground", "at": "self", "radius": 6.5, "visual": "holy",
 		"hit": hit(1.6, {"type": "magic", "element": "holy", "knockback": 13.0, "launch": 6.0, "armor_break": true})},
 		{"t": 1.1, "type": "heal", "target": "allies", "radius": 8.0, "amount": 0.08},
-		{"t": 1.1, "type": "sfx", "name": "explosion"}],
+		{"t": 1.1, "type": "sfx", "name": "ultimate_release"}],
 		{"desc": "360度天使威光三连震，无视霸体推开敌人并治疗周围队友 Three 360-degree holy pulses that push back through super armor and heal allies."})
 
 	skills = [atk1, holy_strike, rising, halo, recovery, holy_shield, life, might]

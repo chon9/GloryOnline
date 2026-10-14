@@ -140,6 +140,7 @@ func _build() -> void:
 	var leave := Button.new()
 	leave.text = "离开  Leave"
 	leave.custom_minimum_size = Vector2(150, 48)
+	leave.set_meta(&"ui_sfx", &"ui_cancel")
 	leave.pressed.connect(func() -> void: _game().leave_session())
 	bot.add_child(leave)
 	_invite_btn = Button.new()
@@ -164,6 +165,7 @@ func _build() -> void:
 	_start_btn = Button.new()
 	_start_btn.text = "开始比赛  Start Match"
 	_start_btn.custom_minimum_size = Vector2(260, 52)
+	_start_btn.set_meta(&"ui_sfx", &"ui_confirm")
 	_start_btn.add_theme_font_size_override("font_size", 22)
 	for st: Array in [["normal", "button_pressed"], ["hover", "button_hover"]]:
 		var sb := HudStyle.glory(str(st[1]), 0.0)

@@ -30,15 +30,15 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain 普攻
 	var b1 := sk(0, "tonfa_strike", "棍击", "Basic: Tonfa Strike", 0.0, 0.0, 0.3, &"attack_1h_1", 2.2, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.2, "arc": 100.0, "hit": hit(0.7, {"hitstun": 0.35, "knockback": 0.8})},
-		{"t": 0.06, "type": "sfx", "name": "wood"}],
+		{"t": 0.06, "type": "sfx", "name": "swing_fist"}],
 		{"cancel_window": 0.14, "chain": ["tonfa_strike", "tonfa_return", "foot_sweep"], "desc": "东方棍快打 Quick tonfa strike."})
 	sk(0, "tonfa_return", "回棍", "Basic: Tonfa Return", 0.0, 0.0, 0.3, &"attack_1h_2", 2.2, ["melee", "combo"],
 		[{"t": 0.1, "type": "melee", "range": 2.2, "arc": 100.0, "hit": hit(0.7, {"hitstun": 0.38, "knockback": 1.0})},
-		{"t": 0.06, "type": "sfx", "name": "wood"}],
+		{"t": 0.06, "type": "sfx", "name": "swing_fist"}],
 		{"cancel_window": 0.15, "desc": "反手回棍 Backhand tonfa return."})
 	sk(0, "foot_sweep", "扫腿", "Basic: Foot Sweep", 0.0, 0.0, 0.42, &"kick", 2.2, ["melee", "finisher"],
 		[{"t": 0.16, "type": "melee", "range": 2.2, "arc": 140.0, "hit": hit(0.9, {"knockdown": true, "knockback": 2.0})},
-		{"t": 0.12, "type": "sfx", "name": "swing"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.15, "desc": "扫腿绊倒 Sweeping kick that trips the foe."})
 
 	# ---------------------------------------------------------------- slot 1: launcher (Toss)
@@ -59,7 +59,7 @@ func define() -> void:
 		{"t": 0.72, "type": "ground", "at": "self", "radius": 2.6, "visual": "earth", "max_hits": 1,
 			"hit": hit(0.7, {"otg": true, "knockdown": true, "knockback": 4.0})},
 		{"t": 0.72, "type": "vfx", "name": "land_dust", "scale": 1.6},
-		{"t": 0.72, "type": "sfx", "name": "earth"}],
+		{"t": 0.72, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.15, "desc": "过肩背摔落地冲击波，破霸体且无法受身 Over-the-shoulder slam with a shockwave; breaks super armor."})
 
 	# ---------------------------------------------------------------- slot 3: Receiving Throw
@@ -98,14 +98,14 @@ func define() -> void:
 	var spinning := sk(7, "spinning_throw", "旋投", "Spinning Throw", 55.0, 200.0, 1.9, &"attack_spin", 2.0,
 		["ultimate", "grab", "aoe", "melee", "finisher"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "fx": "cast_glow", "statuses": [st("super_armor", 2.0)]},
 		{"t": 0.08, "type": "grab", "range": 2.0, "arc": 120.0, "grab_time": 1.45, "throw": {"dir": "forward", "force": 16.0},
 			"hit": hit(2.8, {"knockdown": true, "knockback": 6.0, THROW_KEY: true})},
 		{"t": 0.25, "type": "multi_melee", "shape": "circle", "range": 3.0, "count": 6, "interval": 0.2, "fx": "slash_arc",
 			"hit": hit(0.35, {"hitstun": 0.0, "knockback": 6.0, "juggle_cost": 3.0})},
 		{"t": 1.5, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.5},
-		{"t": 1.5, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 1.5, "type": "sfx", "name": "boss_stomp"}],
 		{"cancel_window": 0.15, "desc": "大招：抓住敌人旋转，甩飞周围的人后全力抛出 Ultimate: spins the grabbed foe like a hammer, bowling others away, then hurls it."})
 
 	skills = [b1, toss, back_throw, receiving, fling, flying_hands, aerial_twist, spinning]

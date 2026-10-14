@@ -33,16 +33,16 @@ func define() -> void:
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·镰斩", "Basic Attack: Scythe Reap", 0.0, 0.0, 0.38, &"attack_2h", 3.0, ["melee", "combo"],
 		[{"t": 0.14, "type": "melee", "range": 3.0, "arc": 130.0, "hit": hit(0.72, {"hitstun": 0.35, "knockback": 1.0})},
-		{"t": 0.12, "type": "sfx", "name": "swing"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_scythe"}],
 		{"cancel_window": 0.15, "chain": ["atk1", "atk2", "atk3"], "desc": "战镰大弧横扫 Wide scythe reap."})
 	sk(0, "atk2", "普攻·回镰", "Basic Attack: Return Reap", 0.0, 0.0, 0.38, &"attack_1h_2", 3.0, ["melee", "combo"],
 		[{"t": 0.14, "type": "melee", "range": 3.0, "arc": 130.0, "hit": hit(0.72, {"hitstun": 0.35, "knockback": 1.0})},
-		{"t": 0.12, "type": "sfx", "name": "swing"}],
+		{"t": 0.12, "type": "sfx", "name": "swing_scythe"}],
 		{"cancel_window": 0.15, "desc": "反手回镰 Backhand reap."})
 	sk(0, "atk3", "普攻·旋镰", "Basic Attack: Scythe Spin", 0.0, 0.0, 0.5, &"attack_spin", 3.0, ["melee", "finisher", "aoe"],
 		[{"t": 0.2, "type": "melee", "shape": "circle", "range": 3.0, "fx": "slash_arc",
 		"hit": hit(0.95, {"hitstun": 0.5, "knockback": 4.0})},
-		{"t": 0.18, "type": "sfx", "name": "slash"}],
+		{"t": 0.18, "type": "sfx", "name": "swing_spin"}],
 		{"cancel_window": 0.12, "desc": "旋身一周的镰刃收尾 Spinning scythe finisher."})
 
 	# ------------------------------------------------------------ slot 1: launcher (Priest Lv1)
@@ -50,7 +50,7 @@ func define() -> void:
 		["launcher", "aoe", "ranged", "combo", "cc"],
 		[{"t": 0.12, "type": "ground", "at": "target", "radius": 2.4, "delay": 0.25, "visual": "rune",
 		"color": Color(0.75, 0.6, 1.0), "hit": hit(1.15, {"type": "magic", "launch": 10.0, "knockback": 0.0, "element": "holy"})},
-		{"t": 0.1, "type": "sfx", "name": "magic"}],
+		{"t": 0.1, "type": "sfx", "name": "cast"}],
 		{"cancel_window": 0.15, "desc": "目标脚下浮现法阵将其击飞 A rune circle erupts under the target and launches it."})
 
 	# ------------------------------------------------------------ slot 2: grab / pull
@@ -58,7 +58,7 @@ func define() -> void:
 		["grab", "melee", "cc", "combo"],
 		[{"t": 0.1, "type": "grab", "range": 3.5, "arc": 70.0, "grab_time": 0.5, "end_on_miss": true,
 		"hit": hit(1.3, {"element": "dark", "hitstun": 0.3}), "throw": {"dir": "up", "force": 8.5}},
-		{"t": 0.1, "type": "sfx", "name": "grab"}],
+		{"t": 0.1, "type": "sfx", "name": "chain"}],
 		{"desc": "镰刃勾住敌人魂魄拉回并挑起 Hooks the enemy's soul with the scythe and flings it up (breaks super armor)."})
 
 	# ------------------------------------------------------------ slot 3: thrown scythe
@@ -71,7 +71,7 @@ func define() -> void:
 	var elemental := sk(4, "elemental_talisman", "落雷符 / 寒冰符 / 烈焰符", "Lightning / Ice / Fire Talisman", 4.0, 40.0, 0.35, &"throw", 13.0,
 		["ranged", "cc", "debuff"],
 		[{"t": 0.12, "type": "custom", "method": "throw_talisman", "args": {}},
-		{"t": 0.1, "type": "sfx", "name": "magic"}],
+		{"t": 0.1, "type": "sfx", "name": "cast"}],
 		{"cancel_window": 0.15, "desc": "依次掷出落雷/寒冰/烈焰符：麻痹、冰冻或灼烧 Throws the next talisman: lightning stun, ice freeze or fire burn."})
 
 	# ------------------------------------------------------------ slot 5: utility talismans
@@ -79,19 +79,19 @@ func define() -> void:
 		["cc", "debuff", "buff_self"],
 		[{"t": 0.1, "type": "debuff", "target": "target", "radius": 6.0, "statuses": [st("root", 2.5)], "fx": "debuff_puff"},
 		{"t": 0.12, "type": "buff", "target": "self", "statuses": [st("super_armor", 3.0), st("haste", 4.0, 0.3)]},
-		{"t": 0.1, "type": "sfx", "name": "debuff"}],
+		{"t": 0.1, "type": "sfx", "name": "curse"}],
 		{"desc": "定身敌人，自身贴上硬身符与加速符 Roots the target; hardening and speed talismans give self super armor and haste."})
 
 	# ------------------------------------------------------------ slot 6: Star Fall
 	var star_fall := sk(6, "star_fall", "星落", "Star Fall", 11.0, 70.0, 0.55, &"cast_long", 12.0,
 		["aoe", "ranged", "cc"],
-		[{"t": 0.2, "type": "projectile", "from": "sky", "sky_height": 13.0, "aim": "target", "visual": "star",
+		[{"t": 0.2, "type": "projectile", "sfx": "magic_bolt", "from": "sky", "sky_height": 13.0, "aim": "target", "visual": "star",
 		"speed": 34.0, "range": 30.0, "radius": 0.6, "scale": 2.0, "color": Color(1.0, 0.9, 0.5),
 		"hit": hit(0.4, {"type": "magic", "hitstun": 0.2}),
 		"explode": {"radius": 3.2, "fx": "holy_burst",
 		"hit": hit(1.6, {"type": "magic", "knockdown": true, "knockback": 3.0, "element": "holy"})}},
 		{"t": 0.15, "type": "vfx", "name": "cast_glow"},
-		{"t": 0.15, "type": "sfx", "name": "cast"}],
+		{"t": 0.15, "type": "sfx", "name": "holy_cast"}],
 		{"cancel_window": 0.15, "desc": "召唤星辰坠落震地，击倒范围内敌人 A falling star quakes the ground and knocks foes down."})
 
 	# ------------------------------------------------------------ slot 7: ultimate
@@ -99,13 +99,13 @@ func define() -> void:
 		["ultimate", "aoe", "ranged", "cc", "debuff"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.6)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.3, "type": "ground", "at": "target", "radius": 3.8, "delay": 0.3, "visual": "rune", "color": Color(0.9, 0.3, 0.3),
 		"hit": hit(1.6, {"type": "magic", "hitstun": 0.6, "statuses": [st("silence", 3.0), st("weight", 8.0, 0.3)]})},
 		{"t": 1.2, "type": "ground", "at": "target", "radius": 3.8, "visual": "dark", "color": Color(0.8, 0.2, 0.4),
 		"hit": hit(2.1, {"type": "magic", "launch": 7.0, "armor_break": true,
 		"statuses": [st("def_down", 12.0, 0.25), st("mark", 12.0), st("atk_down", 12.0, SEAL_DMG_DOWN)], "seal": 12.0})},
-		{"t": 1.2, "type": "sfx", "name": "explosion"}],
+		{"t": 1.2, "type": "sfx", "name": "ultimate_release"}],
 		{"desc": "封禁符压制敌人装备：沉默、降防、加重并重创 Seal talisman locks enemy gear: silence, defence down, weight, heavy damage."})
 
 	skills = [atk1, rising, hook, spirit, elemental, utility, star_fall, seal]
@@ -138,7 +138,7 @@ func throw_talisman(f: Fighter, _args: Dictionary, runner: SkillRunner) -> void:
 	var idx := talisman_index(f)
 	var elem := ELEMENTS[idx]
 	var proj: Dictionary = {"type": "projectile", "visual": "lightning" if elem == "lightning" else "orb", "speed": 30.0,
-		"range": 15.0, "radius": 0.45, "aim": "target", "color": ELEMENT_COLORS[idx], "sfx": "throw"}
+		"range": 15.0, "radius": 0.45, "aim": "target", "color": ELEMENT_COLORS[idx], "sfx": "throw_light"}
 	match elem:
 		"lightning":
 			proj["hit"] = hit(1.25, {"type": "magic", "element": "lightning", "hitstun": 0.4, "statuses": _element_statuses(idx)})

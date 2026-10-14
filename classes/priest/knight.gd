@@ -33,16 +33,16 @@ func define() -> void:
 	# ------------------------------------------------------------ slot 0: basic chain (普攻)
 	var atk1 := sk(0, "atk1", "普攻·剑击", "Basic Attack: Sword Cut", 0.0, 0.0, 0.34, &"attack_1h_1", 2.6, ["melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.6, "arc": 110.0, "hit": hit(0.62, {"hitstun": 0.35, "knockback": 1.0})},
-		{"t": 0.1, "type": "sfx", "name": "slash"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_blade"}],
 		{"cancel_window": 0.14, "chain": ["atk1", "atk2", "atk3"], "desc": "骑士剑横斩 A level sword cut."})
 	sk(0, "atk2", "普攻·回斩", "Basic Attack: Back Cut", 0.0, 0.0, 0.34, &"attack_1h_2", 2.6, ["melee", "combo"],
 		[{"t": 0.12, "type": "melee", "range": 2.6, "arc": 110.0, "hit": hit(0.62, {"hitstun": 0.35, "knockback": 1.0})},
-		{"t": 0.1, "type": "sfx", "name": "slash"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_blade"}],
 		{"cancel_window": 0.14, "desc": "反手回斩 Backhand return cut."})
 	sk(0, "atk3", "普攻·盾推", "Basic Attack: Shield Shove", 0.0, 0.0, 0.48, &"attack_1h_3", 2.4, ["melee", "finisher"],
 		[{"t": 0.18, "type": "melee", "range": 2.4, "arc": 90.0, "fx": "hit_heavy",
 		"hit": hit(0.85, {"hitstun": 0.5, "knockback": 5.0})},
-		{"t": 0.18, "type": "sfx", "name": "block"}],
+		{"t": 0.18, "type": "sfx", "name": "shield"}],
 		{"cancel_window": 0.12, "desc": "盾牌猛推收尾 Shield shove finisher that pushes the foe back."})
 
 	# ------------------------------------------------------------ slot 1: launcher
@@ -50,7 +50,7 @@ func define() -> void:
 		["launcher", "melee", "combo", "cc"],
 		[{"t": 0.14, "type": "melee", "range": 2.4, "arc": 90.0, "fx": "launch_burst",
 		"hit": hit(1.3, {"launch": 9.5, "knockback": 0.8, "dizzy_chance": DIZZY_CHANCE})},
-		{"t": 0.14, "type": "sfx", "name": "metal"}],
+		{"t": 0.14, "type": "sfx", "name": "shield"}],
 		{"cancel_window": 0.2, "desc": "上挑盾击将敌人击飞，几率眩晕 Upward shield bash that launches, with a chance to daze."})
 
 	# ------------------------------------------------------------ slot 2: gap closer
@@ -67,7 +67,7 @@ func define() -> void:
 		["melee", "cc", "interrupt", "defensive"],
 		[{"t": 0.16, "type": "melee", "range": 2.6, "arc": 120.0, "fx": "hit_heavy",
 		"hit": hit(1.4, {"hitstun": 0.6, "knockback": 11.0, "armor_break": false})},
-		{"t": 0.16, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.16, "type": "sfx", "name": "shield"}],
 		{"cancel_window": 0.15, "desc": "强力推击将敌人远远击退 Powerful shove that knocks enemies far back."})
 
 	# ------------------------------------------------------------ slot 4: AoE taunt
@@ -76,7 +76,7 @@ func define() -> void:
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 0.6), st("def_up", 6.0, 0.25)]},
 		{"t": 0.15, "type": "taunt", "radius": 9.0, "duration": 4.0},
 		{"t": 0.15, "type": "vfx", "name": "buff_aura", "scale": 2.0},
-		{"t": 0.15, "type": "sfx", "name": "buff"}],
+		{"t": 0.15, "type": "sfx", "name": "gong"}],
 		{"desc": "怒吼嘲讽周围所有敌人并提升防御 Bellow that taunts all nearby enemies and raises defence."})
 
 	# ------------------------------------------------------------ slot 5: counter / reflect
@@ -84,7 +84,7 @@ func define() -> void:
 		["defensive", "buff_self", "interrupt"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("block", COUNTER_WINDOW, 0.9)], "fx": "block_spark"},
 		{"t": 0.0, "type": "custom", "method": "counter_stance", "args": {"window": COUNTER_WINDOW}},
-		{"t": 0.0, "type": "sfx", "name": "block"}],
+		{"t": 0.0, "type": "sfx", "name": "shield"}],
 		{"desc": "举盾架势：受到攻击时反击并反射法术 Guard stance: the next hit taken is countered and spells are reflected."})
 
 	# ------------------------------------------------------------ slot 6: leap smash
@@ -93,7 +93,7 @@ func define() -> void:
 		[{"t": 0.0, "type": "leap", "to": "target", "distance": 10.0, "height": 3.5, "duration": 0.6,
 		"land": {"radius": 3.0, "fx": "land_dust", "hit": hit(1.8, {"stun": 1.2, "hitstun": 0.4, "knockback": 2.0})}},
 		{"t": 0.6, "type": "vfx", "name": "launch_burst", "scale": 1.5},
-		{"t": 0.6, "type": "sfx", "name": "earth"}],
+		{"t": 0.6, "type": "sfx", "name": "stomp"}],
 		{"cancel_window": 0.1, "desc": "跃向目标重砸地面，眩晕落点敌人 Leaps onto the target and smashes the ground, stunning foes."})
 
 	# ------------------------------------------------------------ slot 7: ultimate
@@ -101,7 +101,7 @@ func define() -> void:
 		["ultimate", "melee", "finisher", "combo"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 2.0)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.05, "type": "dash", "distance": 4.0, "speed": 22.0, "direction": "target"},
 		{"t": 0.3, "type": "melee", "range": 3.0, "arc": 120.0, "hit": hit(0.6, {"hitstun": 0.5, "knockback": 0.3})},
 		{"t": 0.55, "type": "anim", "anim": "attack_1h_2"},
@@ -111,7 +111,7 @@ func define() -> void:
 		{"t": 1.15, "type": "anim", "anim": "attack_slam"},
 		{"t": 1.3, "type": "ground", "at": "forward", "distance": 1.8, "radius": 3.2, "visual": "holy",
 		"color": Color(0.7, 0.85, 1.0), "hit": hit(1.7, {"launch": 8.0, "knockback": 3.0, "armor_break": true})},
-		{"t": 1.3, "type": "sfx", "name": "metal"}],
+		{"t": 1.3, "type": "sfx", "name": "gong"}],
 		{"desc": "十字军连斩，一击强过一击，最后圣光重砸 Escalating crusader strikes ending in a holy smash (super armor)."})
 
 	skills = [atk1, shield_attack, charge, repel, roar, counter, leap, trial]

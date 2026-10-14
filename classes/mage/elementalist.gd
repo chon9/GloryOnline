@@ -32,16 +32,16 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: staff bolts
 	var b1 := sk(0, "bolt_1", "普攻·法弹", "Staff Bolt", 0.0, 0.0, 0.35, &"cast", 16.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 26.0, "range": 17.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
+			"color": C_ARCANE, "sfx": "magic_bolt", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		_x(mob, {"cancel_window": 0.05, "chain": ["bolt_1", "bolt_2", "bolt_3"],
 		"desc": "法杖三段魔法弹，可移动施放 Three-shot magic bolt chain, castable while moving."}))
 	sk(0, "bolt_2", "普攻·法弹二", "Staff Bolt II", 0.0, 0.0, 0.35, &"attack_1h_2", 16.0, ["ranged", "combo"],
 		[{"t": 0.12, "type": "projectile", "speed": 26.0, "range": 17.0, "radius": 0.35, "aim": "target", "visual": "orb",
-			"color": C_ARCANE, "sfx": "magic", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
+			"color": C_ARCANE, "sfx": "magic_bolt", "hit": hit(0.4, {"type": "magic", "hitstun": 0.2, "knockback": 0.8})}],
 		_x(mob, {"cancel_window": 0.05, "desc": "第二发魔法弹 Second bolt."}))
 	sk(0, "bolt_3", "普攻·爆裂法弹", "Bursting Bolt", 0.0, 0.0, 0.45, &"cast", 16.0, ["ranged", "finisher"],
 		[{"t": 0.15, "type": "projectile", "speed": 24.0, "range": 17.0, "radius": 0.45, "aim": "target", "visual": "orb",
-			"color": C_FIRE, "scale": 1.4, "sfx": "magic",
+			"color": C_FIRE, "scale": 1.4, "sfx": "magic_bolt",
 			"hit": hit(0.6, {"type": "magic", "hitstun": 0.3, "knockback": 4.0, "element": "fire"})}],
 		_x(mob, {"cancel_window": 0.15, "desc": "较大的爆裂法弹，击退 Bigger bursting bolt with knockback."}))
 
@@ -57,7 +57,7 @@ func define() -> void:
 	var pierce := sk(2, "piercing_lightning", "雷电贯穿", "Piercing Lightning", 5.0, 50.0, 0.35, &"shoot_1h", 18.0,
 		["ranged", "combo", "interrupt"],
 		[{"t": 0.1, "type": "projectile", "speed": 45.0, "range": 19.0, "radius": 0.5, "pierce": true, "aim": "target",
-			"visual": "lightning", "color": C_BOLT, "sfx": "lightning",
+			"visual": "lightning", "color": C_BOLT, "sfx": "lightning_cast",
 			"hit": hit(1.6, {"type": "magic", "element": "lightning", "hitstun": 0.5, "knockback": 1.5})}],
 		_x(mob, {"cancel_window": 0.15, "desc": "快速直线闪电，贯穿路径上所有敌人 Fast straight lightning bolt that pierces every enemy in line."}))
 
@@ -67,7 +67,7 @@ func define() -> void:
 		[{"t": 0.05, "type": "vfx", "name": "cast_glow", "color": C_FIRE},
 		{"t": 0.15, "type": "ground", "at": "target", "radius": 1.6, "delay": 0.25, "visual": "fire", "color": C_FIRE,
 			"hit": hit(1.9, {"type": "magic", "element": "fire", "launch": 9.0, "knockback": 0.3, "statuses": [st("burn", 3.0, 1.0)]})},
-		{"t": 0.4, "type": "sfx", "name": "fire", "at": "target"}],
+		{"t": 0.4, "type": "sfx", "name": "fire_cast", "at": "target"}],
 		_x(mob, {"cancel_window": 0.2, "desc": "目标处喷发3米火柱，挑飞并灼烧 Fire column at the target point that launches and burns."}))
 
 	# ---------------------------------------------------------------- slot 4: Blizzard
@@ -76,7 +76,7 @@ func define() -> void:
 		[{"t": 0.05, "type": "vfx", "name": "cast_glow", "color": C_ICE},
 		{"t": 0.2, "type": "ground", "at": "target", "radius": 4.0, "duration": 4.0, "tick": 1.0, "visual": "ice", "color": C_ICE,
 			"hit": hit(0.5, {"type": "magic", "element": "ice", "hitstun": 0.2, "knockback": 0.0, "statuses": [st("slow", 2.0, 0.5)]})},
-		{"t": 0.2, "type": "sfx", "name": "ice", "at": "target"}],
+		{"t": 0.2, "type": "sfx", "name": "ice_cast", "at": "target"}],
 		_x(mob, {"cancel_window": 0.25, "desc": "4秒冰雹区域，每秒伤害并减速 4 s hail zone: damage every second and 50% slow."}))
 
 	# ---------------------------------------------------------------- slot 5: Ice Line
@@ -85,14 +85,14 @@ func define() -> void:
 		[{"t": 0.15, "type": "ground", "shape": "line", "at": "target", "length": 9.0, "width": 1.0, "duration": 5.0, "tick": 0.2,
 			"max_hits": 1, "visual": "ice", "color": C_ICE,
 			"hit": hit(0.8, {"type": "magic", "element": "ice", "hitstun": 0.1, "knockback": 0.0, "statuses": [st("freeze", 1.5)]})},
-		{"t": 0.15, "type": "sfx", "name": "ice"}],
+		{"t": 0.15, "type": "sfx", "name": "ice_cast"}],
 		_x(mob, {"cancel_window": 0.2, "desc": "画出持续5秒的冰线，触碰者被冻结 Draws a 5 s ice line; anyone touching it is frozen."}))
 
 	# ---------------------------------------------------------------- slot 6: Teleport
 	var tele := sk(6, "teleport", "瞬间移动", "Teleport", 12.0, 60.0, 0.15, &"dash", 8.0,
 		["escape", "defensive"],
 		[{"t": 0.0, "type": "blink", "to": "back", "distance": 8.0},
-		{"t": 0.0, "type": "sfx", "name": "magic"}],
+		{"t": 0.0, "type": "sfx", "name": "blink"}],
 		_x(mob, {"desc": "瞬移拉开距离 Instant blink away to reset spacing."}))
 
 	# ---------------------------------------------------------------- slot 7: ultimate
@@ -100,7 +100,7 @@ func define() -> void:
 		["ultimate", "aoe", "ranged", "zone"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.7)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.3, "type": "ground", "at": "target", "radius": 5.0, "duration": 3.0, "tick": 0.5, "visual": "fire", "color": C_FIRE,
 			"hit": hit(0.3, {"type": "magic", "element": "fire", "hitstun": 0.15, "knockback": 0.0, "statuses": [st("burn", 3.0, 1.0)]})},
 		{"t": 0.4, "type": "ground", "at": "target", "radius": 3.5, "delay": 0.3, "visual": "lightning", "color": C_BOLT,
@@ -109,7 +109,7 @@ func define() -> void:
 			"hit": hit(0.9, {"type": "magic", "element": "lightning", "hitstun": 0.5, "knockback": 1.0})},
 		{"t": 1.2, "type": "ground", "at": "target", "radius": 3.5, "delay": 0.3, "visual": "lightning", "color": C_BOLT,
 			"hit": hit(0.9, {"type": "magic", "element": "lightning", "launch": 7.0, "knockback": 1.0})},
-		{"t": 1.5, "type": "sfx", "name": "lightning", "at": "target"}],
+		{"t": 1.5, "type": "sfx", "name": "thunder", "at": "target"}],
 		_x(mob, {"desc": "大范围天降雷击与地火灼烧 Huge area: three sky lightning strikes over a field of earthen fire."}))
 
 	skills = [b1, power, pierce, flames, blizzard, ice_line, tele, ult]

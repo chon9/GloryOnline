@@ -24,6 +24,7 @@ Net="*res://autoload/net.gd"
 Registry="*res://autoload/registry.gd"
 Fx="*res://autoload/fx.gd"
 Game="*res://autoload/game.gd"
+Music="*res://autoload/music.gd"
 
 [display]
 

@@ -2,3 +2,5 @@
 /build/
 /release/
 .playwright-mcp/
+# Windows replace-in-use temp copies (e.g. a GodotSteam DLL swapped while the editor ran)
+~*.TMP

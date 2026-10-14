@@ -26,15 +26,15 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 0: basic chain
 	var atk1 := sk(0, "atk1", "普攻·一", "Basic Attack I", 0.0, 0.0, 0.26, &"attack_1h_1", 2.2, ["melee", "combo"],
 		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.55, {"knockback": 0.8})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.13, "chain": ["atk1", "atk2", "atk3"], "desc": "匕首快划 Quick dagger slash."})
 	sk(0, "atk2", "普攻·二", "Basic Attack II", 0.0, 0.0, 0.26, &"attack_1h_2", 2.2, ["melee", "combo"],
 		[{"t": 0.08, "type": "melee", "range": 2.2, "arc": 110.0, "hit": hit(0.55, {"knockback": 0.8})},
-		{"t": 0.08, "type": "sfx", "name": "slash"}],
+		{"t": 0.08, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.13, "desc": "反手划 Backhand slash."})
 	sk(0, "atk3", "普攻·三", "Basic Attack III", 0.0, 0.0, 0.4, &"attack_stab", 2.4, ["melee", "finisher"],
 		[{"t": 0.13, "type": "melee", "shape": "box", "range": 2.4, "width": 1.3, "hit": hit(0.95, {"knockback": 4.0, "hitstun": 0.45})},
-		{"t": 0.13, "type": "sfx", "name": "slash"}],
+		{"t": 0.13, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.12, "desc": "匕首突刺 Dagger thrust."})
 
 	# ---------------------------------------------------------------- slot 1: launcher trap
@@ -43,7 +43,7 @@ func define() -> void:
 		[{"t": 0.1, "type": "trap", "trap_id": "thorn", "at": "target", "distance": 4.0, "radius": 1.6, "arm_time": 0.15,
 		"duration": 15.0, "max_active": 3, "color": Color(0.85, 0.85, 0.8),
 		"hit": hit(1.2, {"launch": 10.0, "knockback": 0.3, TRAP_KEY: true}), "on_trigger_statuses": [st("root", 1.5)]},
-		{"t": 0.1, "type": "sfx", "name": "trap"}],
+		{"t": 0.1, "type": "sfx", "name": "trap_set"}],
 		{"cancel_window": 0.12, "desc": "抛出陷阱扣，钢刺弹起挑飞并定身敌人 Toss a spike trap: steel spikes launch and root whoever steps on it."})
 
 	# ---------------------------------------------------------------- slot 2: poison gas trap
@@ -53,7 +53,7 @@ func define() -> void:
 		"duration": 15.0, "max_active": 2,
 		"hit": hit(0.6, {"stun": 0.8, "hitstun": 0.3, "knockback": 0.0, "element": "poison", TRAP_KEY: true,
 		"statuses": [st("poison", 6.0, 1.1)]})},
-		{"t": 0.1, "type": "sfx", "name": "trap"}],
+		{"t": 0.1, "type": "sfx", "name": "trap_set"}, {"t": 0.12, "type": "sfx", "name": "poison"}],
 		{"desc": "毒云陷阱：剧毒持续伤害并打断 Poison cloud trap: poison damage over time and a brief stun."})
 
 	# ---------------------------------------------------------------- slot 3: inferno trap
@@ -63,7 +63,7 @@ func define() -> void:
 		"duration": 15.0, "max_active": 2,
 		"hit": hit(1.0, {"knockdown": true, "knockback": 1.5, "element": "fire", TRAP_KEY: true,
 		"statuses": [st("burn", 5.0, 1.8)]})},
-		{"t": 0.1, "type": "sfx", "name": "trap"}],
+		{"t": 0.1, "type": "sfx", "name": "trap_set"}, {"t": 0.12, "type": "sfx", "name": "fire_cast"}],
 		{"desc": "火焰陷阱：烈焰爆发并持续灼烧 Inferno trap: a burst of flame that keeps burning."})
 
 	# ---------------------------------------------------------------- slot 4: shadow trap (teleport)
@@ -84,14 +84,14 @@ func define() -> void:
 		["melee", "cc", "finisher"],
 		[{"t": 0.0, "type": "dash", "distance": 1.2, "speed": 14.0, "direction": "target"},
 		{"t": 0.15, "type": "custom", "method": "ambush"},
-		{"t": 0.15, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.15, "type": "sfx", "name": "swing_dagger"}],
 		{"cancel_window": 0.15, "desc": "偷袭要害；潜行中发动造成双倍伤害并眩晕 3 秒 Sneak attack; from stealth it deals double damage and stuns for 3 s."})
 
 	# ---------------------------------------------------------------- slot 7: ultimate ice trap
 	var ice := sk(7, "ice_trap", "冰霜陷阱", "Ice Trap", 50.0, 180.0, 0.7, &"throw", 9.0,
 		["ultimate", "aoe", "cc", "zone", "ranged"],
 		[{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 0.8)]},
 		{"t": 0.2, "type": "trap", "trap_id": "ice", "at": "target", "distance": 5.0, "radius": 4.5, "arm_time": 0.2,
 		"duration": 8.0, "max_active": 1,
@@ -99,7 +99,7 @@ func define() -> void:
 		{"t": 0.45, "type": "ground", "at": "target", "radius": 4.5, "duration": 4.0, "tick": 0.5, "visual": "ice",
 		"hit": hit(0.25, {"element": "ice", "hitstun": 0.0, "knockback": 0.0, "juggle_cost": 2.0, TRAP_KEY: true,
 		"statuses": [st("slow", 1.0, 0.5)]})},
-		{"t": 0.2, "type": "sfx", "name": "ice"}],
+		{"t": 0.2, "type": "sfx", "name": "freeze"}],
 		{"desc": "大范围冰霜陷阱：冻结范围内敌人并留下减速寒域 Huge ice trap: freezes everyone inside and leaves a chilling slow field."})
 
 	skills = [atk1, spike, poison, inferno, shadow, stealth, ambush, ice]
@@ -160,7 +160,7 @@ func shadow_trap(f: Fighter, _args: Dictionary, runner: SkillRunner) -> void:
 		if e is AreaEffect and (e as AreaEffect).mode == "trap":
 			f.set_meta(SHADOW_TRAP_META, e)
 			break
-	CoreUtil.fx(&"sfx", [&"trap", f.global_position])
+	CoreUtil.fx(&"sfx", [&"trap_set", f.global_position])
 
 
 func _clear_shadow_trap(f: Fighter) -> void:

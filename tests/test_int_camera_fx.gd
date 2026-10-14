@@ -23,12 +23,19 @@ func _initialize() -> void:
 func _run() -> void:
 	var fx: Node = root.get_node("Fx")
 	var game: Node = root.get_node("Game")
-	# --- intensity table
+	# --- intensity table (pin the shipped defaults so a player's saved settings can't affect the test)
+	var user_fx: Array = [fx.own_intensity, fx.ally_intensity, fx.enemy_intensity]
+	fx.own_intensity = 1.0
+	fx.ally_intensity = 0.5
+	fx.enemy_intensity = 0.7
 	check(is_equal_approx(fx.intensity_for(fx.REL_OWN), 1.0), "own effects at 100%")
 	check(is_equal_approx(fx.intensity_for(fx.REL_ALLY), 0.5), "ally effects default 50%")
 	check(is_equal_approx(fx.intensity_for(fx.REL_ENEMY), 0.7), "enemy effects default 70%")
 	check(is_equal_approx(fx.intensity_for(fx.REL_ENEMY, true), 1.0), "enemy telegraphs always full")
 	check(fx.intensity_for(fx.REL_ALLY, true) >= 0.6, "ally telegraphs stay readable")
+	fx.own_intensity = user_fx[0]
+	fx.ally_intensity = user_fx[1]
+	fx.enemy_intensity = user_fx[2]
 	check(is_equal_approx(fx.intensity_for(fx.REL_UNKNOWN), 1.0), "unknown caster untouched")
 	# --- prefs -> Fx
 	var old_ally: float = float(game.prefs.get("fx_ally", 0.5))

@@ -43,25 +43,25 @@ func define() -> void:
 
 	# ---------------------------------------------------------------- slot 0: broom chain
 	var a1 := sk(0, "broom_1", "普攻·扫击", "Broom Swat", 0.0, 0.0, 0.32, &"attack_1h_1", 2.8, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_staff"},
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 120.0, "height": 2.8,
 			"hit": hit(0.62, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "chain": ["broom_1", "broom_2", "broom_3"],
 		"desc": "扫把三段连击（飞行中亦可） Three-hit broom chain, usable in flight."})
 	sk(0, "broom_2", "普攻·回扫", "Broom Backswing", 0.0, 0.0, 0.32, &"attack_1h_2", 2.8, ["melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_staff"},
 		{"t": 0.12, "type": "melee", "range": 2.8, "arc": 120.0, "height": 2.8,
 			"hit": hit(0.62, {"type": "magic", "hitstun": 0.35, "knockback": 1.0})}],
 		{"cancel_window": 0.16, "desc": "回扫 Backswing."})
 	sk(0, "broom_3", "普攻·旋扫", "Broom Whirl", 0.0, 0.0, 0.48, &"attack_spin", 3.0, ["melee", "finisher", "aoe"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_staff"},
 		{"t": 0.18, "type": "melee", "shape": "circle", "range": 3.0, "height": 3.0, "fx": "slash_arc",
 			"hit": hit(0.85, {"type": "magic", "knockback": 4.0, "hitstun": 0.45})}],
 		{"cancel_window": 0.18, "desc": "旋转扫击，击退周围敌人 Spinning sweep that knocks back everyone around."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
 	var sweep := sk(1, "sweep", "清扫", "Sweep", 4.0, 40.0, 0.4, &"attack_2h", 3.0, ["launcher", "melee", "combo"],
-		[{"t": 0.0, "type": "sfx", "name": "swing"},
+		[{"t": 0.0, "type": "sfx", "name": "swing_heavy"},
 		{"t": 0.12, "type": "melee", "range": 3.0, "arc": 140.0, "height": 2.8, "fx": "slash_arc",
 			"hit": hit(1.2, {"type": "magic", "launch": 8.0, "knockback": 0.6, "hitstun": 0.45})},
 		{"t": 0.14, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.5}],
@@ -70,7 +70,7 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 2: Magic Missile
 	var missile := sk(2, "magic_missile", "魔法飞弹", "Magic Missile", 4.5, 30.0, 0.3, &"shoot_1h", 18.0, ["ranged", "combo"],
 		[{"t": 0.1, "type": "projectile", "speed": 24.0, "range": 20.0, "radius": 0.4, "homing": 3.0, "aim": "target",
-			"visual": "missile", "color": C_ARCANE, "scale": 0.8, "sfx": "magic",
+			"visual": "missile", "color": C_ARCANE, "scale": 0.8, "sfx": "magic_bolt",
 			"hit": hit(1.3, {"type": "magic", "hitstun": 0.4, "knockback": 1.5})},
 		{"t": 0.1, "type": "custom", "method": "broom_volley", "args": {}}],
 		{"cancel_window": 0.15, "desc": "远程追踪魔法飞弹；飞行中一次发射三枚 Long-range homing missile; fires a 3-missile volley while flying."})
@@ -78,7 +78,7 @@ func define() -> void:
 	# ---------------------------------------------------------------- slot 3: Lava Flask
 	var flask := sk(3, "lava_flask", "熔岩烧瓶", "Lava Flask", 8.0, 60.0, 0.4, &"throw", 13.0, ["ranged", "aoe", "zone"],
 		[{"t": 0.12, "type": "projectile", "speed": 16.0, "gravity": 18.0, "range": 16.0, "radius": 0.35, "aim": "target",
-			"visual": "flask", "color": C_LAVA, "sfx": "throw",
+			"visual": "flask", "color": C_LAVA, "sfx": "throw_light",
 			"hit": hit(0.2, {"type": "magic", "hitstun": 0.2, "knockback": 0.5}),
 			"explode": {"radius": 2.2, "fx": "fire_burst",
 				"hit": hit(1.0, {"type": "magic", "element": "fire", "hitstun": 0.4, "knockback": 2.0, "statuses": [st("burn", 3.0, 1.0)]})}},
@@ -99,7 +99,7 @@ func define() -> void:
 		{"t": 0.05, "type": "vfx", "name": "dark_burst", "at": "forward", "distance": 1.4, "color": C_DARK},
 		{"t": 0.08, "type": "grab", "range": 2.8, "arc": 200.0, "grab_time": 0.7, "end_on_miss": true,
 			"hit": hit(1.8, {"type": "magic", "element": "dark", "knockback": 1.0}), "throw": {"dir": "up", "force": 7.0}},
-		{"t": 0.08, "type": "sfx", "name": "grab"}],
+		{"t": 0.08, "type": "sfx", "name": "curse"}],
 		{"desc": "高优先级大范围暗影斗篷抓取，束缚后抛起 High-priority wide-area shadow grab: binds, then tosses the victim up."})
 
 	# ---------------------------------------------------------------- slot 6: Doll Shururu (taunt doll)
@@ -113,7 +113,7 @@ func define() -> void:
 		["ultimate", "aoe", "melee", "launcher"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.7)]},
 		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"},
-		{"t": 0.0, "type": "sfx", "name": "ultimate"},
+		{"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
 		{"t": 0.05, "type": "launch_self", "vertical": 6.0},
 		{"t": 0.15, "type": "multi_melee", "shape": "circle", "range": 3.3, "height": 3.5, "count": 5, "interval": 0.14,
 			"fx": "slash_arc", "hit": hit(0.6, {"type": "magic", "launch": 6.0, "knockback": 0.5, "juggle_cost": 6.0})},
@@ -237,7 +237,7 @@ func broom_volley(f: Fighter, _args: Dictionary, runner: SkillRunner) -> void:
 	if not is_flying(f):
 		return
 	runner.execute_step({"type": "projectile", "speed": 24.0, "range": 20.0, "radius": 0.4, "homing": 3.0, "aim": "target",
-		"count": 2, "spread": 30.0, "visual": "missile", "color": C_STAR, "scale": 0.7, "sfx": "magic",
+		"count": 2, "spread": 30.0, "visual": "missile", "color": C_STAR, "scale": 0.7, "sfx": "magic_bolt",
 		"hit": hit(0.6, {"type": "magic", "hitstun": 0.3, "knockback": 1.0})})
 
 

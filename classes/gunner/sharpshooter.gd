@@ -33,15 +33,15 @@ func define() -> void:
 
 	# ---------------------------------------------------------------- slot 0: revolver chain (6-shot drum)
 	var shot1 := sk(0, "shot_1", "普攻·右枪", "Revolver Shot I", 0.0, 0.0, 0.42, &"shoot_1h", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.35), {"t": 0.08, "type": "sfx", "name": "shot"}],
+		[_bullet(0.08, 0.35), {"t": 0.08, "type": "sfx", "name": "gun_revolver"}],
 		{"cancel_window": 0.08, "chain": ["shot_1", "shot_2", "shot_3"],
 		"desc": "右手左轮点射。空中开枪产生后坐力上浮。 Right-hand revolver shot; firing in the air pushes you up."})
 	sk(0, "shot_2", "普攻·左枪", "Revolver Shot II", 0.0, 0.0, 0.42, &"shoot_1h", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "shot"}],
+		[_bullet(0.08, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "gun_revolver"}],
 		{"cancel_window": 0.08, "desc": "左手左轮点射。 Left-hand revolver shot."})
 	sk(0, "shot_3", "普攻·双枪连射", "Twin Revolver Burst", 0.0, 0.0, 0.55, &"shoot_dual", 16.0, ["ranged", "combo"],
-		[_bullet(0.08, 0.35), _bullet(0.18, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "shot"},
-		{"t": 0.18, "type": "sfx", "name": "shot"}],
+		[_bullet(0.08, 0.35), _bullet(0.18, 0.35, FROST), {"t": 0.08, "type": "sfx", "name": "gun_revolver"},
+		{"t": 0.18, "type": "sfx", "name": "gun_revolver"}],
 		{"cancel_window": 0.1, "desc": "双枪齐射两发。 Both revolvers fire in quick succession."})
 
 	# ---------------------------------------------------------------- slot 1: Lv1 launcher
@@ -49,7 +49,7 @@ func define() -> void:
 		[{"t": 0.1, "type": "melee", "range": 2.1, "arc": 120.0, "fx": "hit_heavy",
 		"hit": hit(1.3, {"launch": 10.5, "knockback": 1.0, "hitstun": 0.5})},
 		{"t": 0.1, "type": "vfx", "name": "launch_burst", "at": "forward", "distance": 1.2},
-		{"t": 0.1, "type": "sfx", "name": "hit_heavy"}],
+		{"t": 0.1, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.2, "desc": "近身膝撞将敌人顶上浮空，衔接空中射击。 Close knee strike that pops the enemy into the air."})
 
 	# ---------------------------------------------------------------- slot 2: gap closer / trip
@@ -63,13 +63,13 @@ func define() -> void:
 	var punisher := sk(3, "punisher", "踏射", "Punisher", 8.0, 45.0, 0.65, &"shoot_1h", 2.6, ["finisher", "melee", "combo"],
 		[{"t": 0.1, "type": "multi_melee", "shape": "circle", "range": 2.6, "count": 4, "interval": 0.12, "fx": "hit_spark",
 		"hit": hit(0.5, {"otg": true, "no_recover": true, "hitstun": 0.3, "knockback": 0.3, "juggle_cost": 5.0})},
-		{"t": 0.1, "type": "sfx", "name": "shot"}, {"t": 0.34, "type": "sfx", "name": "shot"}],
+		{"t": 0.1, "type": "sfx", "name": "gun_revolver"}, {"t": 0.34, "type": "sfx", "name": "gun_revolver"}],
 		{"cancel_window": 0.15, "desc": "踩住倒地的敌人连续射击，可追击倒地且令其无法受身。 Stomp-and-shoot a downed enemy; OTG, negates quick recovery."})
 
 	# ---------------------------------------------------------------- slot 4: Lv60 random firing
 	var random_fire := sk(4, "random_firing", "乱射", "Random Firing", 9.0, 60.0, 0.75, &"shoot_dual", 10.0, ["aoe", "ranged"],
 		[_fan(0.1), _fan(0.32), _fan(0.54),
-		{"t": 0.1, "type": "sfx", "name": "shot"}, {"t": 0.32, "type": "sfx", "name": "shot"}, {"t": 0.54, "type": "sfx", "name": "shot"}],
+		{"t": 0.1, "type": "sfx", "name": "gun_revolver"}, {"t": 0.32, "type": "sfx", "name": "gun_revolver"}, {"t": 0.54, "type": "sfx", "name": "gun_revolver"}],
 		{"move_while_casting": true, "cancel_window": 0.15,
 		"desc": "双枪向前方乱射三轮扇形弹幕，可边移动边射击。 Three fan volleys of wild shots; can move while firing."})
 
@@ -77,24 +77,24 @@ func define() -> void:
 	var roundhouse := sk(5, "roundhouse_kick", "回旋踢", "Roundhouse Kick", 6.0, 35.0, 0.45, &"kick", 2.6, ["melee", "aoe", "cc", "escape"],
 		[{"t": 0.15, "type": "melee", "range": 2.7, "arc": 220.0, "fx": "slash_arc",
 		"hit": hit(1.5, {"knockdown": true, "knockback": 7.0})},
-		{"t": 0.15, "type": "sfx", "name": "swing"}],
+		{"t": 0.15, "type": "sfx", "name": "swing_heavy"}],
 		{"cancel_window": 0.15, "desc": "半圆回旋踢踢倒并击退身边敌人。 Semicircle kick that knocks nearby enemies down and away."})
 
 	# ---------------------------------------------------------------- slot 6: Dual Load
 	var dual := sk(6, "dual_load", "双重装填", "Dual Load", 15.0, 50.0, 0.2, &"cast", 0.0, ["buff_self"],
 		[{"t": 0.05, "type": "custom", "method": "dual_load", "args": {}},
-		{"t": 0.05, "type": "vfx", "name": "buff_aura"}, {"t": 0.05, "type": "sfx", "name": "metal"}],
+		{"t": 0.05, "type": "vfx", "name": "buff_aura"}, {"t": 0.05, "type": "sfx", "name": "reload"}],
 		{"desc": "重新装填：立即恢复上一个使用过的技能（不含大招）。 Reload: the last skill you used (not the ultimate) is ready again."})
 
 	# ---------------------------------------------------------------- slot 7: Lv70 ultimate
 	var barrett := sk(7, "barrett_snipe", "巴雷特狙击", "Barrett Snipe", 60.0, 250.0, 1.3, &"shoot_2h", 30.0,
 		["ultimate", "ranged", "finisher"],
 		[{"t": 0.0, "type": "buff", "target": "self", "statuses": [st("super_armor", 1.4)], "fx": "cast_glow"},
-		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"}, {"t": 0.0, "type": "sfx", "name": "ultimate"},
-		{"t": 0.85, "type": "projectile", "speed": 70.0, "range": 40.0, "radius": 0.55, "pierce": true, "aim": "target",
+		{"t": 0.0, "type": "vfx", "name": "ultimate_flash"}, {"t": 0.0, "type": "sfx", "name": "ultimate_charge"},
+		{"t": 0.85, "type": "projectile", "sfx": "gun_sniper", "speed": 70.0, "range": 40.0, "radius": 0.55, "pierce": true, "aim": "target",
 		"visual": "bullet", "scale": 2.4, "color": Color(1.0, 0.85, 0.5),
 		"hit": hit(4.6, {"knockback": 9.0, "knockdown": true, "crit_bonus": 0.3, "juggle_cost": 30.0})},
-		{"t": 0.85, "type": "sfx", "name": "cannon"},
+		{"t": 0.85, "type": "sfx", "name": "gun_sniper"},
 		{"t": 0.9, "type": "dash", "direction": "back", "distance": 1.5, "speed": 10.0}],
 		{"desc": "架起巴雷特狙击枪，霸体蓄力后射出贯穿一条直线的狙击弹。 Super-armored sniper shot that pierces every enemy in a line."})
 
@@ -109,12 +109,12 @@ func define() -> void:
 
 
 func _bullet(t: float, dmg: float, color: Color = BULLET) -> Dictionary:
-	return {"t": t, "type": "projectile", "speed": 42.0, "range": 18.0, "radius": 0.3, "aim": "target", "visual": "bullet",
+	return {"t": t, "type": "projectile", "sfx": "gun_revolver", "speed": 42.0, "range": 18.0, "radius": 0.3, "aim": "target", "visual": "bullet",
 		"color": color, "hit": hit(dmg, {"hitstun": 0.3, "knockback": 0.8, "juggle_cost": 6.0})}
 
 
 func _fan(t: float) -> Dictionary:
-	return {"t": t, "type": "projectile", "speed": 38.0, "range": 12.0, "radius": 0.3, "count": 7, "spread": 140.0,
+	return {"t": t, "type": "projectile", "sfx": "gun_revolver", "speed": 38.0, "range": 12.0, "radius": 0.3, "count": 7, "spread": 140.0,
 		"aim": "target", "visual": "bullet", "color": BULLET,
 		"hit": hit(0.45, {"hitstun": 0.25, "knockback": 1.0, "juggle_cost": 5.0})}
 

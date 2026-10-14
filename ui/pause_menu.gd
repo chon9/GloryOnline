@@ -72,6 +72,7 @@ func _ready() -> void:
 		_game().save_prefs()
 		sensitivity_changed.emit(x))
 	v.add_child(sens)
+	_add_audio_options(v)
 	_add_fx_options(v)
 	if _game().is_host():
 		var lobby := Button.new()
@@ -88,6 +89,32 @@ func _ready() -> void:
 Tab 锁定 Lock-on   中键 切换锁定 Toggle lock   ` 战绩 Scoreboard   F1 帮助 Help", 13, HudStyle.C_TEXT_DIM, false, 2)
 	keys.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.add_child(keys)
+
+
+## One volume slider per audio bus (Game.VOLUME_ROWS); applied live and saved to user://settings.cfg.
+func _add_audio_options(v: VBoxContainer) -> void:
+	var g := GridContainer.new()
+	g.name = "AudioOptions"
+	g.columns = 2
+	g.add_theme_constant_override("h_separation", 14)
+	g.add_theme_constant_override("v_separation", 4)
+	v.add_child(g)
+	for row: Array in _game().VOLUME_ROWS:
+		var key: String = row[0]
+		g.add_child(HudStyle.make_label(str(row[1]), 14, HudStyle.C_TEXT_DIM, false, 2))
+		var sl := HSlider.new()
+		sl.name = "Volume_" + key
+		sl.min_value = 0.0
+		sl.max_value = 1.0
+		sl.step = 0.05
+		sl.custom_minimum_size = Vector2(190, 22)
+		sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		sl.value = float(_game().prefs.get(key, 0.8))
+		sl.value_changed.connect(func(x: float) -> void:
+			_game().prefs[key] = x
+			_game().apply_bus_volumes()
+			_game().save_prefs())
+		g.add_child(sl)
 
 
 ## Effect intensity by caster (own / allies / enemies; enemy telegraphs always full) + camera shake toggle.
