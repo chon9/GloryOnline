@@ -12,7 +12,7 @@ or take a party into a raid. No levels, no grinding: every character is ready to
 
 ## Download
 
-**[Latest release](https://github.com/chon9/GloryOnline/releases/latest)** — Windows 10/11 64-bit.
+**[Releases page](https://github.com/chon9/GloryOnline/releases)** (download the newest `RongyaoArena-*-windows-x64.zip`) — Windows 10/11 64-bit.
 Unzip anywhere and run `RongyaoArena.exe`. Windows SmartScreen may warn because the exe is not
 code-signed: choose **More info → Run anyway**.
 
