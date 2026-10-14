@@ -467,7 +467,8 @@ func _on_node_added(n: Node) -> void:
 func _on_ui_pressed(b: BaseButton) -> void:
 	if not is_instance_valid(b):
 		return
-	var s: Variant = b.get_meta(&"ui_sfx", null)
+	# get_meta(key, null) errors on a missing key (a null default counts as "no default"), so guard with has_meta.
+	var s: Variant = b.get_meta(&"ui_sfx") if b.has_meta(&"ui_sfx") else null
 	if s == null:
 		s = &"ui_toggle" if b.toggle_mode else &"ui_click"
 	if StringName(s) != &"none":
