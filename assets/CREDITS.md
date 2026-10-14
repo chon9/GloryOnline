@@ -1,11 +1,12 @@
 # Rongyao Arena - Asset Credits 素材致谢
 
-Every third-party asset in `res://assets/` is released under **CC0 1.0 (public domain dedication)**.
-Attribution is not required, but it is given here gladly. License texts are in `assets/licenses/`.
+Every third-party asset in `res://assets/` is free to redistribute and modify: most are **CC0 1.0**, six VRoid sample
+bases use the **VRoid Hub licence** (redistribution and modification allowed, credit unnecessary), and the fonts are
+**SIL OFL 1.1**. Attribution is given here gladly. License texts are in `licenses/` (release) / `assets/licenses/` (source).
 
 | Pack | Author | License | Used for | Folder |
 |---|---|---|---|---|
-| VRoid Project CC0 sample models (11 bases, converted) | VRoid Project (pixiv Inc.), via OpenGameArt | CC0 1.0 (VRoid Hub licence: redistribution + modification allowed, credit unnecessary) | all 25 player-class bodies | `characters/anime/` |
+| VRoid Project CC0 sample models (11 bases, converted) | VRoid Project (pixiv Inc.), via OpenGameArt | CC0 1.0 (5 bases) / VRoid Hub licence (6 bases: redistribution + modification allowed, credit unnecessary) | all 25 player-class bodies | `characters/anime/` |
 | Mesh2Motion human animation library (base + addon) | Mesh2Motion (mesh2motion.org), incl. Universal Animation Library by Quaternius | CC0 1.0 | player-class animations | `anims/anime/human-*.glb` |
 | KayKit Character Animations 1.1 (Rig_Medium, Rig_Large) | Kay Lousberg (KayKit), www.kaylousberg.com | CC0 1.0 | mob/boss/summon animations; CombatMelee + CombatRanged copies retargeted as player gap-filler clips | `anims/`, `anims/anime/kaykit_*.glb` |
 | KayKit Adventurers 2.0 (weapons) | Kay Lousberg (KayKit) | CC0 1.0 | mob weapons | `weapons/adv/` |

@@ -2,7 +2,7 @@ extends Control
 ## Main menu (owner: NET, look: UI track), root of scenes/main.tscn. Shows the title menu while _game().state == MENU
 ## and the lobby (ui/lobby.tscn) while _game().state == LOBBY. Sub-panels: LAN host/join, Steam lobby browser,
 ## settings (volume, mouse sensitivity, bot difficulty, name; saved to user://settings.cfg) and credits
-## (asset attributions from assets/CREDITS.md; game-icons.net CC BY requires in-game attribution).
+## (asset attributions from assets/CREDITS.md).
 ## Look: painted navy night backdrop with drifting gold motes and a rune circle, brush-calligraphy 荣耀 title,
 ## navy-glass gold buttons and a turning class showcase.
 

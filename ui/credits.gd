@@ -1,17 +1,17 @@
 extends RefCounted
-## In-game credits (required: game-icons.net icons are CC BY 3.0 and need visible attribution).
+## In-game credits (asset attributions from assets/CREDITS.md).
 ## Reads res://assets/CREDITS.md at runtime and shows every attribution table (tables whose header has a
 ## "License" column) under its section heading, plus the paragraphs that carry attribution notes
-## (CC BY / game-icons / authors to support). Falls back to a built-in summary when the file is not packed.
+## (attribution / authors to support). Falls back to a built-in summary when the file is not packed.
 
 const HudStyle := preload("res://ui/hud_style.gd")
 const CREDITS_PATH: String = "res://assets/CREDITS.md"
 const FALLBACK: String = "[b][color=#ffe9a8]素材致谢 Asset Credits[/color][/b]\n" \
 	+ "KayKit (Kay Lousberg) - CC0 1.0: characters, animations, weapons, dungeon and nature kits\n" \
 	+ "Kenney (kenney.nl) - CC0 1.0: particles, UI pack, RPG audio, impact sounds\n" \
-	+ "Icons: game-icons.net silhouettes by their authors - CC BY 3.0 (see assets/CREDITS.md)\n" \
+	+ "Icons: original artwork drawn in code (tools/icons)\n" \
 	+ "Fonts - SIL OFL 1.1: Noto Sans SC, Ma Shan Zheng, Teko, Russo One, Orbitron\n" \
-	+ "VRoid CC0 sample avatars, Mesh2Motion animations - CC0 / MIT (see assets/CREDITS.md)\n"
+	+ "VRoid sample avatars - CC0 / VRoid Hub licence; Mesh2Motion animations - CC0 (see assets/CREDITS.md)\n"
 
 
 static func make_view() -> RichTextLabel:
