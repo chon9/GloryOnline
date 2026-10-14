@@ -237,6 +237,40 @@ func _update_goals(members: Array[Fighter]) -> void:
 	for f: Fighter in members:
 		f.set_meta("raid_goal", goal + Vector3((idx - 2) * 1.5, 0, 3.0 + absf(idx - 2) * 0.8))
 		idx += 1
+	_update_follow_slots(members)
+
+
+## Follow formation around a living human leader (feelfix): flank slots beside / slightly ahead of the human
+## relative to the human's CAMERA direction (FighterInput.aim_dir, fallback facing), never in the rear cone
+## between camera and player, so allies and their big weapons never block the view. Published as fighter meta
+## "raid_follow" (Vector3) on each party bot; slots keyed by uid rank so they never reshuffle when someone dies.
+const FOLLOW_SLOTS: Array[Vector2] = [Vector2(1.25, 3.0), Vector2(-1.25, 3.0), Vector2(1.95, 3.6), Vector2(-1.95, 3.6)]
+
+
+func _update_follow_slots(members: Array[Fighter]) -> void:
+	var human: Fighter = null
+	var bots: Array[Fighter] = []
+	for f: Fighter in members:
+		if f.kind == "player" and human == null:
+			human = f
+		elif f.kind != "player" and f.kind != "summon":
+			bots.append(f)
+	if human == null or not human.is_alive():
+		for f: Fighter in bots:
+			if f.has_meta("raid_follow"):
+				f.remove_meta("raid_follow")
+		return
+	var fwd := Vector3.ZERO
+	if human.input != null:
+		fwd = CoreUtil.flat(human.input.aim_dir)
+	if fwd.length_squared() < 0.01:
+		fwd = CoreUtil.dir_of_yaw(human.facing_yaw)
+	var yaw := atan2(-fwd.x, -fwd.z)   # inverse of CoreUtil.dir_of_yaw
+	bots.sort_custom(func(a: Fighter, b: Fighter) -> bool: return a.uid < b.uid)
+	for i in bots.size():
+		var s: Vector2 = FOLLOW_SLOTS[i % FOLLOW_SLOTS.size()]
+		var r := s.y + float(i / FOLLOW_SLOTS.size()) * 1.5
+		bots[i].set_meta("raid_follow", human.global_position + CoreUtil.dir_of_yaw(yaw + s.x) * r)
 
 
 # ================================================================== encounters

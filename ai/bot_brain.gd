@@ -24,6 +24,7 @@ const MOB_AGGRO: float = 9.0
 const MOB_SOCIAL: float = 8.0
 const FOCUS_INTERVAL: float = 1.0
 const LOOK_AHEAD: float = 1.6
+const FOLLOW_KEEP_OUT: float = 1.3             # raid follow: never walk through the human (camera view)
 const RAID_ENGAGE_RANGE: float = 80.0          # bot-only parties: leader pulls the nearest pack
 
 ## Difficulty table (Game.settings.bot_difficulty 0..3).
@@ -53,6 +54,7 @@ var difficulty: int = 1
 var cfg: Dictionary = {}
 ## Statistics (tests / debugging).
 var dodges_attempted: int = 0
+var dodge_rolls: int = 0                 # Shift-dodges (Fighter.try_dodge) used to leave a telegraph
 var recoveries_attempted: int = 0
 
 var _rng := RandomNumberGenerator.new()
@@ -1660,7 +1662,12 @@ func _decide_raid(w: World) -> void:
 				_goal = goal
 				_style = "point" if CoreUtil.flat(_goal - fighter.global_position).length() > 1.5 else "hold"
 				return
-		if anchor != null:
+		var slot: Variant = fighter.get_meta("raid_follow") if fighter.has_meta("raid_follow") else null
+		if slot is Vector3 and human != null and human != fighter and human.is_alive():
+			# MatchRaid's flank slot around the human (camera-oriented, stable by uid): never on the camera line.
+			_goal = _detour_around(slot, human.global_position, FOLLOW_KEEP_OUT)
+			_style = "point" if CoreUtil.flat(slot - fighter.global_position).length() > 1.5 else "hold"
+		elif anchor != null:
 			var idx := party.find(fighter)
 			var off := CoreUtil.dir_of_yaw(anchor.facing_yaw + PI + (float(idx) - 2.0) * 0.6) * 3.5
 			_goal = anchor.global_position + off
@@ -1789,6 +1796,9 @@ func _decide_pet(w: World) -> void:
 			if d < best_d:
 				best_d = d
 				t = e
+	# A target can leave the tree (encounter change / teardown) while its node is still valid.
+	if t != null and (not is_instance_valid(t) or not t.is_inside_tree()):
+		t = null
 	# Leash: never get dragged away from the owner.
 	if t != null and owner_f != null and _flat_dist(fighter, owner_f) > PET_LEASH + 3.0:
 		t = null
@@ -1938,6 +1948,8 @@ func _act(w: World, dt: float) -> void:
 	if steered == Vector3.ZERO and _move.length() < 0.2:
 		_move = Vector3.ZERO
 	inp.move = _move
+	# Out of combat and far from the formation slot / goal: sprint to catch up (the Shift hold of humans).
+	inp.sprint = t == null and _style == "point" and CoreUtil.flat(_goal - fighter.global_position).length() > 6.0
 	_tick_flight(w)
 	if not fighter.can_act() and fighter.state != Fighter.State.CAST:
 		return
@@ -2180,6 +2192,35 @@ func _apply_aim(inp: FighterInput, p: Dictionary, t: Fighter) -> void:
 	inp.aim_point = pred
 
 
+## Raid follow (feelfix): when the straight walk from here to `goal` passes within `radius` of `center` (the human
+## the camera follows), steer to a waypoint on the near side of a keep-out circle instead, so bots changing flank
+## slots while the camera turns walk around the player rather than through it.
+func _detour_around(goal: Vector3, center: Vector3, radius: float) -> Vector3:
+	var p := fighter.global_position
+	var seg := CoreUtil.flat(goal - p)
+	var len2 := seg.length_squared()
+	if len2 < 0.01:
+		return goal
+	var rel := CoreUtil.flat(center - p)
+	if rel.length() < radius:
+		# already inside the circle: step out away from the human first unless the goal already leads away
+		if rel.dot(seg) <= 0.0:
+			return goal
+		var away := -rel.normalized() if rel.length() > 0.05 else Vector3(-seg.z, 0.0, seg.x).normalized()
+		var out := center + away * (radius + 0.5)
+		out.y = goal.y
+		return out
+	var t := clampf(rel.dot(seg) / len2, 0.0, 1.0)
+	var closest := p + seg * t
+	var off := CoreUtil.flat(closest - center)
+	if off.length() >= radius or t <= 0.0 or t >= 1.0:
+		return goal
+	var side := off.normalized() if off.length() > 0.05 else Vector3(-seg.z, 0.0, seg.x).normalized()
+	var wp := center + side * (radius + 0.5)
+	wp.y = goal.y
+	return wp
+
+
 func _try_escape_to(point: Vector3) -> void:
 	var to := CoreUtil.flat(point - fighter.global_position)
 	if to.length() < 0.5:
@@ -2187,6 +2228,15 @@ func _try_escape_to(point: Vector3) -> void:
 	var need := to.length() / maxf(1.0, fighter.get_stat("move_speed"))
 	if need < _dodge_urgency * 0.9:
 		return
+	# Dodge roll first (free, 4.5 m in 0.3 s with i-frames): higher difficulties roll out of a telegraph that walking
+	# would not clear in time, instead of burning a movement skill or eating the hit.
+	if difficulty >= 2 and fighter.dodge_block_reason() == "":
+		var walk_after := maxf(0.0, _dodge_urgency - Fighter.DODGE_TIME) * maxf(1.0, fighter.get_stat("move_speed"))
+		if to.length() <= Fighter.DODGE_DISTANCE + walk_after + 0.5:
+			fighter.input.move = to.normalized()
+			fighter.input.dodge = true
+			dodge_rolls += 1
+			return
 	for s: SkillDef in fighter.skills:
 		if not fighter.can_cast(s.slot) or not _escape_ok(fighter.world(), s.slot):
 			continue

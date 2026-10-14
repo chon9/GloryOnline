@@ -119,6 +119,9 @@ const ANIM_MAP: Dictionary = {
 	&"stunned": ["Idle_B"],
 	&"death": ["Death_B", "Death_A"],
 	&"dash": ["Dodge_Forward"],
+	&"dodge": ["Dodge_Forward"],
+	&"backstep": ["Dodge_Backward", "Dodge_Backwards", "Dodge_Forward"],
+	&"sprint": ["Running_A"],
 	&"block": ["Melee_Blocking"],
 	&"cast": ["Ranged_Magic_Shoot", "Melee_Unarmed_Punch"],
 	&"cast_long": ["Ranged_Magic_Spellcasting_Long", "Melee_Block"],
@@ -164,6 +167,9 @@ const ANIME_ANIM_MAP: Dictionary = {
 	&"stunned": ["Dizzy"],
 	&"death": ["Death_A"],
 	&"dash": ["Sword_Dash_RM"],
+	&"dodge": ["Roll", "Sword_Dash_RM"],
+	&"backstep": ["NinjaJump_Land", "Jump_Land"],
+	&"sprint": ["Sprint", "Run_Anime"],
 	&"block": ["Sword_Block"],
 	&"cast": ["Spell_Simple_Shoot"],
 	&"cast_long": ["kk_Ranged_Magic_Spellcasting_Long", "Spell_Simple_Idle"],
@@ -193,7 +199,10 @@ const ANIME_ANIM_MAP: Dictionary = {
 	&"victory": ["Victory"],
 }
 
-const LOOP_KEYS: Array[StringName] = [&"idle", &"run", &"walk", &"fall", &"stunned", &"block", &"channel", &"cast_long", &"launched"]
+const LOOP_KEYS: Array[StringName] = [&"idle", &"run", &"sprint", &"walk", &"fall", &"stunned", &"block", &"channel", &"cast_long", &"launched"]
+## One-shots time-fitted at speed 1.0 to this many seconds (the dodge clips run 0.33 s on KayKit and 1.83 s for the
+## anime Roll, while the dodge itself lasts 0.3 s); the requested speed scales on top.
+const FIT_TIME: Dictionary = {&"dodge": 0.5, &"backstep": 0.45}
 ## One-shots that hold their last frame instead of returning to idle.
 const HOLD_KEYS: Array[StringName] = [&"death", &"knockdown", &"launched"]
 ## Clips that loop inside the KayKit libraries.
@@ -215,7 +224,7 @@ const STANCE_OF_WEAPON: Dictionary = {
 const STANCE_OVERRIDES: Dictionary = {
 	"2h": {&"idle": ["Melee_2H_Idle", "Idle_A"]},
 	"unarmed": {&"idle": ["Melee_Unarmed_Idle", "Idle_A"], &"attack": ["Melee_Unarmed_Attack_Punch_A", "Melee_Unarmed_Punch"]},
-	"rifle": {&"run": ["Running_HoldingRifle", "Running_A"]},
+	"rifle": {&"run": ["Running_HoldingRifle", "Running_A"], &"sprint": ["Running_HoldingRifle", "Running_A"]},
 }
 ## Anime weapon stances (by WeaponFactory grip kind / id); dress `anims` take precedence.
 const ANIME_STANCE_OF_WEAPON: Dictionary = {
@@ -228,7 +237,9 @@ const ANIME_STANCE_OF_WEAPON: Dictionary = {
 }
 const ANIME_STANCE_OVERRIDES: Dictionary = {
 	"blade": {&"idle": ["Fighting Idle"]},
-	"heavy": {&"idle": ["Fighting Idle"]},
+	# the Sprint clip locks the arms, so a lance / greatsword stuck rigidly across the body: sprint on the run cycle
+	# (sped up by the fighter's sprint speed) so the heavy weapon swings with the stride
+	"heavy": {&"idle": ["Fighting Idle"], &"sprint": ["Run_Anime"]},
 	"caster": {&"idle": ["Spell_Simple_Idle"], &"attack": ["Spell_Simple_Shoot"]},
 	# guns held low at the sides (Pistol_Idle / the KayKit aims raise the gun across the face in close shots)
 	"gun": {&"idle": ["Idle_Sword", "Pistol_Idle"], &"attack": ["Pistol_Shoot"]},
@@ -296,6 +307,7 @@ var _embers: GPUParticles3D
 var _stance: String = ""
 var _frozen := false
 var _speed := 1.0
+var _play_speed := 1.0           # _speed with the FIT_TIME scaling applied (the AnimationPlayer speed_scale)
 var _hidden_by_alpha := false
 var _cull_t := 0.0
 var _near := true
@@ -547,8 +559,12 @@ func play(anim_key: StringName, speed := 1.0) -> void:
 	if anim_player == null:
 		return
 	var clip := resolve_key(anim_key)
-	anim_player.speed_scale = 0.0 if _frozen else speed
+	var eff := speed
+	if FIT_TIME.has(anim_key) and anim_player.has_animation(StringName(clip)):
+		eff *= anim_player.get_animation(StringName(clip)).length / float(FIT_TIME[anim_key])
+	anim_player.speed_scale = 0.0 if _frozen else eff
 	_speed = speed
+	_play_speed = eff
 	var sticky := (anim_key in LOOP_KEYS and anim_key != &"launched") or anim_key == &"death" or anim_key == &"knockdown"
 	if anim_key == current_key and clip == current_clip and sticky:
 		return
@@ -937,7 +953,7 @@ func set_status_visual(mask: int) -> void:
 	_status_mask = mask
 	_frozen = _has(mask, &"freeze")
 	if anim_player:
-		anim_player.speed_scale = 0.0 if _frozen else _speed
+		anim_player.speed_scale = 0.0 if _frozen else _play_speed
 	# shield bubble (cyan barrier; gold for invulnerable)
 	if _has(mask, &"shield") or _has(mask, &"invuln"):
 		if _bubble == null:
@@ -1078,6 +1094,7 @@ func _process(delta: float) -> void:
 		if _flash <= 0.0:
 			_apply_overlay(_overlay_active())
 	_update_overlay_params()
+	_update_near_fade(delta)
 	if body:
 		if visible and _near:
 			body.update_face()
@@ -1297,3 +1314,117 @@ void fragment() {
 		m.shader = sh
 		_bubble_mat = m
 	return _bubble_mat
+
+
+# --------------------------------------------------------------------------------------------
+# Near-camera fade (feelfix, visual glitches): characters and their weapons right next to the lens, and any
+# character standing between the camera and the player it follows, are screen-door dithered (toon shader instance
+# uniforms near_fade_end / fade_mul) so allies never block the view. Only visuals in the main viewport (never
+# portraits or previews). Non-toon surfaces (eyes, glow accents) follow via GeometryInstance3D.transparency.
+
+const NEAR_FADE_END := 2.8            # view metres: solid beyond this, gone below 35% of it (per pixel)
+const NEAR_FADE_END_FOCUS := 1.1      # the camera's own target only fades when the camera is jammed into it
+const OCCLUDER_FADE := 0.3            # whole-body fade while standing in the camera -> player line
+const FOREGROUND_NEAR := 3.0          # foreground characters: FOREGROUND_FADE at this camera distance ...
+const FOREGROUND_FAR := 5.0           # ... solid from here
+const FOREGROUND_FADE := 0.3
+const OCCLUDER_WIDTH := 0.3          # body half width as a fraction of its on-screen height
+const OCCLUDER_PROBE_Y: Array[float] = [0.25, 0.7, 1.1, 1.6]   # followed player's feet, waist, chest, head (m)
+
+var near_fade: float = 1.0            # current whole-body fade (1 = solid), for diagnostics
+var _nf_target := 1.0
+var _nf_t := 0.0
+var _nf_end := 0.0
+var _nf_obj := 1.0                    # object-level near factor for non-toon surfaces
+var _nf_meshes: Array[MeshInstance3D] = []
+var _nf_plain: Array[MeshInstance3D] = []   # meshes carrying non-shader (BaseMaterial3D) surfaces
+var _nf_applied := Vector3(-1, -1, -1)      # (end, fade_mul, plain transparency) last pushed
+
+
+func _update_near_fade(delta: float) -> void:
+	if not is_inside_tree() or get_viewport() != get_tree().root:
+		return
+	_nf_t -= delta
+	if _nf_t <= 0.0:
+		_nf_t = 0.1
+		_refresh_near_fade()
+	near_fade = move_toward(near_fade, _nf_target, delta * 5.0)
+	var plain := 1.0 - minf(near_fade, _nf_obj)
+	var want := Vector3(_nf_end, near_fade, plain)
+	if want.is_equal_approx(_nf_applied):
+		return
+	_nf_applied = want
+	for mi in _nf_meshes:
+		if is_instance_valid(mi):
+			mi.set_instance_shader_parameter(&"near_fade_end", _nf_end)
+			mi.set_instance_shader_parameter(&"fade_mul", near_fade)
+	for mi in _nf_plain:
+		if is_instance_valid(mi):
+			mi.transparency = plain
+
+
+func _refresh_near_fade() -> void:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	var focus: Node3D = null
+	var n: Node = cam.get_parent()
+	for i in 4:
+		if n == null:
+			break
+		var t: Variant = n.get(&"target")
+		if t is Node3D and is_instance_valid(t):
+			focus = t
+			break
+		n = n.get_parent()
+	var is_focus := focus != null and focus.is_ancestor_of(self)
+	var end := NEAR_FADE_END_FOCUS if is_focus else NEAR_FADE_END
+	var cp := cam.global_position
+	var center := global_position + Vector3(0, height * 0.55, 0)
+	var d := cp.distance_to(center)
+	_nf_obj = smoothstep(end * 0.35, end, d)
+	_nf_target = 1.0
+	if focus != null and not is_focus:
+		var fp := focus.global_position + Vector3(0, 1.1, 0)
+		# foreground: well in front of the followed player and close to the lens (it fills a big part of the
+		# frame, e.g. allies running past the camera) -> dithered down with distance
+		if d < cp.distance_to(fp) - 1.5:
+			_nf_target = lerpf(FOREGROUND_FADE, 1.0, smoothstep(FOREGROUND_NEAR, FOREGROUND_FAR, d))
+		# occluder: nearer than the followed player and covering any of its feet / waist / chest / head on screen
+		# (a bot crossing in front of the player's legs blocks the view just as much as one over its chest)
+		var feet := global_position
+		var top := global_position + Vector3(0, height * scale.y, 0)
+		if d < cp.distance_to(fp) - 0.6 and not cam.is_position_behind(fp) and not cam.is_position_behind(feet) 				and not cam.is_position_behind(top):
+			var s_feet := cam.unproject_position(feet)
+			var s_top := cam.unproject_position(top)
+			var half_w := maxf(absf(s_feet.y - s_top.y) * OCCLUDER_WIDTH, 8.0)
+			var r := Rect2(Vector2(minf(s_feet.x, s_top.x) - half_w, minf(s_top.y, s_feet.y)),
+				Vector2(absf(s_feet.x - s_top.x) + half_w * 2.0, absf(s_feet.y - s_top.y)))
+			for hy: float in OCCLUDER_PROBE_Y:
+				if r.has_point(cam.unproject_position(focus.global_position + Vector3(0, hy, 0))):
+					_nf_target = minf(_nf_target, OCCLUDER_FADE)
+					break
+	# mesh lists (weapons swap at runtime); a new mesh gets the current values on the next push
+	var meshes := _all_meshes()
+	if meshes.size() != _nf_meshes.size() or end != _nf_end:
+		_nf_end = end
+		_nf_meshes = meshes
+		_nf_plain.clear()
+		for mi in meshes:
+			if _has_plain_surface(mi):
+				_nf_plain.append(mi)
+		_nf_applied = Vector3(-1, -1, -1)
+
+
+static func _has_plain_surface(mi: MeshInstance3D) -> bool:
+	if mi.material_override != null:
+		return mi.material_override is BaseMaterial3D
+	if mi.mesh == null:
+		return false
+	for si in mi.mesh.get_surface_count():
+		var m := mi.get_surface_override_material(si)
+		if m == null:
+			m = mi.mesh.surface_get_material(si)
+		if m is BaseMaterial3D:
+			return true
+	return false

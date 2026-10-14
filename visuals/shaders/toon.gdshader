@@ -45,6 +45,12 @@ uniform vec3 head_right = vec3(1.0, 0.0, 0.0);
 uniform vec3 head_fwd = vec3(0.0, 0.0, 1.0);
 uniform float face_half_width = 0.075;
 
+// Near-camera fade (feelfix): per-instance screen-door dither (stays opaque-sorted) so characters and their
+// weapons next to the lens never block the view. Set per GeometryInstance by CharacterVisual; near_fade_end = 0
+// (the default: portraits, previews) disables the distance part, fade_mul < 1 dithers the whole instance.
+instance uniform float near_fade_end = 0.0;
+instance uniform float fade_mul = 1.0;
+
 varying vec3 v_up;
 varying float v_strand;
 varying float v_crown;
@@ -84,6 +90,14 @@ void fragment() {
 	ALPHA = t.a * albedo_mul.a;
 	ALPHA_SCISSOR_THRESHOLD = alpha_cut;
 	EMISSION = emission_col.rgb;
+
+	float nf = fade_mul;
+	if (near_fade_end > 0.0) {
+		nf *= smoothstep(near_fade_end * 0.35, near_fade_end, length(VERTEX));
+	}
+	if (nf < 0.999 && nf <= fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))))) {
+		discard;
+	}
 	if (special == 1) {
 		// strand direction ~ world up projected on the surface; each lock (by its azimuth round the head) gets its
 		// own highlight offset so the band breaks into separate angular slashes

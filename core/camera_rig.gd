@@ -25,8 +25,14 @@ extends Node3D
 @export var impact_feedback: bool = true
 
 const PROBE_RADIUS: float = 0.25
+## Wider look-ahead probe: geometry about to cross the arm starts the ease-in a few frames early, so the clamp that
+## keeps the camera in front of a blocking wall rarely has far to jump.
+const PROBE_RADIUS_SOFT: float = 0.6
 const MIN_ARM: float = 0.6
 const REF_HEIGHT: float = 1.8
+## Max speed (m/s) the arm shortens when an obstacle crosses it far from the player: strafing past a pillar or
+## tree eases the camera in over a few frames instead of snapping it metres forward in one frame.
+const ARM_PULL_SPEED: float = 30.0
 
 var target: Fighter = null
 var yaw: float = 0.0
@@ -48,6 +54,9 @@ var _last_hit: String = ""
 
 func _ready() -> void:
 	top_level = true
+	# Moved in _process (never by physics): it follows the target's render_position(), which is already smoothed
+	# between physics ticks, so engine physics interpolation must not touch the rig.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	pitch = default_pitch
 	_zoom = distance
 	spring = SpringArm3D.new()
@@ -58,6 +67,10 @@ func _ready() -> void:
 	spring.margin = 0.2
 	spring.position = Vector3(shoulder, 0.0, 0.0)
 	add_child(spring)
+	# SpringArm3D places its child in its INTERNAL PHYSICS process (60 Hz): any arm length change (collision ease,
+	# zoom, lock-on pull-out) would then step at the tick rate while the rig moves every render frame. The camera is
+	# placed in _process instead (_place_camera).
+	spring.set_physics_process_internal(false)
 	camera = Camera3D.new()
 	camera.name = "Camera"
 	camera.fov = base_fov
@@ -124,7 +137,10 @@ func _process(delta: float) -> void:
 	var hs := _height_scale()
 	var lock_dist_extra := 0.0
 	if target != null and is_instance_valid(target):
-		var pivot := target.global_position + Vector3(0.0, pivot_height * hs, 0.0)
+		# Follow where the body is DRAWN (interpolated between 60 Hz physics ticks on the host), not the raw physics
+		# position: following the raw position at a 144-165 Hz render rate saw-tooths the character against the camera
+		# (visible as shaking whenever it moves across the screen: A / D / diagonals).
+		var pivot := target.render_position() + Vector3(0.0, pivot_height * hs, 0.0)
 		if not _snapped:
 			global_position = pivot
 			yaw = target.facing_yaw
@@ -137,7 +153,7 @@ func _process(delta: float) -> void:
 			global_position = gp
 		var lock := target.get_target()
 		if lock != null and lock != target and is_instance_valid(lock):
-			var to := lock.center() - pivot
+			var to := lock.render_center() - pivot
 			var flat := CoreUtil.flat(to)
 			var fl := flat.length()
 			if fl > 0.5:
@@ -155,17 +171,32 @@ func _process(delta: float) -> void:
 	rotation = Vector3(pitch, yaw, 0.0)
 	_zoom = lerpf(_zoom, distance, 1.0 - exp(-zoom_sharpness * delta))
 	var want_len := (_zoom + _lock_extra) * clampf(lerpf(1.0, hs, 0.5), 0.8, 2.0)
+	var soft_len := _probe_arm(want_len, PROBE_RADIUS_SOFT)
 	var hit_len := _probe_arm(want_len)
+	# a wide-probe hit right at the root is just a wall beside the player (not one about to cross the arm): ignore
+	soft_len = hit_len if soft_len < 1.2 else minf(soft_len, hit_len)
 	if _arm < 0.0:
 		_arm = hit_len
-	elif hit_len < _arm:
-		# obstacle: pull in fast (2-3 frames) but never sit behind the hit point
-		_arm = minf(lerpf(_arm, hit_len, 1.0 - exp(-30.0 * delta)), hit_len + 0.25)
+	elif soft_len < _arm:
+		# obstacle: pull in fast (2-3 frames). While the camera can still see the pivot (the obstacle only grazes the
+		# probe sphere near the arm's end) the arm eases in at most ARM_PULL_SPEED so the view does not jolt; as soon
+		# as the line of sight is blocked (pillar / wall between camera and player) it clamps in front of the hit,
+		# so the view is never sat behind geometry. Continuous rule: no distance threshold that pops after an ease.
+		var next := maxf(lerpf(_arm, soft_len, 1.0 - exp(-30.0 * delta)), _arm - ARM_PULL_SPEED * delta)
+		if next > hit_len + PROBE_RADIUS and _sight_blocked(next):
+			next = hit_len + PROBE_RADIUS
+		_arm = next
 	else:
 		# free again: ease back out
-		_arm = lerpf(_arm, hit_len, 1.0 - exp(-3.5 * delta))
+		_arm = lerpf(_arm, soft_len, 1.0 - exp(-3.5 * delta))
 	spring.spring_length = maxf(_arm, MIN_ARM)
+	_place_camera()
 	_tick_feedback(delta)
+
+
+func _place_camera() -> void:
+	if camera != null:
+		camera.position = Vector3(0.0, 0.0, spring.spring_length)
 
 
 ## Debug / tests: {arm, zoom, lock_extra, pitch, yaw, fov}.
@@ -175,7 +206,7 @@ func debug_state() -> Dictionary:
 
 ## Sphere cast from the pivot (incl. shoulder offset) back along the arm; returns the free length. Invisible
 ## gameplay boundaries (collision shapes named "Bound*" or with meta camera_ignore) do not push the camera in.
-func _probe_arm(want: float) -> float:
+func _probe_arm(want: float, radius: float = PROBE_RADIUS) -> float:
 	var w3 := get_world_3d()
 	if w3 == null or not is_inside_tree():
 		return want
@@ -186,7 +217,7 @@ func _probe_arm(want: float) -> float:
 	var back := global_transform.basis.z.normalized()
 	var q := PhysicsShapeQueryParameters3D.new()
 	var sph := SphereShape3D.new()
-	sph.radius = PROBE_RADIUS
+	sph.radius = radius
 	q.shape = sph
 	q.collision_mask = CoreUtil.LAYER_WORLD
 	q.collide_with_areas = false
@@ -203,7 +234,7 @@ func _probe_arm(want: float) -> float:
 		var hit_at := start + remain * float(r[0])
 		var touch := PhysicsShapeQueryParameters3D.new()
 		var big := SphereShape3D.new()
-		big.radius = PROBE_RADIUS + 0.06
+		big.radius = radius + 0.06
 		touch.shape = big
 		touch.collision_mask = CoreUtil.LAYER_WORLD
 		touch.collide_with_areas = false
@@ -219,6 +250,38 @@ func _probe_arm(want: float) -> float:
 			return maxf(hit_at - 0.05, MIN_ARM)
 		start = hit_at + 2.5   # skip through the (thin) invisible boundary
 	return want
+
+
+## True when solid world geometry (not camera-transparent boundaries / thin props) lies between the camera placed
+## at arm length `arm` and either the pivot (the player) or the shoulder-offset arm root.
+func _sight_blocked(arm: float) -> bool:
+	var w3 := get_world_3d()
+	if w3 == null or not is_inside_tree():
+		return false
+	var space := w3.direct_space_state
+	if space == null:
+		return false
+	var root := global_transform * Vector3(shoulder, 0.0, 0.0)
+	var cam := root + global_transform.basis.z.normalized() * arm
+	return _ray_blocked(space, cam, root) or _ray_blocked(space, cam, global_position)
+
+
+func _ray_blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3) -> bool:
+	var dir := (to - from).normalized()
+	var pivot_y := global_position.y
+	for _i in 4:
+		if from.distance_to(to) < 0.05:
+			return false
+		var q := PhysicsRayQueryParameters3D.create(from, to, CoreUtil.LAYER_WORLD)
+		q.collide_with_areas = false
+		q.hit_from_inside = true
+		var r := space.intersect_ray(q)
+		if r.is_empty():
+			return false
+		if not _camera_transparent(r, pivot_y):
+			return true
+		from = (r["position"] as Vector3) + dir * 0.05
+	return false
 
 
 static func _hit_name(info: Dictionary) -> String:

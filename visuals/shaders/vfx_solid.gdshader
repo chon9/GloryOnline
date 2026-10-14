@@ -1,8 +1,8 @@
 shader_type spatial;
 // Cel-shaded solid VFX bodies (debris shards, ice crystals, thorns, projectile casings): one hard light band
 // from a fixed key direction (top-left, same on every map, like painted anime debris), a cool shade colour
-// and a coloured rim; unshaded so it costs nothing per light. `fade` < 1 erodes the mesh with noise
-// (alpha-erosion dissolve, bible 5.3) so solid pieces never pop. Outline: vfx_outline.gdshader as next_pass.
+// and a coloured rim; unshaded so it costs nothing per light. `fade` < 1 erodes the mesh with fine noise and a
+// bright tinted edge (alpha-erosion dissolve, bible 5.3) so solid pieces never pop. Outline: vfx_outline.gdshader as next_pass.
 render_mode unshaded, cull_back, shadows_disabled;
 
 instance uniform vec4 tint : source_color, instance_index(0) = vec4(0.4, 0.38, 0.45, 1.0);
@@ -21,11 +21,14 @@ void vertex() {
 }
 
 void fragment() {
+	// dissolve: fine cells (the coarse ones read as corrupted pixel blocks on snow) with a glowing tinted edge
+	float edge = 0.0;
 	if (fade < 0.999) {
-		float n = hash3(floor(v_obj * 22.0));
+		float n = hash3(floor(v_obj * 48.0));
 		if (n > fade) {
 			discard;
 		}
+		edge = step(fade - 0.07, n);
 	}
 	vec3 wn = normalize((INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	float nl = dot(wn, normalize(vec3(-0.45, 0.8, 0.35)));
@@ -33,5 +36,6 @@ void fragment() {
 	c = nl > 0.82 ? mix(tint.rgb, vec3(1.0), 0.35) : c;
 	float fr = 1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	c += rim_col.rgb * step(0.62, fr) * rim_strength * 0.5;
+	c = mix(c, mix(rim_col.rgb, vec3(1.0), 0.5), edge);
 	ALBEDO = c * (1.0 + glow);
 }

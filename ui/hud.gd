@@ -251,6 +251,9 @@ func _build() -> void:
 	result_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	result_panel.visible = false
 	root.add_child(result_panel)
+	# world nameplates never draw under these panels
+	var keep: Array[Control] = [player_frame, team_frames, enemy_frames, target_frame, minimap, top_bar, boss_bar, kill_feed]
+	overlay.keep_out = keep
 
 
 func _center(c: Control) -> void:

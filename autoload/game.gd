@@ -149,6 +149,11 @@ func register_input_actions() -> void:
 		"move_left": [_key(KEY_A)],
 		"move_right": [_key(KEY_D)],
 		"jump": [_key(KEY_SPACE)],
+		# Tap = dodge, hold = sprint (PlayerController). The location-unspecified physical Shift matches both the
+		# left and the right Shift key.
+		"dodge_sprint": [_key(KEY_SHIFT)],
+		# Dedicated dodge on press (no tap latency, no Sticky Keys prompt from repeated Shift taps).
+		"dodge": [_key(KEY_ALT), _mouse(MOUSE_BUTTON_XBUTTON1)],
 		"skill_0": [_mouse(MOUSE_BUTTON_LEFT)],
 		"skill_1": [_mouse(MOUSE_BUTTON_RIGHT)],
 		"skill_2": [_key(KEY_Q)],

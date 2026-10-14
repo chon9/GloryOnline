@@ -29,10 +29,16 @@ const PRESETS: Dictionary = {
 	"frost": {
 		"sun_color": Color("#FFF1DC"), "sun_energy": 1.45, "sun_dir": Vector3(-0.72, -0.48, 0.5),
 		"fill_color": Color("#9FD6FF"), "fill_energy": 0.25, "fill_dir": Vector3(0.45, -0.35, -0.8),
-		"ambient": Color("#8FC3DD"), "ambient_energy": 0.3, "sky_contrib": 0.6, "exposure": 0.82,
-		"fog_color": Color("#9CCBE8"), "fog_density": 0.0028, "fog_aerial": 0.35, "fog_sky": 0.15, "fog_height": 4.0,
-		"vfog": 0.0012, "vfog_albedo": Color("#E6F4FF"), "vfog_emission": Color("#5FA8C8"),
-		"saturation": 1.22, "contrast": 1.1, "glow": 0.75,
+		"ambient": Color("#8FC3DD"), "ambient_energy": 0.3, "sky_contrib": 0.45, "exposure": 0.8,
+		# feelfix: the gameplay camera looks down at sun-lit snow (median luminance ~0.8). With the generic glow
+		# threshold 1.0 the whole snow field fed a wide screen-blend glow and the camera sat inside the 4 m
+		# height fog, a white veil over every shadow. Snow must not bloom (only ice cores / flames), the height fog
+		# stays below the ground, and the aerial haze is lighter.
+		"fog_color": Color("#9CCBE8"), "fog_density": 0.0018, "fog_aerial": 0.2, "fog_sky": 0.15, "fog_height": -2.0,
+		"fog_height_density": 0.0,
+		"vfog": 0.0006, "vfog_albedo": Color("#C8DCEE"), "vfog_emission": Color("#5FA8C8"), "vfog_sun": 0.8,
+		"saturation": 1.22, "contrast": 1.16, "glow": 0.45,
+		"glow_threshold": 1.7, "glow_levels": [2, 3, 4], "glow_blend": Environment.GLOW_BLEND_MODE_SOFTLIGHT,
 		"sky": {},
 	},
 	"glory_stage": {
@@ -942,10 +948,11 @@ static func atmosphere(parent: Node, preset_name: String, over: Dictionary = {})
 	e.glow_intensity = float(p["glow"])
 	e.glow_strength = 1.0
 	e.glow_bloom = 0.04
-	e.glow_hdr_threshold = 1.0
-	e.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
+	e.glow_hdr_threshold = float(p.get("glow_threshold", 1.0))
+	e.glow_blend_mode = int(p.get("glow_blend", Environment.GLOW_BLEND_MODE_SCREEN)) as Environment.GlowBlendMode
+	var levels: Array = p.get("glow_levels", [2, 3, 4, 5])
 	for i in 7:
-		e.set_glow_level(i, 1.0 if i in [2, 3, 4, 5] else 0.0)
+		e.set_glow_level(i, 1.0 if i in levels else 0.0)
 	e.ssao_enabled = true
 	e.ssao_radius = 1.2
 	e.ssao_intensity = 1.6
@@ -977,7 +984,7 @@ static func atmosphere(parent: Node, preset_name: String, over: Dictionary = {})
 	sun.name = "Sun"
 	sun.light_color = p["sun_color"]
 	sun.light_energy = float(p["sun_energy"])
-	sun.light_volumetric_fog_energy = 1.4
+	sun.light_volumetric_fog_energy = float(p.get("vfog_sun", 1.4))
 	sun.shadow_enabled = true
 	sun.shadow_blur = 0.6
 	sun.directional_shadow_max_distance = 80.0

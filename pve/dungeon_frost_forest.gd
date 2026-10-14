@@ -94,7 +94,7 @@ func build_ground() -> void:
 
 
 func build_boundary() -> void:
-	edge_collision()
+	edge_collision(true)   # open snow banks: the camera may swing out over them
 	# frosted rocks breaking the edge line (outside the walkable cells, half-buried in the snow bank)
 	for e: Dictionary in edges:
 		if rng.randf() < 0.45:

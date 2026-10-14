@@ -1178,3 +1178,79 @@ for mobs, bosses and summons, restyled with the same toon shader. Public API unc
 - **Kits / mobs**: every sfx step and projectile `sfx` key names a specific sound (gun_revolver, swing_saber,
   fire_cast, shield, ...); projectiles that had no key (default "shot") got one. Mob defs gained cosmetic sfx steps
   (swings, grunts, roars). Test: `tests/test_audio_sfx.gd`.
+
+## Feelfix: visual glitches (nameplates, camera crowding, frost grading)
+
+- **Nameplates** (`ui/hud_world_overlay.gd`): anchored on `CharacterVisual.get_head_position()` at the interpolated
+  render position (`get_global_transform_interpolated`) plus a constant 12 px screen gap (was collider height +
+  0.45 m world, which floated 80-160 px above close bots). Full plates for allies, enemy players, the locked target,
+  elites and engaged mobs (threat / target / damaged); idle mobs get a name < 20 m, a compact bar < 28 m, nothing
+  beyond. Per-frame greedy declutter (locked + nearest first): push up, then drop the name, then hide; text never
+  overlaps text. No plate closer than 3 m to the camera, off screen, over the bottom 150 px skill-bar strip, or on a
+  character dithered out by the near fade. `debug_plates()` returns the drawn rects.
+- **Near-camera fade** (`visuals/character_visual.gd` `_update_near_fade`, toon + outline shaders): instance
+  uniforms `near_fade_end` (per-pixel screen-door dither, 2.8 m; 1.1 m for the camera's own target) and `fade_mul`
+  (whole body: 0.3 at 3 m -> solid at 5 m for characters well in front of the followed player, 0.3 when covering
+  the player's chest on screen). Non-toon surfaces (eyes, glow accents) use `GeometryInstance3D.transparency`.
+  Main viewport only (portraits / previews untouched; the default `near_fade_end = 0` disables it).
+- **Raid follow slots** (`modes/match_raid.gd` `_update_follow_slots`): with a living human, each party bot gets
+  fighter meta `raid_follow` (Vector3): flank slots at +-1.25 rad / 3.0 m and +-1.95 rad / 3.6 m around the human,
+  oriented by the human's camera (`input.aim_dir`, fallback facing), keyed by uid rank. DONE (bot_brain
+  owner): in `_decide_raid` follow branch use `fighter.get_meta("raid_follow")` when present instead of the
+  behind-the-leader fan (`dir_of_yaw(anchor.facing_yaw + PI + (idx - 2) * 0.6) * 3.5`), which parks the bots on
+  the camera -> player line.
+- **Grading** (`maps/env_kit.gd`): presets may set `glow_threshold`, `glow_levels`, `glow_blend`, `vfog_sun`.
+  Frost: glow 0.45 softlight on levels 2-4 with HDR threshold 1.7 (snow no longer blooms), fog 0.0018 / aerial 0.2,
+  height fog below ground (-2 m, density 0), volumetric fog 0.0006 with sun energy 0.8, sky ambient 0.45, contrast
+  1.16, exposure 0.8. Same gameplay frame: luminance sd 0.259 -> 0.308, p5 0.161 -> 0.117.
+
+## Feelfix: movement jitter, dodge and sprint
+
+- **Render interpolation (host)** (`core/fighter.gd`): the sim runs at 60 Hz in `World.step` but frames render at
+  the monitor rate (144-165 Hz), and the camera followed the raw physics position every frame, so the body
+  saw-toothed against the camera (~9 px RMS on A / D / diagonals, invisible on straight W/S). Fighters now record
+  their last two tick positions / yaws (`_record_render_tick`) and, on the host, draw the `Visual` child between
+  them with `Engine.get_physics_interpolation_fraction()` (`_apply_render_offset`; cleared at the start of every
+  tick so the sim, hand positions and hitboxes never see it). Scoped manual interpolation instead of the engine's
+  `physics_interpolation` (which would also touch projectiles, Fx, bone attachments and UI). Teleports (> 1.5 m per
+  tick, or any move outside a tick) are not smoothed. `Fighter.render_position()` / `render_center()` give the
+  drawn position (camera, markers); `visual` bone positions (head / hands) already include it. Clients
+  (`_client_smooth`) now interpolate on the host's timeline: `net_tick` (host `Engine.get_physics_frames()`) is
+  replicated just before `net_pos`, and each snapshot is stamped `tick / rate + offset`, where the host -> local clock
+  offset (static, shared) follows the earliest arrivals at once and relaxes 2 % per sample toward later ones (reset
+  when 0.25 s off). Arrival time (packet / frame-poll jitter, ~6 ms at 165 Hz) no longer reaches the interpolation;
+  out-of-order ticks are dropped, a repeated tick replaces the last snapshot. ENet client, frames with chest jerk
+  > 1 px: A 52 -> 7, D 46 -> 5, SA 95 -> 2, WD 47 -> 7 (of ~165-260). `Fighter.render_interpolation = false` restores the old behaviour.
+  OPEN REQUEST (overlay owner): `ui/hud_world_overlay.gd render_pos()` should return `f.render_position()`
+  (`get_global_transform_interpolated()` is the raw physics transform here, so the lock marker still steps at
+  60 Hz); `plate_anchor()` should then use the visual head directly (it already includes the offset).
+- **Camera** (`core/camera_rig.gd`): follows `target.render_position()` (lock: `render_center()`); places the camera
+  on the arm in `_process` (SpringArm3D moved its child only in its internal physics process, so every arm length
+  change stepped at 60 Hz); an obstacle shortens the arm at <= 30 m/s instead of in one frame, but only while the
+  camera still sees the player: once a ray camera -> pivot / arm root hits solid world geometry the arm clamps to
+  hit + `PROBE_RADIUS` (never sits behind a wall; no distance threshold). A wider look-ahead probe
+  (`PROBE_RADIUS_SOFT` 0.6 m, ignored when it hits within 1.2 m of the root) starts the ease early so that clamp
+  rarely has far to jump. Duel, 165 Hz, frames with the view blocked / chest jerk max px: A 0 / 6.5 (HEAD 0 / 62),
+  sprint_A 0 / 12 (HEAD 1 / 62), lock_WA 3 / 124 (HEAD 8 / 174). Measured (sandbox, 165 Hz vsync, chest screen jerk RMS px): A 8.86 -> 0.000, D 8.91 -> 0.000,
+  WA 5.44 -> 0.03, W 0.67 -> 0.04; fixed 144 / 120 / 75 fps: A 9.47 / 10.28 / 6.23 -> 0.000.
+- **Dedicated dodge** (`dodge` action: Alt, mouse thumb button 4): dodges on press (no tap-release latency, no
+  Windows Sticky Keys prompt from repeated Shift taps). The skill-bar pip is larger (r 11) and labelled "Shift".
+- **Dodge (Shift tap)**: `PlayerController.feed_dodge_key` (tap = released within 0.2 s) -> `FighterInput.dodge`
+  edge (bit 16 of the "p" word, press_id dedup) -> `Fighter.try_dodge`. 4.5 m in 0.3 s along the move direction
+  (ease-out, exact distance at any tick rate; no direction or away from the lock = backstep keeping the facing,
+  otherwise the body turns into the roll), `invuln` for the first
+  0.2 s, 1.2 s cooldown (single charge: one readable escape per exchange in PvP; two charges would chain 9 m of
+  i-framed movement through any combo starter), no MP. New state `DODGE` (appended last). Allowed from neutral and
+  as a cancel of the basic-attack chain (slot 0); never from hitstun / launch / knockdown / stun / grab / root, in
+  the air, or out of other skills (Glory rules: quick recovery is the knockdown escape). Kit-less mobs / bosses never
+  dodge. Anim keys `dodge` (anime `Roll`) / `backstep`, Fx `dash_trail` (+ its dash whoosh). Replicated
+  `dodge_cd` (0.1 s) drives the skill-bar pip. Bots (difficulty >= 2) roll out of telegraphs they cannot walk out
+  of in time (`BotBrain._try_escape_to`) before spending a movement skill.
+- **Sprint (Shift hold)**: `FighterInput.sprint` (bit 16 of the "h" word) -> move_speed x1.4 in IDLE / MOVE / AIR
+  (slow / haste / weight still apply), `sprint` anim key (anime `Sprint`). Off while casting, rooted, standing, and
+  for 1.0 s after taking a hit (a hit target cannot simply sprint out of a combo; the chaser keeps parity). No
+  stamina: the hit lock is the only PvP limiter needed because both sides have the same sprint. Bots sprint out of
+  combat when > 6 m from their goal / formation slot.
+- InputMap `dodge_sprint` = physical Shift (location unspecified: left and right). F1 help lists it.
+- Tests: `tests/test_feel_dodge.gd` (tap / hold, wire format, distance / i-frames / cooldown / lockouts, sprint,
+  bot dodge, jitter regression incl. 165 Hz render sampling).

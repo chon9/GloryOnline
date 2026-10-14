@@ -3,10 +3,12 @@ extends Node
 ## Reads local InputMap actions for this machine's human fighter (kind "player", peer == my id), builds a
 ## camera-relative FighterInput and sends it to the host every physics frame (host applies directly).
 ## Handles mouse capture and lock-on (Tab cycles enemies, middle mouse toggles).
+## Shift ("dodge_sprint"): a tap (released within DODGE_TAP_TIME) sends a dodge edge, holding it longer sprints.
 
 const LOCK_RANGE: float = 30.0
 const AIM_FALLBACK: float = 20.0
 const RESEND_FRAMES: int = 3
+const DODGE_TAP_TIME: float = 0.2
 
 var fighter: Fighter = null
 var camera: CameraRig = null
@@ -17,6 +19,9 @@ var _press_id: int = 0
 var _resend_left: int = 0
 var _last_pressed: int = 0
 var _last_jump: bool = false
+var _last_dodge: bool = false
+var _shift_down: bool = false
+var _shift_t: float = 0.0
 var _lock_uid: int = 0
 var _last_hp: float = -1.0
 
@@ -132,21 +137,51 @@ func build_input() -> FighterInput:
 			if _held(a):
 				held |= 1 << i
 	var jump := active and _just("jump")
+	var dodge := feed_dodge_key(active and _held("dodge_sprint"), active and _just("dodge_sprint"),
+		get_physics_process_delta_time())
+	# Dedicated dodge (Alt / mouse thumb button): dodges on press, no tap latency.
+	dodge = dodge or (active and _just("dodge"))
+	inp.sprint = is_sprint_held()
 	inp.held = held
-	if bits != 0 or jump:
+	if bits != 0 or jump or dodge:
 		_press_id += 1
 		_resend_left = RESEND_FRAMES
 		_last_pressed = bits
 		_last_jump = jump
+		_last_dodge = dodge
 	elif _resend_left > 0:
 		_resend_left -= 1
 	else:
 		_last_pressed = 0
 		_last_jump = false
+		_last_dodge = false
 	inp.pressed = _last_pressed
 	inp.jump = _last_jump
+	inp.dodge = _last_dodge
 	inp.press_id = _press_id
 	return inp
+
+
+## Tap / hold detection for the dodge_sprint key, fed once per physics frame: `down` = held now, `just` = pressed
+## since the last frame (catches a press + release inside one frame). Returns true on the frame a tap is released
+## (held no longer than DODGE_TAP_TIME). Holding longer sprints (is_sprint_held) and releases without a dodge.
+func feed_dodge_key(down: bool, just: bool, dt: float) -> bool:
+	var tap := false
+	if down:
+		if not _shift_down or just:
+			_shift_t = 0.0
+		else:
+			_shift_t += dt
+	elif _shift_down:
+		tap = _shift_t <= DODGE_TAP_TIME
+	elif just:
+		tap = true        # pressed and released between two physics frames
+	_shift_down = down
+	return tap
+
+
+func is_sprint_held() -> bool:
+	return _shift_down and _shift_t > DODGE_TAP_TIME
 
 
 func _candidates() -> Array[Fighter]:

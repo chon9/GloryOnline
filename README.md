@@ -54,6 +54,8 @@ Requirements: a GPU with DirectX 12 or Vulkan support (GTX 900 / RX 400 series o
 |---|---|
 | WASD / Mouse | Move / aim and camera |
 | Space | Jump; press as you land after a knockdown for quick recovery 受身 |
+| Shift (tap) / Alt / Mouse 4 | Dodge roll (short invulnerability, 1.2 s cooldown) |
+| Shift (hold) | Sprint |
 | Left mouse | Basic attack chain |
 | Right mouse, Q, E, R, F, 1 | Skills |
 | 2 | Ultimate 大招 |

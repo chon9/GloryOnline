@@ -8,9 +8,10 @@ signal damaged(f: Fighter, amount: float, src: Fighter)
 signal skill_cast(f: Fighter, slot: int)
 signal healed(f: Fighter, amount: float, src: Fighter)
 
-enum State { IDLE, MOVE, AIR, CAST, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, GRABBED, STUNNED, DEAD }
+## DODGE is appended last so the replicated state ints of the older states stay unchanged.
+enum State { IDLE, MOVE, AIR, CAST, HITSTUN, LAUNCHED, KNOCKDOWN, GETUP, GRABBED, STUNNED, DEAD, DODGE }
 const STATE_NAMES: Array[String] = ["IDLE", "MOVE", "AIR", "CAST", "HITSTUN", "LAUNCHED", "KNOCKDOWN",
-	"GETUP", "GRABBED", "STUNNED", "DEAD"]
+	"GETUP", "GRABBED", "STUNNED", "DEAD", "DODGE"]
 
 const GRAVITY: float = 24.0
 const KNOCKDOWN_TIME: float = 0.9
@@ -33,6 +34,16 @@ const KNOCK_FRICTION_AIR: float = 3.0
 const SEPARATION_STRENGTH: float = 8.0
 const COMBO_RESET: float = 1.2
 const CAST_MOVE_FACTOR: float = 0.7
+# Dodge (Shift tap) / sprint (Shift hold). See docs/DEVIATIONS.md "Dodge and sprint".
+const DODGE_DISTANCE: float = 4.5      # metres covered on open ground
+const DODGE_TIME: float = 0.3          # seconds; speed eases out (peak 1.5x the average)
+const DODGE_INVULN: float = 0.2        # i-frames from the start of the dodge (uses the "invuln" status)
+const DODGE_COOLDOWN: float = 1.2
+const DODGE_ANIM_SPEED: float = 1.0      # CharacterVisual.FIT_TIME fits the roll clip to ~0.5 s
+const SPRINT_MULT: float = 1.4         # move_speed multiplier while sprinting (slow / haste still apply)
+const SPRINT_HIT_LOCK: float = 1.0     # no sprinting for this long after being hit (cannot just run out of a combo)
+# Render interpolation (host): a body that moved further than this in one tick is a teleport and is not smoothed.
+const TELEPORT_DIST: float = 1.5
 const CORPSE_FREE_TIME: float = 1.2    # summons are freed this long after death
 const CHAR_VISUAL_PATH: String = "res://visuals/character_visual.gd"
 const TEAM_COLORS: Array[Color] = [Color(0.25, 0.5, 1.0), Color(1.0, 0.3, 0.25), Color(0.3, 0.85, 0.4),
@@ -68,6 +79,8 @@ var facing_yaw: float = 0.0
 var cooldowns_packed: PackedFloat32Array = PackedFloat32Array()
 var charges_packed: PackedInt32Array = PackedInt32Array()
 var cast_slot: int = -1
+## Seconds until the dodge is ready (host exact in _dodge_cd; replicated rounded up to 0.1 s for the HUD).
+var dodge_cd: float = 0.0
 var is_stealthed: bool = false
 ## Replicated weapon form override (e.g. Unspecialized umbrella forms). "" = the kit's default weapon.
 ## Host sets it (kits: f.weapon_form = "umbrella_gun"); every peer calls visual.set_weapon when it changes.
@@ -109,6 +122,13 @@ var net_healing_done: int = 0:
 		net_healing_done = v
 		if not _is_host():
 			healing_done = float(v)
+## Host physics-frame counter, replicated just before net_pos so each position snapshot is stamped with host time
+## instead of its (jittery) arrival time on the client. Read on the host, consumed by _net_pos_in on clients.
+var net_tick: int:
+	get:
+		return Engine.get_physics_frames()
+	set(v):
+		_net_tick_in = v
 ## Replicated position. Host: same as `position`. Clients: buffered and interpolated (see _client_smooth).
 var net_pos: Vector3:
 	get:
@@ -122,7 +142,13 @@ static var client_smoothing: bool = true
 static var interp_delay: float = 0.1
 const SNAP_DISTANCE: float = 4.0     # consecutive snapshots further apart than this teleport (blink, reset)
 const MAX_SNAPS: int = 40
-var _snaps: Array = []               # [time_s, pos, yaw] oldest first (clients only)
+var _snaps: Array = []               # [time_s, pos, yaw, host_tick] oldest first (clients only)
+var _net_tick_in: int = -1           # host tick of the snapshot being applied (-1: none, use arrival time)
+## Client: smoothed offset from host time (tick / tick rate) to local time. Shared by all fighters (one host clock).
+static var _clock_off: float = 0.0
+static var _clock_ok: bool = false
+const CLOCK_RESET: float = 0.25      # an offset sample this far off (reconnect, host hitch) restarts the estimate
+const CLOCK_RELAX: float = 0.02      # per-sample pull of the offset toward later samples (drift / route change)
 var _stat_sync_t: float = 0.0
 var _body_radius: float = BODY_RADIUS
 var _body_height: float = BODY_HEIGHT
@@ -158,6 +184,18 @@ var _grabbed_by: Fighter = null
 var _grab_final: Dictionary = {}
 var _wall_fx_t: float = -10.0
 var _grab_throw: Dictionary = {}
+var _dodge_dir: Vector3 = Vector3.ZERO
+var _dodge_t: float = 0.0
+var _dodge_cd: float = 0.0
+var _sprinting: bool = false
+## Host render interpolation: the body moves at the 60 Hz physics rate but frames render at the monitor rate, so the
+## visual is drawn between the last two tick positions (_apply_render_offset); the camera follows render_position().
+static var render_interpolation: bool = true
+var _rp_prev: Vector3 = Vector3.ZERO
+var _rp_cur: Vector3 = Vector3.ZERO
+var _ry_prev: float = 0.0
+var _ry_cur: float = 0.0
+var _rp_frame: int = -1
 
 # visual-side caches (all peers)
 var _vis_anim: StringName = &""
@@ -338,9 +376,9 @@ static func _script_has_method(scr: Script, method: String) -> bool:
 
 
 ## Position is replicated through `net_pos` (after facing_yaw, so each snapshot carries the matching yaw).
-const SYNC_ALWAYS: Array[String] = ["facing_yaw", "net_pos", "velocity", "anim_key", "anim_speed"]
+const SYNC_ALWAYS: Array[String] = ["net_tick", "facing_yaw", "net_pos", "velocity", "anim_key", "anim_speed"]
 const SYNC_ON_CHANGE: Array[String] = ["hp", "max_hp", "mp", "max_mp", "state", "status_mask", "shield_hp",
-	"team", "combo_count", "target_uid", "cooldowns_packed", "charges_packed", "cast_slot", "is_stealthed",
+	"team", "combo_count", "target_uid", "cooldowns_packed", "charges_packed", "cast_slot", "dodge_cd", "is_stealthed",
 	"anim_seq", "weapon_form", "kit_counter", "kit_counter_max", "last_attacker_uid", "kills", "deaths",
 	"net_damage_dealt", "net_healing_done"]
 
@@ -801,11 +839,13 @@ func apply_input(inp: FighterInput) -> void:
 	input.aim_point = inp.aim_point
 	input.aim_dir = inp.aim_dir
 	input.held = inp.held
+	input.sprint = inp.sprint
 	input.target_uid = inp.target_uid
 	if inp.press_id != _last_press_id:
 		_last_press_id = inp.press_id
 		input.pressed |= inp.pressed
 		input.jump = input.jump or inp.jump
+		input.dodge = input.dodge or inp.dodge
 
 
 func _consume_input(delta: float) -> void:
@@ -836,6 +876,11 @@ func _consume_input(delta: float) -> void:
 					velocity.y = get_stat("jump_velocity")
 					_set_state(State.AIR)
 					_left_ground = false
+	# Dodge edge (before skills: a dodge + skill press in the same frame buffers the skill behind the dodge).
+	if input.dodge:
+		try_dodge(_move)
+	_sprinting = input.sprint and _move.length() > 0.1 and _since_hit >= SPRINT_HIT_LOCK \
+		and (state == State.IDLE or state == State.MOVE or state == State.AIR) and not status.has(&"root")
 	# Skill presses (lowest slot first among simultaneous presses; failures due to "busy" are buffered).
 	var pressed := input.pressed
 	if pressed != 0:
@@ -857,6 +902,86 @@ func _consume_input(delta: float) -> void:
 	input.clear_edges()
 
 
+## Empty string = a dodge is possible now; otherwise one of: dead, no_kit, cooldown, busy, rooted, airborne.
+## Glory rules: a dodge never breaks hitstun / launch / knockdown / stun / grab (quick recovery covers knockdowns);
+## it may cancel movement and the basic-attack chain (slot 0) but not other skills. Mobs / bosses (no kit) never dodge.
+func dodge_block_reason() -> String:
+	if not is_alive():
+		return "dead"
+	if kit == null:
+		return "no_kit"
+	if _dodge_cd > 0.0:
+		return "cooldown"
+	var cancel_basic := state == State.CAST and cast_slot == 0
+	if not cancel_basic and not can_act():
+		return "busy"
+	if status.has(&"root"):
+		return "rooted"
+	if not is_on_floor():
+		return "airborne"
+	return ""
+
+
+## Host: starts a dodge along `dir` (world XZ; zero = backstep away from the facing). Returns false when blocked.
+func try_dodge(dir: Vector3 = Vector3.ZERO) -> bool:
+	if not _is_host() or dodge_block_reason() != "":
+		return false
+	if state == State.CAST:
+		interrupt_cast()
+	var d := CoreUtil.flat(dir)
+	var back := d.length() < 0.1
+	d = -forward() if back else d.normalized()
+	_dodge_dir = d
+	_dodge_t = 0.0
+	_dodge_cd = DODGE_COOLDOWN
+	dodge_cd = DODGE_COOLDOWN
+	_knock_vel = Vector3.ZERO
+	_buffered_slot = -1
+	_sprinting = false
+	_set_state(State.DODGE)
+	status.add(&"invuln", DODGE_INVULN, 1.0, null)
+	status_mask = _visible_status_mask()
+	# The body turns into the roll; a backstep (no direction, or away from the locked target) keeps the facing.
+	var hop_back := back or (get_target() != null and forward().dot(d) < -0.35)
+	if not hop_back:
+		facing_yaw = CoreUtil.yaw_of(d)
+		rotation.y = facing_yaw
+	anim_key = &"backstep" if hop_back else &"dodge"
+	anim_speed = DODGE_ANIM_SPEED
+	anim_seq += 1
+	CoreUtil.fx(&"play", [&"dash_trail", global_position + Vector3.UP * 0.9, d, Color(0.85, 0.93, 1.0), 0.8])
+	return true
+
+
+## Horizontal dodge speed for the tick starting at `t`: v(t) = v_peak * (1 - (t / T)^2), averaged over the tick so
+## the covered distance is exactly DODGE_DISTANCE on open ground at any tick rate.
+static func dodge_speed(t: float, dt: float) -> float:
+	var t0 := clampf(t, 0.0, DODGE_TIME)
+	var t1 := clampf(t + dt, 0.0, DODGE_TIME)
+	if t1 <= t0 or dt <= 0.0:
+		return 0.0
+	var peak := 1.5 * DODGE_DISTANCE / DODGE_TIME
+	var dist := peak * ((t1 - t0) - (t1 * t1 * t1 - t0 * t0 * t0) / (3.0 * DODGE_TIME * DODGE_TIME))
+	return dist / dt
+
+
+## status.mask() for replication / visuals; a dodge's brief i-frames are carried by the roll itself, not the
+## golden invuln bubble.
+func _visible_status_mask() -> int:
+	var m := status.mask()
+	if state == State.DODGE:
+		m &= ~StatusSet.bit_of(&"invuln")
+	return m
+
+
+func is_dodging() -> bool:
+	return state == State.DODGE
+
+
+func is_sprinting() -> bool:
+	return _sprinting
+
+
 func _try_quick_recover() -> bool:
 	if state != State.KNOCKDOWN or _no_recover or _state_time > QUICK_RECOVER_WINDOW:
 		return false
@@ -868,6 +993,13 @@ func _try_quick_recover() -> bool:
 # ================================================================== host tick
 ## One host simulation step. Called by World.step().
 func host_tick(delta: float) -> void:
+	_clear_render_offset()
+	_host_tick(delta)
+	rotation.y = facing_yaw     # host: the body yaw follows facing_yaw once per tick (kits may set it directly)
+	_record_render_tick()
+
+
+func _host_tick(delta: float) -> void:
 	_time += delta
 	_state_time += delta
 	_stat_sync_t -= delta
@@ -885,6 +1017,11 @@ func host_tick(delta: float) -> void:
 		if _combo_timer <= 0.0:
 			combo_count = 0
 	_jump_buffer = maxf(0.0, _jump_buffer - delta)
+	if _dodge_cd > 0.0:
+		_dodge_cd = maxf(0.0, _dodge_cd - delta)
+		var packed := ceilf(_dodge_cd * 10.0) / 10.0
+		if packed != dodge_cd:
+			dodge_cd = packed
 	_tick_cooldowns(delta)
 	mp = minf(max_mp, mp + get_stat("mp_regen") * delta)
 	status.tick(delta)
@@ -1004,6 +1141,11 @@ func _tick_state(delta: float) -> void:
 		State.STUNNED:
 			if not status.is_disabled():
 				_to_neutral()
+		State.DODGE:
+			if status.is_disabled():
+				_set_state(State.STUNNED)
+			elif _dodge_t >= DODGE_TIME - 0.0001:
+				_to_neutral()
 		State.IDLE, State.MOVE, State.AIR, State.CAST:
 			if status.is_disabled():
 				interrupt_cast()
@@ -1035,7 +1177,10 @@ func _physics_move(delta: float) -> void:
 	match state:
 		State.IDLE, State.MOVE, State.AIR:
 			if not rooted:
-				horiz = _move * get_stat("move_speed")
+				horiz = _move * get_stat("move_speed") * (SPRINT_MULT if _sprinting else 1.0)
+		State.DODGE:
+			horiz = _dodge_dir * dodge_speed(_dodge_t, delta)
+			_dodge_t += delta
 		State.CAST:
 			if skill_velocity != Vector3.ZERO:
 				horiz = CoreUtil.flat(skill_velocity)
@@ -1111,7 +1256,7 @@ func _post_move() -> void:
 
 
 func _update_facing(delta: float) -> void:
-	if state == State.GRABBED or state == State.DEAD or state == State.KNOCKDOWN:
+	if state == State.GRABBED or state == State.DEAD or state == State.KNOCKDOWN or state == State.DODGE:
 		return
 	var desired := facing_yaw
 	var turning := false
@@ -1132,7 +1277,7 @@ func _update_facing(delta: float) -> void:
 
 
 func _update_derived() -> void:
-	status_mask = status.mask()
+	status_mask = _visible_status_mask()
 	is_stealthed = status.has(&"stealth")
 	if shield_hp > 0.0 and not status.has(&"shield"):
 		shield_hp = 0.0
@@ -1144,7 +1289,7 @@ func _select_anim() -> void:
 	match state:
 		State.DEAD:
 			k = &"death"
-		State.CAST:
+		State.CAST, State.DODGE:
 			return
 		State.HITSTUN, State.GRABBED:
 			k = &"hit"
@@ -1159,8 +1304,8 @@ func _select_anim() -> void:
 		State.AIR:
 			k = &"jump" if velocity.y > 0.0 else &"fall"
 		State.MOVE:
-			k = &"run"
-			sp = clampf(get_stat("move_speed") / 6.0, 0.5, 1.8)
+			k = &"sprint" if _sprinting else &"run"
+			sp = clampf(get_stat("move_speed") / 6.0, 0.5, 1.8) * (1.15 if _sprinting else 1.0)
 		_:
 			k = &"block" if status.has(&"block") else &"idle"
 	anim_key = k
@@ -1507,7 +1652,7 @@ func add_status(id: StringName, duration: float, power: float = 1.0, src: Fighte
 			is_stealthed = true
 		&"stun", &"freeze", &"sleep":
 			if state == State.IDLE or state == State.MOVE or state == State.AIR or state == State.CAST \
-					or state == State.HITSTUN:
+					or state == State.HITSTUN or state == State.DODGE:
 				interrupt_cast()
 				_set_state(State.STUNNED)
 	status_mask = status.mask()
@@ -1591,8 +1736,12 @@ func reset_for_round(pos: Variant = null) -> void:
 	gravity_scale = 1.0
 	max_fall_speed = 0.0
 	reset_cooldowns()
+	_dodge_cd = 0.0
+	dodge_cd = 0.0
+	_sprinting = false
 	if pos is Vector3:
 		global_position = pos
+	_rp_frame = -1
 	_set_state(State.IDLE)
 	_update_derived()
 
@@ -1634,13 +1783,77 @@ func _die(killer: Fighter) -> void:
 # ================================================================== visuals (all peers)
 func _process(delta: float) -> void:
 	if _is_host():
-		rotation.y = facing_yaw
+		# rotation.y is written by the simulation tick only; the visual is drawn between the last two ticks.
+		_apply_render_offset()
 	elif client_smoothing and not _snaps.is_empty():
 		_client_smooth()
 	else:
 		rotation.y = lerp_angle(rotation.y, facing_yaw, 1.0 - exp(-30.0 * delta))
 	_update_visual()
 	_update_audio()
+
+
+## Host: remembers this tick's body position / yaw (the previous one becomes the interpolation start). A jump of more
+## than TELEPORT_DIST (blink, respawn, grab placement) restarts the interpolation instead of sliding across.
+func _record_render_tick() -> void:
+	var p := global_position
+	if _rp_frame < 0 or p.distance_to(_rp_cur) > TELEPORT_DIST:
+		_rp_prev = p
+		_ry_prev = rotation.y
+	else:
+		_rp_prev = _rp_cur
+		_ry_prev = _ry_cur
+	_rp_cur = p
+	_ry_cur = rotation.y
+	_rp_frame = Engine.get_physics_frames()
+
+
+## World-space offset from the simulated body to where it is drawn this frame. Zero on clients (they smooth the whole
+## body in _client_smooth), when the body was moved outside a tick (teleport / reset / tests) and when no tick ran
+## in the latest physics frame (paused world). frac < 0 uses the engine's physics interpolation fraction.
+func render_offset(frac: float = -1.0) -> Vector3:
+	if not _render_interp_active():
+		return Vector3.ZERO
+	if frac < 0.0:
+		frac = Engine.get_physics_interpolation_fraction()
+	return (_rp_prev - _rp_cur) * (1.0 - clampf(frac, 0.0, 1.0))
+
+
+func _render_yaw_offset(frac: float = -1.0) -> float:
+	if not _render_interp_active():
+		return 0.0
+	if frac < 0.0:
+		frac = Engine.get_physics_interpolation_fraction()
+	return angle_difference(_ry_cur, lerp_angle(_ry_prev, _ry_cur, clampf(frac, 0.0, 1.0)))
+
+
+func _render_interp_active() -> bool:
+	return render_interpolation and _rp_frame >= 0 and _rp_frame == Engine.get_physics_frames() \
+		and global_position.is_equal_approx(_rp_cur) and _is_host()
+
+
+## Where the body is drawn this frame (camera, nameplates and lock-on markers follow this, not global_position).
+func render_position(frac: float = -1.0) -> Vector3:
+	return global_position + render_offset(frac)
+
+
+## render_position() at the body's centre height.
+func render_center() -> Vector3:
+	return center() + render_offset()
+
+
+func _apply_render_offset() -> void:
+	if visual == null or not is_instance_valid(visual):
+		return
+	var off := render_offset()
+	visual.position = global_transform.basis.inverse() * off if off != Vector3.ZERO else Vector3.ZERO
+	visual.rotation.y = _render_yaw_offset()
+
+
+func _clear_render_offset() -> void:
+	if visual != null and is_instance_valid(visual) and (visual.position != Vector3.ZERO or visual.rotation.y != 0.0):
+		visual.position = Vector3.ZERO
+		visual.rotation.y = 0.0
 
 
 ## Cosmetic, local on every peer (state is replicated): a footstep every STEP_STRIDE metres while running (bosses
@@ -1674,14 +1887,43 @@ func _net_pos_in(v: Vector3) -> void:
 		position = v
 		_snaps.clear()
 		return
+	var tick := _net_tick_in
+	_net_tick_in = -1
+	var t := _now_s()
+	if tick >= 0:
+		t = _host_to_local(float(tick) / float(maxi(Engine.physics_ticks_per_second, 1)), t)
 	if not _snaps.is_empty():
-		var last: Vector3 = _snaps[_snaps.size() - 1][1]
+		var lastsnap: Array = _snaps[_snaps.size() - 1]
+		var last: Vector3 = lastsnap[1]
 		if last.distance_to(v) > SNAP_DISTANCE:
 			_snaps.clear()        # teleport (blink, round reset): no sliding across the map
 			position = v
-	_snaps.append([_now_s(), v, facing_yaw])
+		else:
+			var last_tick: int = int(lastsnap[3]) if lastsnap.size() > 3 else -1
+			if tick >= 0 and last_tick >= 0:
+				if tick < last_tick:
+					return        # stale (out of order): drop
+				if tick == last_tick:
+					_snaps[_snaps.size() - 1] = [float(lastsnap[0]), v, facing_yaw, tick]
+					return
+			t = maxf(t, float(lastsnap[0]) + 0.001)
+	_snaps.append([t, v, facing_yaw, tick])
 	while _snaps.size() > MAX_SNAPS:
 		_snaps.pop_front()
+
+
+## Client: maps a host time (seconds) to local time with a smoothed clock offset. Network delay only ever adds
+## lateness, so the offset follows the earliest arrivals at once and relaxes slowly toward later ones (drift).
+static func _host_to_local(host_t: float, now: float) -> float:
+	var sample := now - host_t
+	if not _clock_ok or absf(sample - _clock_off) > CLOCK_RESET:
+		_clock_off = sample
+		_clock_ok = true
+	elif sample < _clock_off:
+		_clock_off = sample
+	else:
+		_clock_off += (sample - _clock_off) * CLOCK_RELAX
+	return host_t + _clock_off
 
 
 ## Client: renders the body interp_delay seconds in the past, interpolating between the two bracketing

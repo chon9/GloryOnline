@@ -30,6 +30,8 @@ class Strip extends Control:
 	var bar_owner: Node = null
 	var mp: float = 0.0
 	var mp_max: float = 1.0
+	## Dodge (Shift tap / Alt / mouse thumb button) readiness 0..1 (1 = ready), drawn as a small pip left of the MP bar.
+	var dodge_frac: float = 1.0
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -55,11 +57,30 @@ class Strip extends Control:
 			var t := "%d / %d" % [int(ceil(mp)), int(mp_max)]
 			var w := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
 			GD.text(ci, f, Vector2(x1 - w - 10.0, size.y - 10.0), t, 17, Color("#CFE2FF"), 4)
+		_draw_dodge_pip(Vector2(x0 - 24.0, size.y - 12.0))
 		var ux := s7.get_center().x - gx.x
 		var rr := Rect2(Vector2(ux - 34.0, size.y - 22.0), Vector2(68.0, 20.0))
 		GD.ribbon(ci, rr)
 		var bf := HudStyle.sans(800)
 		GD.text_c(ci, bf, rr.get_center() + Vector2(0, -1), "觉醒", 13, Color("#2A1606"))
+
+
+	func _draw_dodge_pip(c: Vector2) -> void:
+		var r := 11.0
+		var ready := dodge_frac >= 0.999
+		draw_circle(c, r + 1.5, Color(0.04, 0.07, 0.16, 0.85))
+		var col := HudStyle.UI_GOLD_HI if ready else Color(HudStyle.UI_CYAN, 0.9)
+		if ready:
+			draw_arc(c, r, 0.0, TAU, 24, col, 2.0, true)
+		elif dodge_frac > 0.0:
+			draw_arc(c, r, -PI * 0.5, -PI * 0.5 + TAU * dodge_frac, 24, col, 2.0, true)
+		var f := HudStyle.sans(800)
+		GD.text_c(get_canvas_item(), f, c + Vector2(0, -1), "闪", 13, Color(1, 1, 1, 1.0 if ready else 0.45))
+		# key label (every other slot shows its key)
+		var kf := HudStyle.sans(700)
+		var key := "Shift"
+		var kw := kf.get_string_size(key, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		GD.text(get_canvas_item(), kf, c + Vector2(-r - 6.0 - kw, 4.0), key, 12, Color(1, 1, 1, 0.85), 3)
 
 
 var strip: Strip
@@ -157,6 +178,7 @@ func refresh(f: Fighter) -> void:
 		s.update_state(cd, ch, no_mp, silenced or disabled, f.cast_slot == i)
 	strip.mp = f.mp
 	strip.mp_max = f.max_mp
+	strip.dodge_frac = 1.0 - clampf(f.dodge_cd / Fighter.DODGE_COOLDOWN, 0.0, 1.0) if f.kit != null else 1.0
 	strip.queue_redraw()
 	_update_cast(f)
 

@@ -301,10 +301,16 @@ func floor_collision() -> void:
 		add_box(Vector3(r.position.x + r.size.x * 0.5, -0.5, r.position.y + r.size.y * 0.5), Vector3(r.size.x, 1.0, r.size.y))
 
 
-## Invisible wall collision on every boundary edge.
-func edge_collision() -> void:
+## Invisible wall collision on every boundary edge. `camera_see_through`: the edge has no visible wall (open
+## terrain such as snow banks), so the shapes are named "BoundEdge*" and the camera arm passes them
+## (CameraRig._camera_transparent) instead of being yanked in to 2-3 m against an invisible wall.
+func edge_collision(camera_see_through: bool = false) -> void:
+	var first := body.get_child_count()
 	for e: Dictionary in edges:
 		add_box((e["pos"] as Vector3) + Vector3(0, WALL_HEIGHT * 0.5, 0), Vector3(TILE + 0.02, WALL_HEIGHT, 1.0), float(e["yaw"]))
+	if camera_see_through:
+		for i in range(first, body.get_child_count()):
+			body.get_child(i).name = "BoundEdge%d" % (i - first)
 
 
 func omni(pos: Vector3, color: Color, energy: float, rng_m: float, shadows: bool = false) -> OmniLight3D:

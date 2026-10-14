@@ -343,4 +343,19 @@ func t_client_smoothing() -> void:
 	f._snaps.clear()
 	f.net_pos = Vector3(1, 0, 1)
 	check(f.position == Vector3(1, 0, 1) and f._snaps.is_empty(), "host: net_pos setter snaps (no buffering)")
+	# Snapshots are stamped with host time (net_tick) mapped through a smoothed clock offset: arrival jitter of
+	# +-6 ms (packet / frame polling) must not reach the interpolation timeline.
+	Fighter._clock_ok = false
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var stamps: Array[float] = []
+	for i in 120:
+		var host_t := float(i) / 60.0
+		var arrive := 100.0 + host_t + 0.03 + rng.randf_range(0.0, 0.012)
+		stamps.append(Fighter._host_to_local(host_t, arrive))
+	var worst := 0.0
+	for i in range(60, 119):
+		worst = maxf(worst, absf((stamps[i + 1] - stamps[i]) - 1.0 / 60.0))
+	check(worst < 0.002, "tick-stamped snapshots are evenly spaced despite arrival jitter (worst %.4f s)" % worst)
+	Fighter._clock_ok = false
 	Fighter.interp_delay = old_delay
