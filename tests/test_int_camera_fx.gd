@@ -69,6 +69,7 @@ func _run() -> void:
 	scene.add_child(body)
 	_box(body, "Bound0", Vector3(0, 2, 4.0), Vector3(20, 6, 1))
 	var rig := CameraRig.new()
+	rig.isometric = false
 	scene.add_child(rig)
 	rig.global_position = Vector3(-0.6, 2.0, 0)   # shoulder offset puts the probe at x = 0
 	rig.rotation = Vector3.ZERO                   # arm points +Z (behind)

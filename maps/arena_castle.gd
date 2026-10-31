@@ -6,7 +6,7 @@ extends ArenaMap
 ## Composition: primary landmark = the ruined cathedral facade (twin towers, rose window, one broken spire) east of
 ## the castle, back-lit by the low amber sun; secondaries = the keep with its golden standard, a broken round
 ## tower in the north-west corner, a fallen colossus head in the sand to the south-west, floating debris.
-## Palette: warm sandstone / amber highlights, violet-blue shadows, dusty haze, red + blue team cloth, gold.
+## Palette: soot-stained stone, cold moonlight, ember braziers and tarnished brass.
 
 const HALF: float = 27.5
 const KEEP_H: float = 3.0
@@ -24,20 +24,20 @@ func _init() -> void:
 
 func _mats() -> void:
 	var shade := Color("#5A4E9A")
-	_m["wall"] = EnvKit.paint(Color("#D8B88C"), Color("#8A6E5A"), {"snow_amount": 0.25, "snow_col": Color("#E8C890"), "snow_shadow_tint": Color("#8A6AA0"),
+	_m["wall"] = EnvKit.paint(Color("#89847D"), Color("#48464A"), {"snow_amount": 0.25, "snow_col": Color("#A39A86"), "snow_shadow_tint": Color("#8A6AA0"),
 		"noise_scale": 0.6, "paint_strength": 0.35, "blocks": 0.6, "warm_amount": 0.6, "warm_col": Color("#FFC080"), "shade_tint": shade,
 		"macro": 0.35, "macro_scale": 0.12})
-	_m["wall_dark"] = EnvKit.paint(Color("#A8886A"), Color("#6A5048"), {"snow_amount": 0.2, "snow_col": Color("#E0C090"), "noise_scale": 0.7, "blocks": 0.5,
+	_m["wall_dark"] = EnvKit.paint(Color("#68636A"), Color("#36343B"), {"snow_amount": 0.2, "snow_col": Color("#8B8271"), "noise_scale": 0.7, "blocks": 0.5,
 		"shade_tint": Color("#4A3E8A")})
-	_m["floor"] = EnvKit.paint(Color("#C8A880"), Color("#9A7E66"), {"snow_amount": 0.0, "noise_scale": 0.35, "paint_strength": 0.3, "tiles": 1.6,
-		"grout_col": Color("#6A5444"), "warm_amount": 0.4, "warm_col": Color("#F0C890"), "shade_tint": shade, "stroke": 0.0})
-	_m["sand"] = EnvKit.paint(Color("#B89478"), Color("#7A5E58"), {"snow_amount": 0.45, "snow_col": Color("#D8BC98"), "snow_shadow_tint": Color("#7A6AA8"),
-		"cover_col2": Color("#E4C8A0", 0.6), "cover_col3": Color("#A88A70", 0.45), "macro": 0.45, "macro_scale": 0.03, "ledges": 0.7,
+	_m["floor"] = EnvKit.paint(Color("#807B72"), Color("#555258"), {"snow_amount": 0.0, "noise_scale": 0.35, "paint_strength": 0.3, "tiles": 1.6,
+		"grout_col": Color("#6A5444"), "warm_amount": 0.4, "warm_col": Color("#A18C72"), "shade_tint": shade, "stroke": 0.0})
+	_m["sand"] = EnvKit.paint(Color("#49454A"), Color("#282831"), {"snow_amount": 0.45, "snow_col": Color("#655E58"), "snow_shadow_tint": Color("#7A6AA8"),
+		"cover_col2": Color("#756A5C", 0.6), "cover_col3": Color("#514B49", 0.45), "macro": 0.45, "macro_scale": 0.03, "ledges": 0.7,
 		"noise_scale": 0.12, "paint_strength": 0.35, "strata": 0.8,
-		"warm_amount": 0.5, "warm_col": Color("#FFD0A0"), "shade_tint": Color("#7A6AA8"), "stroke": 0.1})
-	_m["rock"] = EnvKit.paint(Color("#B08068"), Color("#5E4450"), {"snow_amount": 0.3, "snow_col": Color("#D8B488"), "strata": 1.0, "ledges": 0.9, "noise_scale": 0.25, "macro": 0.3,
+		"warm_amount": 0.5, "warm_col": Color("#B3A08A"), "shade_tint": Color("#7A6AA8"), "stroke": 0.1})
+	_m["rock"] = EnvKit.paint(Color("#61585B"), Color("#353039"), {"snow_amount": 0.3, "snow_col": Color("#7F7061"), "strata": 1.0, "ledges": 0.9, "noise_scale": 0.25, "macro": 0.3,
 		"warm_amount": 0.6, "warm_col": Color("#FFB070"), "shade_tint": shade})
-	_m["gold"] = EnvKit.paint(Color("#E8C060"), Color("#A07030"), {"snow_amount": 0.0, "noise_scale": 2.0, "paint_strength": 0.15, "shade_tint": Color("#8A5A2B"), "stroke": 0.0})
+	_m["gold"] = EnvKit.paint(Color("#9B8155"), Color("#5B4832"), {"snow_amount": 0.0, "noise_scale": 2.0, "paint_strength": 0.15, "shade_tint": Color("#8A5A2B"), "stroke": 0.0})
 	_m["wood"] = EnvKit.paint(Color("#8A6040"), Color("#5A3A2A"), {"snow_amount": 0.0, "noise_scale": 2.5, "paint_strength": 0.3, "shade_tint": Color("#4A3A5A")})
 	_m["iron"] = EnvKit.paint(Color("#4A4450"), Color("#2A262E"), {"snow_amount": 0.0, "noise_scale": 2.0, "shade_tint": Color("#2A2A4A"), "stroke": 0.0})
 	_m["glass"] = EnvKit.glow(Color("#FFB45C"), 1.8)
@@ -58,8 +58,8 @@ func _build_map() -> void:
 	_flanks()
 	_courtyards()
 	_landmarks()
-	env.particles(Vector3(0, 4, 0), Vector3(30, 4, 30), 240, 9.0, Color("#FFD9A0"), 0.07, Vector3(0.5, 0.1, -0.2), "spark", 1.8)
-	env.particles(Vector3(0, 1.0, 0), Vector3(30, 0.8, 30), 120, 6.0, Color("#E8C090"), 0.25, Vector3(1.2, 0.05, -0.4), "dot", 0.3)
+	env.particles(Vector3(0, 4, 0), Vector3(30, 4, 30), 55, 9.0, Color("#FFD9A0"), 0.07, Vector3(0.5, 0.1, -0.2), "spark", 1.8)
+	env.particles(Vector3(0, 1.0, 0), Vector3(30, 0.8, 30), 30, 6.0, Color("#E8C090"), 0.25, Vector3(1.2, 0.05, -0.4), "dot", 0.3)
 	test_walks = [
 		{"name": "gate + keep ramp", "from": Vector3(0, 0, -20), "to": Vector3(0, KEEP_H, -1), "min_y": KEEP_H - 0.3},
 		{"name": "south keep ramp", "from": Vector3(0, 0, 20), "to": Vector3(0, KEEP_H, 1), "min_y": KEEP_H - 0.3},
@@ -222,7 +222,7 @@ func _flanks() -> void:
 		var tp := Vector3(sx * 12.9, 0, 3.2)
 		EnvProps.brazier(env, tp, _m["wall_dark"], _m["iron"], _m["flame"])
 		kit.col_cyl(tp, 0.45, 1.5)
-		add_omni(tp + Vector3(0, 2.2, 0), Color("#FFA040"), 1.5, 8.0)
+		add_omni(tp + Vector3(0, 2.0, 0), Color("#FFAE68"), 3.2, 7.0, true)
 
 
 func _rubble(p: Vector3, r: float, seed_i: int) -> void:
@@ -265,7 +265,7 @@ func _courtyards() -> void:
 			var tp := Vector3(tx, 0, sz * 15.0)
 			EnvProps.brazier(env, tp, _m["wall_dark"], _m["iron"], _m["flame"])
 			kit.col_cyl(tp, 0.45, 1.5)
-		add_omni(Vector3(0, 2.2, sz * 15.0), Color("#FFA040"), 1.4, 9.0)
+			add_omni(tp + Vector3(0, 2.0, 0), Color("#FFAE68"), 3.2, 7.0, true)
 		# golden autumn trees in the courtyard corners
 		for cx: float in [-24.0, 24.0]:
 			var tp := Vector3(cx, 0, sz * 25.0)

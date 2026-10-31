@@ -130,12 +130,9 @@ void light() {
 	vec3 rimc = mix(rim_color.rgb, zone_rim.rgb, zone_rim.a);
 	vec3 shade = shade_tint.rgb * zone_ambient.rgb;
 	if (LIGHT_IS_DIRECTIONAL) {
-		// attenuation carries cast shadows; snap it so shadows stay graphic (faces ignore hair shadow blotches)
+		// Keep the authored face shape, but respect world occlusion on every surface.
 		float sh = smoothstep(0.35, 0.65, ATTENUATION);
-		if (special != 2) {
-			band *= sh;
-		}
-		vec3 lit = mix(shade, vec3(lit_boost), band);
+		vec3 lit = mix(shade * 0.18, vec3(lit_boost), band) * sh;
 		DIFFUSE_LIGHT += lit * LIGHT_COLOR / PI;
 		float fres = 1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 		float rim = smoothstep(1.0 - rim_width, 1.0 - rim_width + 0.04, fres);
@@ -149,7 +146,7 @@ void light() {
 			float aniso = pow(sqrt(max(1.0 - th * th, 0.0)), 160.0);
 			float streak = smoothstep(0.55, 0.6, aniso) * step(0.4, v_strand) * v_crown;
 			vec3 sc = hair_spec_color.rgb * mix(ALBEDO, vec3(1.0), 0.55);
-			SPECULAR_LIGHT += sc * streak * hair_spec_strength * band * LIGHT_COLOR / PI;
+			SPECULAR_LIGHT += sc * streak * hair_spec_strength * band * sh * LIGHT_COLOR / PI;
 		}
 	} else {
 		DIFFUSE_LIGHT += band * ATTENUATION * LIGHT_COLOR / PI * 0.8;

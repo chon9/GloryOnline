@@ -180,7 +180,7 @@ const ANIME_ANIM_MAP: Dictionary = {
 	&"attack_1h_3": ["Sword_Regular_C"],
 	&"attack_2h": ["Sword_Regular_C"],
 	&"attack_spin": ["kk_Melee_2H_Attack_Spin", "Sword_Regular_Combo"],
-	&"attack_stab": ["Sword_Regular_A"],
+	&"attack_stab": ["kk_Melee_1H_Attack_Stab"],
 	&"attack_slam": ["Attack_Ground_Pound"],
 	&"attack_dual": ["kk_Melee_Dualwield_Attack_Slice", "Sword_Regular_B"],
 	&"kick": ["kk_Melee_Unarmed_Attack_Kick", "Melee_Hook"],
@@ -307,6 +307,7 @@ var _embers: GPUParticles3D
 var _stance: String = ""
 var _frozen := false
 var _speed := 1.0
+var _duration := 0.0
 var _play_speed := 1.0           # _speed with the FIT_TIME scaling applied (the AnimationPlayer speed_scale)
 var _hidden_by_alpha := false
 var _cull_t := 0.0
@@ -552,7 +553,7 @@ func resolve_key(key: StringName) -> String:
 # --------------------------------------------------------------------------------------------
 # Public API (ARCHITECTURE §7.1)
 
-func play(anim_key: StringName, speed := 1.0) -> void:
+func play(anim_key: StringName, speed := 1.0, duration := 0.0) -> void:
 	## Loop keys and death/knockdown do not restart when re-requested; every other key (one-shots and
 	## "launched", which replays its flinch on each juggle hit) restarts from frame 0 on each call, so CORE's
 	## anim_seq retrigger replays attacks.
@@ -560,10 +561,13 @@ func play(anim_key: StringName, speed := 1.0) -> void:
 		return
 	var clip := resolve_key(anim_key)
 	var eff := speed
-	if FIT_TIME.has(anim_key) and anim_player.has_animation(StringName(clip)):
+	if duration > 0.0 and anim_key not in LOOP_KEYS and anim_key not in HOLD_KEYS and anim_player.has_animation(StringName(clip)):
+		eff *= anim_player.get_animation(StringName(clip)).length / duration
+	elif FIT_TIME.has(anim_key) and anim_player.has_animation(StringName(clip)):
 		eff *= anim_player.get_animation(StringName(clip)).length / float(FIT_TIME[anim_key])
 	anim_player.speed_scale = 0.0 if _frozen else eff
 	_speed = speed
+	_duration = duration
 	_play_speed = eff
 	var sticky := (anim_key in LOOP_KEYS and anim_key != &"launched") or anim_key == &"death" or anim_key == &"knockdown"
 	if anim_key == current_key and clip == current_clip and sticky:
@@ -576,7 +580,8 @@ func play(anim_key: StringName, speed := 1.0) -> void:
 		anim_player.stop(true)
 		anim_player.play(StringName(clip), 0.05)
 	else:
-		anim_player.play(StringName(clip), BLEND_TIME)
+		# Long locomotion blends used to swallow the anticipation of short attacks.
+		anim_player.play(StringName(clip), minf(0.045, duration * 0.15) if duration > 0.0 else BLEND_TIME)
 	if not (anim_key in LOOP_KEYS) or anim_key == &"launched":
 		anim_player.seek(0.0, true)
 
@@ -661,7 +666,7 @@ func set_weapon(p_weapon_type: String, p_offhand := "") -> void:
 	if current_key != &"":
 		var k := current_key
 		current_key = &""
-		play(k, _speed)
+		play(k, _speed, _duration)
 
 
 ## Puts a WeaponFactory node on the right/left hand (or the hip) with the rig's grip convention.

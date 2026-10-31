@@ -265,8 +265,15 @@ func _clamped_aim(max_distance: float, fallback_distance: float) -> Vector3:
 func _act_melee(p: Dictionary) -> void:
 	var hit := phit(p)
 	melee_hit(p, hit)
-	CoreUtil.fx(&"play", [StringName(ps(p, "fx", "slash_arc")), caster.center() + caster.forward() * pf(p, "range", 2.5) * 0.5,
-		caster.forward(), _color(p), pf(p, "range", 2.5) / 2.5])
+	# Contact effects belong to Fighter.receive_hit. A missed swing must never
+	# produce a hit sound, screen flash or hit-stop at an empty point in space.
+	var effect := StringName(ps(p, "fx", "slash_arc"))
+	if effect in [&"hit_spark", &"hit_heavy", &"block_spark"]:
+		return
+	if effect == &"slash_arc" and caster.anim_key == &"attack_stab":
+		effect = &"thrust_trail"
+	CoreUtil.fx(&"play", [effect, caster.center() + caster.forward() * pf(p, "range", 2.5) * 0.5,
+		caster.forward(), _color(p), pf(p, "range", 2.5) / 2.5, caster.uid])
 
 
 ## Instant hitbox in front of the caster. Returns fighters hit.
@@ -840,7 +847,18 @@ func _act_custom(p: Dictionary) -> void:
 func _act_anim(p: Dictionary) -> void:
 	caster.anim_key = StringName(ps(p, "anim", str(skill.anim)))
 	caster.anim_speed = pf(p, "speed", 1.0) * rate
+	caster.anim_duration = animation_span(float(p.get("t", elapsed)))
 	caster.anim_seq += 1
+
+
+## Unscaled time until the next animation cue or end of this cast.
+func animation_span(from_time: float = 0.0) -> float:
+	var end := duration
+	for step: Dictionary in skill.steps:
+		var t := float(step.get("t", 0.0))
+		if str(step.get("type", "")) == "anim" and t > from_time + 0.0001:
+			end = minf(end, t)
+	return maxf(0.05, end - from_time)
 
 
 func _fx_pos(p: Dictionary) -> Vector3:
@@ -857,11 +875,11 @@ func _fx_pos(p: Dictionary) -> Vector3:
 
 
 func _act_sfx(p: Dictionary) -> void:
-	CoreUtil.fx(&"sfx", [StringName(ps(p, "name", "swing")), _fx_pos(p)])
+	CoreUtil.fx(&"sfx", [StringName(ps(p, "name", "swing")), _fx_pos(p), caster.uid])
 
 
 func _act_vfx(p: Dictionary) -> void:
-	CoreUtil.fx(&"play", [StringName(ps(p, "name", "cast_glow")), _fx_pos(p), caster.forward(), _color(p), pf(p, "scale", 1.0)])
+	CoreUtil.fx(&"play", [StringName(ps(p, "name", "cast_glow")), _fx_pos(p), caster.forward(), _color(p), pf(p, "scale", 1.0), caster.uid])
 
 
 ## Extra convenience actions (not in the contract table, harmless for kits to use).

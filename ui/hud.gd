@@ -119,7 +119,7 @@ func _build() -> void:
 	tl.add_theme_constant_override("separation", 12)
 	tl.position = Vector2(16, 16)
 	root.add_child(tl)
-	player_frame = HudUnitFrame.new(false, 430.0)
+	player_frame = HudUnitFrame.new(false, 350.0)
 	player_frame.name = "PlayerFrame"
 	tl.add_child(player_frame)
 	team_frames = HudTeamFrames.new(false)
@@ -205,7 +205,7 @@ func _build() -> void:
 	callout.anchor_bottom = 0.61
 	callout.offset_left = 20
 	callout.size = Vector2(640, 180)
-	callout.scale = Vector2(0.78, 0.78)
+	callout.scale = Vector2(0.5, 0.5)
 	root.add_child(callout)
 
 	# announcement banner
@@ -703,6 +703,9 @@ func refresh() -> void:
 	overlay.viewer = me
 	player_frame.refresh(me, me)
 	skill_bar.refresh(me)
+	if PlayerController.uses_touch():
+		skill_bar.visible = false
+		callout.visible = false
 	var tgt: Fighter = me.get_target() if me != null else null
 	var boss := find_boss()
 	boss_bar.refresh(boss, score)

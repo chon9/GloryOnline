@@ -10,6 +10,7 @@ const Lib := preload("res://visuals/vfx_lib.gd")
 
 ## Default palette per effect (Color.WHITE from the caller = this one).
 const DEFAULT_PAL: Dictionary = {
+	&"thrust_trail": "phys",
 	&"hit_spark": "phys", &"hit_heavy": "impact", &"slash_arc": "phys", &"launch_burst": "phys", &"land_dust": "dust",
 	&"cast_glow": "arcane", &"heal_burst": "heal", &"buff_aura": "buff", &"debuff_puff": "dark", &"explosion": "gun",
 	&"ice_burst": "ice", &"lightning_strike": "lightning", &"fire_burst": "fire", &"holy_burst": "holy",
@@ -46,6 +47,12 @@ static func play(fx: Node, name: StringName, pos: Vector3, d: Vector3, color: Co
 					"size": 0.22 * s, "pal": pal, "energy": 3.0, "curve": "shrink", "damp": 4.0})
 		&"slash_arc":
 			_slash(fx, pos, d, pal, s, budget)
+		&"thrust_trail":
+			# A narrow forward streak, rather than a circular sword sweep.
+			fx.burst(pos - d * 0.5 * s, {"kind": Lib.K_STREAK, "amount": 3 if full else 1,
+				"life": 0.12, "speed": [7.0, 10.0], "dir": d, "spread": 3.0,
+				"size": 0.65 * s, "pal": pal, "energy": 1.5, "align": true,
+				"quad": Vector2(0.045, 1.0), "curve": "shrink"})
 		&"launch_burst":
 			var gy: float = fx.ground_y(pos)
 			var g := Vector3(pos.x, gy, pos.z)
@@ -385,40 +392,33 @@ static func _dust(fx: Node, g: Vector3, pal: Array, n: int, s: float) -> void:
 		"curve": "grow", "damp": 4.5, "ramp": "late", "gravity": Vector3(0, 0.6, 0)})
 
 
-# ------------------------------------------------------------------ slash (bible 5.1 crescent + 2 echo arcs)
+# ------------------------------------------------------------------ short physical sweep
 
 static func _slash(fx: Node, pos: Vector3, d: Vector3, pal: Array, s: float, budget: int) -> void:
 	var f := Vector3(d.x, 0.0, d.z)
 	f = f.normalized() if f.length_squared() > 0.0001 else Vector3.FORWARD
 	var right := f.cross(Vector3.UP).normalized()
-	# swing plane: horizontal sweeps read best from the chase camera; mix in diagonals for combo variety
-	var presets := [deg_to_rad(78.0), deg_to_rad(-78.0), deg_to_rad(38.0), deg_to_rad(-34.0), deg_to_rad(90.0)]
-	var tilt: float = presets[randi() % presets.size()]
+	# Stable sweep direction. Random planes made repeated attacks contradict the weapon motion.
+	var tilt := deg_to_rad(78.0)
 	var e2 := (Vector3.UP * cos(tilt) + right * sin(tilt)).normalized()
 	var b := Basis(f, e2, f.cross(e2)).orthonormalized()
 	var c := pos - f * 0.95 * s + Vector3(0, 0.05, 0)
-	var n := 3 if budget == 0 else (2 if budget == 1 else 1)
-	for k in n:
-		var a: VfxFlash = fx.flash(Lib.arc(0.58 - k * 0.04, 1.0, deg_to_rad(112.0 - k * 6.0), deg_to_rad(-100.0 + k * 10.0)), Lib.slash_mat(), c - f * k * 0.08 * s, 0.3)
-		if k == 0:
-			Lib.set_pal(a, pal)
-		else:
-			Lib.set_pal(a, [pal[1], pal[1].lerp(pal[2], 0.4), pal[2]])
-		a.set_instance_shader_parameter(&"energy", 3.2 - k * 0.8)
-		a.set_instance_shader_parameter(&"alpha_mul", 1.0 - k * 0.32)
-		a.tween(&"progress", 0.18, 1.0, 0.75)
-		a.rot = b.rotated(f, k * 0.06)
-		var r := 2.05 * s * (1.0 - k * 0.1)
-		a.s0 = Vector3(r, r, r)
-		a.s1 = Vector3(r, r, r) * 1.06
-		a.delay = k * 0.025
-		a.fade_tail = 0.15
-	if budget < 2:
+	var a: VfxFlash = fx.flash(Lib.arc(0.86, 1.0, deg_to_rad(100.0), deg_to_rad(-90.0)), Lib.slash_mat(), c, 0.16)
+	Lib.set_pal(a, pal)
+	a.set_instance_shader_parameter(&"energy", 1.6)
+	a.set_instance_shader_parameter(&"alpha_mul", 1.0)
+	a.tween(&"progress", 0.18, 1.0, 0.75)
+	a.rot = b
+	var r := 2.05 * s
+	a.s0 = Vector3(r, r, r)
+	a.s1 = a.s0 * 1.06
+	a.fade_tail = 0.15
+	if budget < 1:
 		# sparks thrown off the leading tip, along the swing
 		var tip := c + b * (Vector3(cos(deg_to_rad(-60.0)), sin(deg_to_rad(-60.0)), 0) * 2.0 * s)
 		var tangent := (b * Vector3(sin(deg_to_rad(-60.0)), -cos(deg_to_rad(-60.0)), 0)).normalized()
-		fx.burst(tip, {"kind": Lib.K_STREAK, "amount": 6, "life": 0.22, "speed": [5.0, 9.0], "dir": tangent, "spread": 30.0,
-			"size": 0.38 * s, "pal": pal, "energy": 3.0, "align": true, "quad": Vector2(0.16, 1.0), "curve": "shrink", "delay": 0.08})
+		fx.burst(tip, {"kind": Lib.K_STREAK, "amount": 2, "life": 0.12, "speed": [5.0, 9.0], "dir": tangent, "spread": 15.0,
+			"size": 0.2 * s, "pal": pal, "energy": 1.5, "align": true, "quad": Vector2(0.06, 1.0), "curve": "shrink", "delay": 0.04})
 
 
 # ------------------------------------------------------------------ explosion (LdVfx cannon blast)

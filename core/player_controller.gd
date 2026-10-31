@@ -2,7 +2,8 @@ class_name PlayerController
 extends Node
 ## Reads local InputMap actions for this machine's human fighter (kind "player", peer == my id), builds a
 ## camera-relative FighterInput and sends it to the host every physics frame (host applies directly).
-## Handles mouse capture and lock-on (Tab cycles enemies, middle mouse toggles).
+## Isometric PC: free cursor aiming + screen-relative WASD. Touch controls submit the same intent.
+## Tab cycles enemies, middle mouse toggles lock-on. Capture is only for legacy perspective tools.
 ## Shift ("dodge_sprint"): a tap (released within DODGE_TAP_TIME) sends a dodge edge, holding it longer sprints.
 
 const LOCK_RANGE: float = 30.0
@@ -12,8 +13,19 @@ const DODGE_TAP_TIME: float = 0.2
 
 var fighter: Fighter = null
 var camera: CameraRig = null
-var capture_mouse: bool = true
+var capture_mouse: bool = false
 var enabled: bool = true
+var touch_controls: Control
+var touch_move := Vector2.ZERO
+var touch_aim := Vector2.ZERO
+var touch_held: int = 0
+var touch_pressed: int = 0
+var touch_jump := false
+var touch_dodge := false
+var _focused := true
+
+static func uses_touch() -> bool:
+	return DisplayServer.is_touchscreen_available() or "--touch-controls" in OS.get_cmdline_user_args()
 
 var _press_id: int = 0
 var _resend_left: int = 0
@@ -33,6 +45,15 @@ func _ready() -> void:
 		add_child(camera)
 	if capture_mouse and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if uses_touch():
+		var layer := CanvasLayer.new()
+		layer.layer = 15
+		add_child(layer)
+		touch_controls = (load("res://ui/touch_controls.gd") as Script).new()
+		touch_controls.set("controller", self)
+		layer.add_child(touch_controls)
 
 
 func _exit_tree() -> void:
@@ -76,6 +97,7 @@ func _find_fighter() -> void:
 func _physics_process(_delta: float) -> void:
 	_find_fighter()
 	if not enabled or fighter == null:
+		clear_pending_input()
 		return
 	if camera != null:
 		camera.target = fighter
@@ -94,16 +116,21 @@ func _physics_process(_delta: float) -> void:
 
 func build_input() -> FighterInput:
 	var inp := FighterInput.new()
-	var active := not capture_mouse or Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	var active := enabled and _focused and (not capture_mouse or Input.mouse_mode == Input.MOUSE_MODE_CAPTURED)
+	if not active:
+		clear_pending_input()
+		return inp
 	# Movement relative to the camera.
 	var v := Vector2.ZERO
 	if InputMap.has_action("move_left") and InputMap.has_action("move_forward"):
 		v = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	if touch_move.length_squared() > 0.01:
+		v = touch_move
 	var fwd := camera.forward_flat() if camera != null else fighter.forward()
 	var rgt := fwd.cross(Vector3.UP)
 	inp.move = (rgt * v.x - fwd * v.y).limit_length(1.0)
-	# Aim: screen-center ray hit (world + fighters, excluding self) or 20 m ahead.
-	var ray := camera.center_ray() if camera != null else {"from": fighter.center(), "dir": fighter.forward()}
+	# Aim through the cursor in isometric mode (world + fighters, excluding self).
+	var ray := (camera.pointer_ray() if camera.isometric else camera.center_ray()) if camera != null else {"from": fighter.center(), "dir": fighter.forward()}
 	var from: Vector3 = ray["from"]
 	var dir: Vector3 = ray["dir"]
 	var reach := AIM_FALLBACK + (camera.spring.spring_length if camera != null and camera.spring != null else 0.0)
@@ -115,6 +142,15 @@ func build_input() -> FighterInput:
 		var hit := w.raycast(from, from + dir * (reach + 40.0), CoreUtil.LAYER_WORLD | CoreUtil.LAYER_FIGHTERS, excl)
 		if not hit.is_empty():
 			inp.aim_point = hit["position"]
+		elif camera != null and camera.isometric:
+			var ground: Variant = Plane(Vector3.UP, fighter.global_position.y).intersects_ray(from, dir)
+			if ground is Vector3:
+				inp.aim_point = ground
+	if uses_touch():
+		var aim := touch_aim if touch_aim.length_squared() > 0.01 else v
+		var world_aim := (rgt * aim.x - fwd * aim.y).normalized() if aim.length_squared() > 0.01 else fighter.forward()
+		inp.aim_point = fighter.center() + world_aim * AIM_FALLBACK
+		inp.aim_dir = world_aim
 	# Lock-on.
 	if active:
 		if _just("target_cycle"):
@@ -127,20 +163,31 @@ func build_input() -> FighterInput:
 	_validate_lock()
 	inp.target_uid = _lock_uid
 	# Edges and holds.
-	var bits := 0
-	var held := 0
+	var bits := touch_pressed
+	if (bits & ~1) != 0:
+		bits &= ~1  # A deliberate skill release takes priority over held basic-attack repeat.
+	var held := touch_held
+	touch_pressed = 0
+	var hovered := get_viewport().gui_get_hovered_control()
+	var pointer_blocked := hovered != null and hovered.mouse_filter != Control.MOUSE_FILTER_IGNORE
 	if active:
 		for i in 8:
+			# Mouse clicks over menus/skill tooltips must not attack through the UI.
+			if i < 2 and (pointer_blocked or uses_touch()):
+				continue
 			var a := "skill_%d" % i
 			if _just(a):
 				bits |= 1 << i
 			if _held(a):
 				held |= 1 << i
-	var jump := active and _just("jump")
+	var jump := touch_jump or (active and _just("jump"))
+	touch_jump = false
 	var dodge := feed_dodge_key(active and _held("dodge_sprint"), active and _just("dodge_sprint"),
 		get_physics_process_delta_time())
 	# Dedicated dodge (Alt / mouse thumb button): dodges on press, no tap latency.
 	dodge = dodge or (active and _just("dodge"))
+	dodge = dodge or touch_dodge
+	touch_dodge = false
 	inp.sprint = is_sprint_held()
 	inp.held = held
 	if bits != 0 or jump or dodge:
@@ -160,6 +207,31 @@ func build_input() -> FighterInput:
 	inp.dodge = _last_dodge
 	inp.press_id = _press_id
 	return inp
+
+
+func clear_pending_input() -> void:
+	touch_move = Vector2.ZERO
+	touch_aim = Vector2.ZERO
+	touch_held = 0
+	touch_pressed = 0
+	touch_jump = false
+	touch_dodge = false
+	_resend_left = 0
+	_last_pressed = 0
+	_last_jump = false
+	_last_dodge = false
+	_shift_down = false
+	_shift_t = 0.0
+	if is_instance_valid(touch_controls):
+		touch_controls.call("release_all")
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_focused = false
+		clear_pending_input()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		_focused = true
 
 
 ## Tap / hold detection for the dodge_sprint key, fed once per physics frame: `down` = held now, `just` = pressed

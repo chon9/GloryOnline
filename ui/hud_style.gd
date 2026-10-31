@@ -19,15 +19,15 @@ const ICON_STATUS: String = "res://assets/icons/status/"
 const ICON_CLASS: String = "res://assets/icons/class/"
 
 # ------------------------------------------------------------------ palette (bible section 8, UI)
-const UI_PANEL: Color = Color(0.055, 0.1, 0.165, 0.88)      # #0E1A2A
-const UI_HOLO: Color = Color(0.078, 0.094, 0.125, 0.74)     # #141820
-const UI_GOLD: Color = Color("#D8B25A")
-const UI_GOLD_HI: Color = Color("#FFE9A8")
+const UI_PANEL: Color = Color(0.055, 0.047, 0.039, 0.94)      # #0E1A2A
+const UI_HOLO: Color = Color(0.065, 0.058, 0.048, 0.88)     # #141820
+const UI_GOLD: Color = Color("#A68C58")
+const UI_GOLD_HI: Color = Color("#DED0A5")
 const UI_GOLD_SH: Color = Color("#8A5A2B")
-const UI_CRYSTAL: Color = Color("#3FA9FF")
-const UI_CYAN: Color = Color("#4FD8FF")
+const UI_CRYSTAL: Color = Color("#79968E")
+const UI_CYAN: Color = Color("#9EAA96")
 const UI_STEEL: Color = Color("#9AA6B8")
-const UI_INK: Color = Color(0.02, 0.03, 0.07)
+const UI_INK: Color = Color(0.025, 0.021, 0.018)
 const UI_NEON_A: Color = Color("#C23BFF")
 const UI_NEON_B: Color = Color("#FF3B8A")
 const C_BUFF: Color = Color("#7CD86B")
@@ -37,10 +37,10 @@ const C_CRIT: Color = Color("#FFC43A")
 
 # legacy names (kept for every widget and other tracks), retuned to the bible palette
 const C_PANEL: Color = UI_PANEL
-const C_PANEL_SOFT: Color = Color(0.055, 0.1, 0.165, 0.7)
+const C_PANEL_SOFT: Color = Color(0.055, 0.047, 0.039, 0.8)
 const C_BORDER: Color = UI_GOLD
 const C_BORDER_DIM: Color = Color(0.85, 0.7, 0.36, 0.45)
-const C_TEXT: Color = Color("#F4F6FA")
+const C_TEXT: Color = Color("#E4DFD3")
 const C_TEXT_DIM: Color = Color("#9AA6B8")
 const C_GOLD: Color = Color("#FFD36A")
 const C_HP: Color = Color("#E0323C")
@@ -223,9 +223,9 @@ static func panel(bg: Color, border: Color = Color(0, 0, 0, 0), radius: int = 8,
 
 
 ## Navy-glass gold-filigree panel style box (see ui/glory_stylebox.gd for kinds).
-static func glory(kind: String = "panel", margin: float = 12.0, accent: Color = Color(0, 0, 0, 0), gems: bool = true) -> StyleBox:
+static func glory(kind: String = "panel", margin: float = 12.0, accent: Color = Color(0, 0, 0, 0), gems: bool = false) -> StyleBox:
 	var sb: StyleBox = (load("res://ui/glory_stylebox.gd") as Script).new()
-	sb.set("kind", kind)
+	sb.set("kind", "plain" if kind in ["panel", "holo"] else kind)
 	sb.set("gems", gems)
 	if accent.a > 0.0:
 		sb.set("accent", accent)

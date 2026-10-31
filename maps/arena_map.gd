@@ -104,7 +104,7 @@ func add_lantern(pos: Vector3, stone: Material, core_col: Color, light: bool = t
 	if solid:
 		kit.col_cyl(pos, 0.25, 1.6)
 	if light:
-		add_omni(pos + Vector3(0, 1.6, 0), core_col, 1.4, 7.0)
+		add_omni(pos + Vector3(0, 1.6, 0), core_col, 1.8, 6.0, true)
 
 
 # ================================================================== spawns
@@ -124,10 +124,10 @@ func _build_spawn_markers() -> void:
 		var pts: Array = spawns[team]
 		if pts.is_empty():
 			continue
-		var col: Color = TEAM_COLORS[team]
+		var col: Color = TEAM_COLORS[team].lerp(Color(0.45, 0.38, 0.25), 0.65)
 		var ring := EnvKit.lathe([Vector2(0.62, 0.0), Vector2(0.55, 0.0), Vector2(0.5, 0.0), Vector2(0.42, 0.0)], 32)
-		var mat := EnvKit.glow(col, 1.4, true, 0.8)
-		var disc_mat := EnvKit.glow(col * 0.6, 0.4, true, 0.18)
+		var mat := EnvKit.glow(col, 0.3, true, 0.3)
+		var disc_mat := EnvKit.glow(col * 0.6, 0.1, true, 0.06)
 		var disc := EnvKit.cyl(0.4, 0.4, 0.01, 24)
 		var c := Vector3.ZERO
 		for p: Vector3 in pts:

@@ -141,6 +141,7 @@ func _client(mp: MultiplayerAPI) -> void:
 	var press_id := 0
 	var frames := 0
 	var saw_cd := false
+	var saw_anim_span := false
 	while frames < 600:
 		await physics_frame
 		frames += 1
@@ -156,10 +157,13 @@ func _client(mp: MultiplayerAPI) -> void:
 		me.submit_input.rpc_id(1, inp.to_dict())
 		if me.cooldowns_packed.size() > 2 and me.cooldowns_packed[2] > 0.0:
 			saw_cd = true
+		if me.anim_duration > 0.0:
+			saw_anim_span = true
 		if frames > 120 and saw_cd and dummy.hp < dummy.max_hp and me.global_position.z < z0 - 1.0:
 			break
 	check(me.global_position.z < z0 - 1.0, "client: replicated position moved")
 	check(saw_cd, "client: replicated cooldowns_packed")
+	check(saw_anim_span, "client: replicated cast animation duration")
 	check(dummy.hp < dummy.max_hp, "client: replicated dummy hp dropped")
 	check(me.visual != null, "client: fighter visual created")
 	# wave3: smoothing + replicated counters.

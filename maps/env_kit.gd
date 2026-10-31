@@ -27,71 +27,65 @@ const TEX: String = "res://assets/env/painted/"
 ## Zone presets (bible 4.2): key light, fill/sky, fog, grading. Sky keys map to anime_sky uniforms.
 const PRESETS: Dictionary = {
 	"frost": {
-		"sun_color": Color("#FFF1DC"), "sun_energy": 1.45, "sun_dir": Vector3(-0.72, -0.48, 0.5),
-		"fill_color": Color("#9FD6FF"), "fill_energy": 0.25, "fill_dir": Vector3(0.45, -0.35, -0.8),
-		"ambient": Color("#8FC3DD"), "ambient_energy": 0.3, "sky_contrib": 0.45, "exposure": 0.8,
-		# feelfix: the gameplay camera looks down at sun-lit snow (median luminance ~0.8). With the generic glow
-		# threshold 1.0 the whole snow field fed a wide screen-blend glow and the camera sat inside the 4 m
-		# height fog, a white veil over every shadow. Snow must not bloom (only ice cores / flames), the height fog
-		# stays below the ground, and the aerial haze is lighter.
-		"fog_color": Color("#9CCBE8"), "fog_density": 0.0018, "fog_aerial": 0.2, "fog_sky": 0.15, "fog_height": -2.0,
+		"sun_color": Color("#A9BAC8"), "sun_energy": 0.65, "sun_dir": Vector3(-0.72, -0.48, 0.5),
+		"fill_color": Color("#71889A"), "fill_energy": 0.045, "fill_dir": Vector3(0.45, -0.35, -0.8),
+		"ambient": Color("#7F91A1"), "ambient_energy": 0.32, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#26313B"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0,
 		"fog_height_density": 0.0,
-		"vfog": 0.0006, "vfog_albedo": Color("#C8DCEE"), "vfog_emission": Color("#5FA8C8"), "vfog_sun": 0.8,
-		"saturation": 1.22, "contrast": 1.16, "glow": 0.45,
-		"glow_threshold": 1.7, "glow_levels": [2, 3, 4], "glow_blend": Environment.GLOW_BLEND_MODE_SOFTLIGHT,
-		"sky": {},
+		"vfog": 0.0008, "vfog_albedo": Color("#7F91A1"), "vfog_emission": Color.BLACK, "vfog_sun": 0.8,
+		"saturation": 0.83, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#0B111C"), "mid_sky": Color("#172332"), "horizon": Color("#34424D"), "ground": Color("#0B111C"),
+			"cloud_lit": Color("#34424D"), "cloud_shade": Color("#172332"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 	"glory_stage": {
-		"sun_color": Color("#FFC890"), "sun_energy": 1.75, "sun_dir": Vector3(0.62, -0.36, 0.7),
-		"fill_color": Color("#7FA8FF"), "fill_energy": 0.3, "fill_dir": Vector3(-0.5, -0.4, -0.75),
-		"ambient": Color("#6E7FB8"), "ambient_energy": 0.22, "sky_contrib": 0.4, "exposure": 0.9,
-		"fog_color": Color("#E8C8C8"), "fog_density": 0.0022, "fog_aerial": 0.4, "fog_sky": 0.1, "fog_height": -5.0, "fog_height_density": 0.08,
-		"vfog": 0.0009, "vfog_albedo": Color("#F0E4FF"), "vfog_emission": Color("#6A5AB8"),
-		"saturation": 1.18, "contrast": 1.08, "glow": 0.8,
-		"sky": {"zenith": Color("#1E2A6E"), "mid_sky": Color("#5A5AB0"), "horizon": Color("#FFB98A"), "ground": Color("#6A5A8A"),
-			"cloud_lit": Color("#FFE4C8"), "cloud_shade": Color("#8A78B0"), "sun_tint": Color("#FFD0A0"), "cloud_cover": 0.3, "cloud_scale": 1.1},
+		"sun_color": Color("#B6C4CB"), "sun_energy": 0.72, "sun_dir": Vector3(0.62, -0.36, 0.7),
+		"fill_color": Color("#748393"), "fill_energy": 0.045, "fill_dir": Vector3(-0.5, -0.4, -0.75),
+		"ambient": Color("#89949F"), "ambient_energy": 0.30, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#272A32"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0, "fog_height_density": 0.0,
+		"vfog": 0.0008, "vfog_albedo": Color("#89949F"), "vfog_emission": Color.BLACK,
+		"saturation": 0.8, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#100F18"), "mid_sky": Color("#25232B"), "horizon": Color("#504239"), "ground": Color("#100F18"),
+			"cloud_lit": Color("#504239"), "cloud_shade": Color("#25232B"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 	"blossom": {
-		"sun_color": Color("#FFE6C0"), "sun_energy": 1.5, "sun_dir": Vector3(-0.55, -0.62, -0.55),
-		"fill_color": Color("#A8D0FF"), "fill_energy": 0.3, "fill_dir": Vector3(0.5, -0.4, 0.75),
-		"ambient": Color("#9EC8E8"), "ambient_energy": 0.35, "sky_contrib": 0.6, "exposure": 0.86,
-		"fog_color": Color("#CFE4F2"), "fog_density": 0.0022, "fog_aerial": 0.25, "fog_sky": 0.12, "fog_height": -12.0, "fog_height_density": 0.002,
-		"vfog": 0.0004, "vfog_albedo": Color("#FFF2F6"), "vfog_emission": Color("#E8A0C0"),
-		"saturation": 1.06, "contrast": 1.1, "glow": 0.7,
-		"sky": {"zenith": Color("#1E6AC8"), "mid_sky": Color("#62A8E8"), "horizon": Color("#E8F0F4"), "ground": Color("#7A9A80"),
-			"cloud_cover": 0.5},
+		"sun_color": Color("#A8B5C8"), "sun_energy": 0.65, "sun_dir": Vector3(-0.55, -0.62, -0.55),
+		"fill_color": Color("#6D7D91"), "fill_energy": 0.045, "fill_dir": Vector3(0.5, -0.4, 0.75),
+		"ambient": Color("#8591A1"), "ambient_energy": 0.32, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#252C36"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0, "fog_height_density": 0.0,
+		"vfog": 0.0008, "vfog_albedo": Color("#8591A1"), "vfog_emission": Color.BLACK,
+		"saturation": 0.82, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#0C111C"), "mid_sky": Color("#212735"), "horizon": Color("#42404A"), "ground": Color("#0C111C"),
+			"cloud_lit": Color("#42404A"), "cloud_shade": Color("#212735"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 	"golden_ruins": {
-		"sun_color": Color("#FFBE70"), "sun_energy": 1.75, "sun_dir": Vector3(-0.78, -0.3, 0.55),
-		"fill_color": Color("#6A86D8"), "fill_energy": 0.45, "fill_dir": Vector3(0.6, -0.45, -0.6),
-		"ambient": Color("#8A80A8"), "ambient_energy": 0.22, "sky_contrib": 0.3, "exposure": 0.88,
-		"fog_color": Color("#E0B080"), "fog_density": 0.003, "fog_aerial": 0.35, "fog_sky": 0.15, "fog_height": -2.0, "fog_height_density": 0.004,
-		"vfog": 0.0016, "vfog_albedo": Color("#FFE0B8"), "vfog_emission": Color("#C98A50"),
-		"saturation": 1.06, "contrast": 1.1, "glow": 0.8,
-		"sky": {"zenith": Color("#3A5A9A"), "mid_sky": Color("#8AA8D0"), "horizon": Color("#FFD8A0"), "ground": Color("#B08A6A"),
-			"cloud_lit": Color("#FFE0B0"), "cloud_shade": Color("#B08AA0"), "sun_tint": Color("#FFC070"), "cloud_cover": 0.45},
+		"sun_color": Color("#A6B5C4"), "sun_energy": 0.68, "sun_dir": Vector3(-0.78, -0.3, 0.55),
+		"fill_color": Color("#6A788B"), "fill_energy": 0.04, "fill_dir": Vector3(0.6, -0.45, -0.6),
+		"ambient": Color("#84909E"), "ambient_energy": 0.30, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#282A31"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0, "fog_height_density": 0.0,
+		"vfog": 0.0008, "vfog_albedo": Color("#84909E"), "vfog_emission": Color.BLACK,
+		"saturation": 0.8, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#0B0D14"), "mid_sky": Color("#20212B"), "horizon": Color("#49392E"), "ground": Color("#0B0D14"),
+			"cloud_lit": Color("#49392E"), "cloud_shade": Color("#20212B"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 	"lava": {
-		"sun_color": Color("#FFB070"), "sun_energy": 0.7, "sun_dir": Vector3(0.2, -0.9, 0.35),
-		"fill_color": Color("#7A6AD8"), "fill_energy": 0.35, "fill_dir": Vector3(-0.4, -0.5, -0.75),
-		"ambient": Color("#4A3A6A"), "ambient_energy": 0.6, "sky_contrib": 0.0, "exposure": 1.0,
-		"fog_color": Color("#2A1424"), "fog_density": 0.0035, "fog_aerial": 0.0, "fog_sky": 0.7, "fog_height": 0.0, "fog_height_density": 0.0,
-		"vfog": 0.0015, "vfog_albedo": Color("#FFC0A0"), "vfog_emission": Color("#3A0A06"),
-		"saturation": 1.1, "contrast": 1.12, "glow": 0.9,
-		"sky": {"zenith": Color("#0E0608"), "mid_sky": Color("#1A0A10"), "horizon": Color("#3A1218"), "ground": Color("#120608"),
-			"cloud_lit": Color("#5A2A1A"), "cloud_shade": Color("#1A0A0A"), "sun_tint": Color("#FF7A3A"), "cloud_cover": 0.2,
-			"sun_strength": 0.0},
+		"sun_color": Color("#CC9070"), "sun_energy": 0.48, "sun_dir": Vector3(0.2, -0.9, 0.35),
+		"fill_color": Color("#737482"), "fill_energy": 0.035, "fill_dir": Vector3(-0.4, -0.5, -0.75),
+		"ambient": Color("#95857C"), "ambient_energy": 0.25, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#261714"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0, "fog_height_density": 0.0,
+		"vfog": 0.0008, "vfog_albedo": Color("#95857C"), "vfog_emission": Color.BLACK,
+		"saturation": 0.78, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#090607"), "mid_sky": Color("#170C0C"), "horizon": Color("#3C1A12"), "ground": Color("#090607"),
+			"cloud_lit": Color("#3C1A12"), "cloud_shade": Color("#170C0C"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 	"moon": {
-		"sun_color": Color("#A8DCFF"), "sun_energy": 1.25, "sun_dir": Vector3(0.2, -0.34, 0.92),
-		"fill_color": Color("#7A5AD8"), "fill_energy": 0.4, "fill_dir": Vector3(-0.5, -0.4, -0.6),
-		"ambient": Color("#3B2E7A"), "ambient_energy": 0.42, "sky_contrib": 0.3, "exposure": 1.0,
-		"fog_color": Color("#34346E"), "fog_density": 0.004, "fog_aerial": 0.3, "fog_sky": 0.25, "fog_height": 0.6, "fog_height_density": 0.07,
-		"vfog": 0.0016, "vfog_albedo": Color("#A8B8F0"), "vfog_emission": Color("#3B2E7A"),
-		"saturation": 1.0, "contrast": 1.12, "glow": 0.85,
-		"sky": {"zenith": Color("#070A24"), "mid_sky": Color("#1C1E5A"), "horizon": Color("#4A4AA0"), "ground": Color("#1A1840"),
-			"cloud_lit": Color("#9AA8E8"), "cloud_shade": Color("#2A2A6A"), "sun_tint": Color("#DDF2FF"), "cloud_cover": 0.3,
-			"moon": 1.0, "moon_size": 0.07, "star_amount": 1.0, "nebula_col": Color("#7A4AD8")},
+		"sun_color": Color("#B2C4D5"), "sun_energy": 0.6, "sun_dir": Vector3(0.2, -0.34, 0.92),
+		"fill_color": Color("#747F95"), "fill_energy": 0.04, "fill_dir": Vector3(-0.5, -0.4, -0.6),
+		"ambient": Color("#8495AB"), "ambient_energy": 0.32, "sky_contrib": 0.0, "exposure": 0.95,
+		"fog_color": Color("#202832"), "fog_density": 0.004, "fog_aerial": 0.12, "fog_sky": 0.65, "fog_height": -3.0, "fog_height_density": 0.0,
+		"vfog": 0.0008, "vfog_albedo": Color("#8495AB"), "vfog_emission": Color.BLACK,
+		"saturation": 0.83, "contrast": 1.0, "glow": 0.30,
+		"sky": {"zenith": Color("#080D17"), "mid_sky": Color("#182331"), "horizon": Color("#35404B"), "ground": Color("#080D17"),
+			"cloud_lit": Color("#35404B"), "cloud_shade": Color("#182331"), "sun_strength": 0.0, "cloud_cover": 0.65},
 	},
 }
 
@@ -936,7 +930,7 @@ static func atmosphere(parent: Node, preset_name: String, over: Dictionary = {})
 	sky.radiance_size = Sky.RADIANCE_SIZE_128
 	e.background_mode = Environment.BG_SKY
 	e.sky = sky
-	e.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	e.ambient_light_sky_contribution = float(p["sky_contrib"])
 	e.ambient_light_color = p["ambient"]
 	e.ambient_light_energy = float(p["ambient_energy"])
@@ -947,10 +941,10 @@ static func atmosphere(parent: Node, preset_name: String, over: Dictionary = {})
 	e.glow_enabled = true
 	e.glow_intensity = float(p["glow"])
 	e.glow_strength = 1.0
-	e.glow_bloom = 0.04
-	e.glow_hdr_threshold = float(p.get("glow_threshold", 1.0))
-	e.glow_blend_mode = int(p.get("glow_blend", Environment.GLOW_BLEND_MODE_SCREEN)) as Environment.GlowBlendMode
-	var levels: Array = p.get("glow_levels", [2, 3, 4, 5])
+	e.glow_bloom = 0.0
+	e.glow_hdr_threshold = float(p.get("glow_threshold", 2.0))
+	e.glow_blend_mode = int(p.get("glow_blend", Environment.GLOW_BLEND_MODE_SOFTLIGHT)) as Environment.GlowBlendMode
+	var levels: Array = p.get("glow_levels", [2, 3])
 	for i in 7:
 		e.set_glow_level(i, 1.0 if i in levels else 0.0)
 	e.ssao_enabled = true
@@ -986,7 +980,9 @@ static func atmosphere(parent: Node, preset_name: String, over: Dictionary = {})
 	sun.light_energy = float(p["sun_energy"])
 	sun.light_volumetric_fog_energy = float(p.get("vfog_sun", 1.4))
 	sun.shadow_enabled = true
-	sun.shadow_blur = 0.6
+	sun.shadow_blur = 0.8
+	sun.shadow_bias = 0.025
+	sun.shadow_normal_bias = 0.6
 	sun.directional_shadow_max_distance = 80.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	parent.add_child(sun)
@@ -1019,6 +1015,7 @@ func backdrop(params: Dictionary = {}, radius: float = 330.0) -> void:
 	for k: String in params:
 		m.set_shader_parameter(k, params[k])
 	var mi := MeshInstance3D.new()
+	m.set_shader_parameter("night_tint", Color(0.14, 0.17, 0.21))
 	mi.name = "PaintedBackdrop"
 	mi.mesh = cyl
 	mi.material_override = m

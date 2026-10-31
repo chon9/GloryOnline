@@ -37,8 +37,9 @@ Requirements: a GPU with DirectX 12 or Vulkan support (GTX 900 / RX 400 series o
   each boss with three phases, telegraphed mechanics and an enrage.
 - **AI bots** fill any empty slot, with 4 difficulty levels.
 - **Multiplayer** through Steam lobbies and invites (Steam's free test app 480 "Spacewar"), or LAN / direct IP.
-- **Anime look** — toon-shaded characters, painted maps, anime skill effects with hit-stop, painted skill icons
-  and a 国漫-style HUD.
+- **Dark fantasy direction** — moonlit maps, localized firelight, deeper cast shadows and restrained physical
+  attack trails, with anime characters and a 国漫-style HUD. The art and class-animation overhaul is in progress;
+  see [`docs/ART_BIBLE.md`](docs/ART_BIBLE.md). Screenshots below show the earlier art direction.
 - **Audio** — recorded sound effects for every weapon and element, East-Asian-flavoured music that follows
   the match (menu, lobby, battle, raid, boss, enrage, victory/defeat) and ambient sound for every map.
 
@@ -52,7 +53,7 @@ Requirements: a GPU with DirectX 12 or Vulkan support (GTX 900 / RX 400 series o
 
 | Key | Action |
 |---|---|
-| WASD / Mouse | Move / aim and camera |
+| WASD / Mouse | Screen-relative movement / cursor aiming (fixed isometric camera) |
 | Space | Jump; press as you land after a knockdown for quick recovery 受身 |
 | Shift (tap) / Alt / Mouse 4 | Dodge roll (short invulnerability, 1.2 s cooldown) |
 | Shift (hold) | Sprint |
@@ -64,6 +65,13 @@ Requirements: a GPU with DirectX 12 or Vulkan support (GTX 900 / RX 400 series o
 | ` (backtick) | Scoreboard |
 | F1 | Skill list for your class |
 | Esc | Pause and settings |
+
+The default camera is a fixed diagonal orthographic view; targeting never rotates it.
+Foreground stone and foliage use a local cutaway when they obscure your fighter.
+Touch devices show a left movement stick and right skill buttons: drag a skill to aim,
+release to cast, or hold the basic attack to repeat. Jump/recovery, dodge and menu have
+their own touch buttons. Touch input can be previewed on PC with `-- --touch-controls`.
+This adds touch controls to the Godot game; browser export and WebRTC remain separate work.
 
 Settings: volume per bus (Master, Music, SFX, UI, Ambience), mouse sensitivity, bot difficulty,
 own / ally / enemy effect intensity and camera shake.

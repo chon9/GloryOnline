@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://visuals/shaders/isometric_cutaway.gdshaderinc"
 // Painted-PBR hybrid for environments (bible 3.2): hand-painted look from world-space value noise
 // (no photo textures), baked-in cavity/AO darkening, slope-driven snow cover, stratified rock bands,
 // tinted soft-terminator lighting so shadows go cyan/violet instead of grey.
@@ -62,6 +63,7 @@ void vertex() {
 }
 
 void fragment() {
+	if (iso_occludes(wpos, CAMERA_POSITION_WORLD, FRAGCOORD.xy)) { discard; }
 	vec3 p = wpos * noise_scale;
 	float n = fbm(p);
 	float n2 = fbm(p * 3.1 + 7.0);
@@ -147,7 +149,8 @@ void light() {
 	float sh = ATTENUATION;
 	vec3 tint = mix(shade_tint.rgb, snow_shadow_tint.rgb, snow_k);
 	if (LIGHT_IS_DIRECTIONAL) {
-		vec3 l = mix(tint, vec3(1.0), band * sh);
+		// Occluded direct light contributes nothing. Ambient light owns shadow visibility.
+		vec3 l = mix(tint * 0.16, vec3(1.0), band) * sh;
 		DIFFUSE_LIGHT += l * LIGHT_COLOR / PI;
 		float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 4.0);
 		SPECULAR_LIGHT += rim_col.rgb * fres * rim_amount * sh * LIGHT_COLOR / PI;

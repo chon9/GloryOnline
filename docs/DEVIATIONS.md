@@ -1254,3 +1254,73 @@ for mobs, bosses and summons, restyled with the same toon shader. Public API unc
 - InputMap `dodge_sprint` = physical Shift (location unspecified: left and right). F1 help lists it.
 - Tests: `tests/test_feel_dodge.gd` (tap / hold, wire format, distance / i-frames / cooldown / lockouts, sprint,
   bot dodge, jitter regression incl. 165 Hz render sampling).
+
+## 2026-10-31 — Dark fantasy and combat presentation first pass
+
+Owner priority: darker visuals and combat feel before a browser migration. The current
+art direction in ART_BIBLE.md supersedes the former bright anime environment targets.
+
+- EnvKit's six zone presets now use restrained key/fill lighting, explicit ambient color,
+  dark fog/sky palettes and selective bloom. Terrain, foliage and character shaders no
+  longer add a direct-light shadow floor; face and hair highlights respect cast shadows.
+  Old Castle uses soot-colored masonry and ash terrain, with shadowed lights positioned
+  at its courtyard braziers. Lanterns cast local shadows. Sky/backdrop tint is darkened.
+- Fighter.anim_duration is a new replicated, unscaled animation segment length. SkillRunner
+  computes it to the next animation cue or end of the cast. CharacterVisual fits non-looping
+  cast clips to that length, then applies the existing speed multiplier once. Both peers
+  must run this revision: the replication property layout differs from older builds.
+  This fits clip duration, not authored contact markers; attack-specific contact alignment
+  and custom Glory choreography are still outstanding.
+- Battle Mage thrust/sweep overrides use existing two-handed clips. Generic stabs use
+  the imported stab animation. This does not validate every class skill against canon.
+- Melee timeline steps no longer emit hit_spark/hit_heavy/block_spark at an empty location:
+  Fighter.receive_hit owns contact feedback. Swing and contact events carry the caster UID
+  so weapon sound resolution and own/ally/enemy effect settings work correctly.
+- Physical slash trails are narrower and shorter, without randomized planes or echo arcs;
+  thrust_trail is a distinct narrow forward streak. Bespoke bone-following arcs remain future work.
+- Hit-stop uses elapsed seconds (33/50/83/133 ms), independent of rendered FPS. It remains
+  cosmetic; gameplay simulation and damage timing are unchanged.
+- Physical SFX pitch variation is capped at 3.5%; nested supporting layers lose 4.5 dB per
+  level. No sound assets have been replaced. Sample quality still requires an audition pass.
+
+Validation: test_dark_combat, test_core_combat, test_core_skills, test_assets_fx,
+test_audio_sfx, test_maps_build and the two-process test_core_net. GPU screenshots were
+captured through map_preview on the existing Forward+ renderer. These checks do not
+establish browser compatibility or verify the artistic quality of every class/skill.
+
+Browser migration remains deferred, not implemented. The code already has ENet/LAN and
+Steam-independent offline play. A web port should retain host authority and replace the
+transport with WebRTCMultiplayerPeer, add room signaling and STUN/TURN configuration,
+and build a Compatibility renderer export excluding GodotSteam. Browser rendering,
+audio playback, asset download size, host departure and cross-network connectivity need
+separate validation. WebRTC does not eliminate signaling/relay infrastructure.
+References: https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_web.html
+https://docs.godotengine.org/en/stable/tutorials/networking/webrtc.html
+https://webrtc.org/getting-started/turn-server
+
+## Isometric presentation foundation — 2026-10-31
+
+The owner redirected the next pass from Battle Mage animation to presentation and
+controls, using their dark isometric screenshot as the visual reference. PC keeps
+WASD movement; mouse movement aims without rotating the camera. Mobile has a left
+movement stick, eight skill buttons (drag to aim, release skills; hold basic attack
+to repeat), dodge, jump/recovery and a menu button. This is not click-to-move.
+
+CameraRig defaults to a fixed diagonal orthographic camera with 12–26 m zoom bounds.
+Lock-on cannot change its orientation. The older perspective camera remains available
+to tools through `isometric = false`. Stone and foliage shaders cut a small dithered
+window through foreground occluders for the active camera; collision is unchanged.
+HUD panels are charcoal/brass, the center crosshair is omitted in orthographic views,
+and spawn rings are subdued. Existing geometry, characters and illustrated icons are
+retained; this is a presentation foundation, not a completed asset-style replacement.
+
+Validation: test_isometric_controls (23 assertions), test_core_sandbox (8),
+test_hud_basic (61), test_int_camera_fx (15), test_feel_dodge (64). GPU captures verify
+PC HUD, touch HUD and foreground-wall cutaway in Old Castle. Touch was exercised with
+synthetic multi-touch events and a desktop preview, not on a physical phone. The
+existing portrait viewport-size warning and sandbox shader-cache warning remain;
+there were no shader compilation or gameplay script errors in these captures.
+One additional touch capture crashed in the Vulkan/NVIDIA driver during rendering;
+an unchanged sequential retry completed successfully. The cause is not established.
+Browser export, WebRTC transport, a device performance pass and the authored Battle
+Mage choreography remain subsequent work.

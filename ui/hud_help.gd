@@ -7,14 +7,14 @@ const HudIcons := preload("res://ui/hud_icons.gd")
 const HudSkillSlot := preload("res://ui/hud_skill_slot.gd")
 
 const CONTROLS: Array = [
-	["W A S D", "移动 Move"], ["空格 Space", "跳跃 / 受身 Jump / Quick recover"],
+	["W A S D", "按屏幕方向移动 Screen-relative move"], ["空格 Space", "跳跃 / 受身 Jump / Quick recover"],
 	["Shift", "轻按闪避 / 按住疾跑 Tap: dodge / Hold: sprint"],
 	["Alt / 侧键 Mouse 4", "立即闪避 Dodge (instant)"],
 	["左键 LMB", "普攻连招 Basic attack chain"], ["右键 RMB", "职业副技能 Class secondary"],
 	["Q E R F 1", "技能 Skills"], ["2", "大招 Ultimate"],
 	["Tab", "切换锁定 Cycle lock-on"], ["中键 MMB", "锁定 / 取消 Toggle lock-on"],
 	["`", "按住查看战绩 Hold for scoreboard"], ["F1", "帮助 Help"],
-	["Esc", "菜单 / 鼠标 Menu / cursor"], ["滚轮 Wheel", "镜头缩放 Camera zoom"],
+	["鼠标 Mouse", "指向瞄准 Cursor aim"], ["Esc", "菜单 Menu"], ["滚轮 Wheel", "镜头缩放 Camera zoom"],
 ]
 
 

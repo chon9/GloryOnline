@@ -6,15 +6,15 @@ extends RefCounted
 ##   chamfered skill-slot frames, swallow-tail ribbon, broadcast name plate, calligraphy call-out band,
 ##   portrait ring with sunburst, minimap rim, procedural class crest.
 
-const PANEL := Color(0.055, 0.1, 0.165, 0.88)
-const HOLO := Color(0.078, 0.094, 0.125, 0.74)
-const GOLD := Color("#D8B25A")
-const GOLD_HI := Color("#FFE9A8")
+const PANEL := Color(0.055, 0.047, 0.039, 0.94)
+const HOLO := Color(0.065, 0.058, 0.048, 0.88)
+const GOLD := Color("#A68C58")
+const GOLD_HI := Color("#DED0A5")
 const GOLD_SH := Color("#8A5A2B")
-const CRYSTAL := Color("#3FA9FF")
-const CYAN := Color("#4FD8FF")
-const TEXT := Color("#F4F6FA")
-const INK := Color(0.02, 0.03, 0.07)
+const CRYSTAL := Color("#79968E")
+const CYAN := Color("#9EAA96")
+const TEXT := Color("#E4DFD3")
+const INK := Color(0.025, 0.021, 0.018)
 
 
 

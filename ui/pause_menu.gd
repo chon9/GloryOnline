@@ -176,8 +176,7 @@ func close() -> void:
 	is_open = false
 	if _root != null:
 		_root.visible = false
-	if DisplayServer.get_name() != "headless":
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	resumed.emit()
 
 

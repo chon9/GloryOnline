@@ -63,7 +63,7 @@ func _draw() -> void:
 		if show_plates:
 			_draw_plates(cam)
 		_draw_reticle(cam)
-	if show_crosshair:
+	if show_crosshair and (cam == null or cam.projection != Camera3D.PROJECTION_ORTHOGONAL):
 		_draw_crosshair()
 
 

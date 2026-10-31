@@ -49,7 +49,7 @@ const POOL_BURST := 160
 const POOL_NUMBERS := 48
 const MAX_LIGHTS := 6
 
-const EFFECT_NAMES: Array[StringName] = [&"hit_spark", &"hit_heavy", &"slash_arc", &"launch_burst", &"land_dust", &"cast_glow",
+const EFFECT_NAMES: Array[StringName] = [&"hit_spark", &"hit_heavy", &"slash_arc", &"thrust_trail", &"launch_burst", &"land_dust", &"cast_glow",
 	&"heal_burst", &"buff_aura", &"debuff_puff", &"explosion", &"ice_burst", &"lightning_strike", &"fire_burst", &"holy_burst",
 	&"dark_burst", &"poison_cloud", &"smoke", &"blink", &"dash_trail", &"summon_circle", &"block_spark", &"death", &"ultimate_flash"]
 const PROJECTILE_VISUALS: Array[String] = ["orb", "bullet", "arrow", "grenade", "shuriken", "wave", "missile", "star", "blood", "qi",
@@ -487,7 +487,7 @@ func _on_ui_hover(b: BaseButton) -> void:
 
 func _process(delta: float) -> void:
 	_clock += delta
-	_hitstop.tick()
+	_hitstop.tick(delta)
 	_tick_impact()
 	var cam0 := _camera()
 	_cam_ok = cam0 != null and near_camera_fade
@@ -1908,10 +1908,14 @@ func _play_sfx(name: StringName, pos: Vector3, caster: int, auto: bool, depth: i
 	var st := _stream(files[fi])
 	if st == null:
 		return
-	var pitch := float(e.get("p", 1.0)) * (1.0 + randf_range(-1.0, 1.0) * float(e.get("pr", 0.06)))
+	var variation := float(e.get("pr", 0.035))
+	if fam in [&"swing", &"hit", &"gun", &"footstep"]:
+		variation = minf(variation, 0.035)
+	var pitch := float(e.get("p", 1.0)) * (1.0 + randf_range(-1.0, 1.0) * variation)
 	pitch = clampf(pitch, 0.3, 3.0)
 	var vr := float(e.get("vr", 1.5))
-	var vol := float(e.get("db", 0.0)) + randf_range(-vr, vr)
+	# Body, cloth and sub layers support the primary transient instead of competing with it.
+	var vol := float(e.get("db", 0.0)) + randf_range(-vr, vr) - float(depth) * 4.5
 	var length := maxf(st.get_length() / pitch, 0.05)
 	if ui:
 		var ui_i := _alloc(_u_name, _u_end, PackedFloat32Array(), nm, maxp, pri, now, true)

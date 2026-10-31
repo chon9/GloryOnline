@@ -11,6 +11,8 @@ uniform vec4 near_col : source_color = vec4(0.33, 0.42, 0.64, 1.0);
 uniform vec4 snow_col : source_color = vec4(0.95, 0.97, 1.0, 1.0);
 uniform vec4 warm_col : source_color = vec4(1.0, 0.86, 0.72, 1.0);
 
+uniform vec4 night_tint : source_color = vec4(1.0);
+
 uniform float h_scale = 1.0;     // ridge height multiplier (smaller radius -> lower ridges)
 uniform float snow_caps = 0.85;  // 0 = bare rock ridges (desert, night canyon, cave)
 uniform float strata = 0.0;      // horizontal rock bands on the near ridges
@@ -55,6 +57,6 @@ void fragment() {
 	// ground haze band hides the cylinder bottom
 	float band = smoothstep(4.0, -14.0, y);
 	outc = mix(outc, vec4(haze.rgb, 1.0), band * (outc.a > 0.0 ? 1.0 : 0.0));
-	ALBEDO = outc.rgb;
+	ALBEDO = outc.rgb * night_tint.rgb;
 	ALPHA = outc.a;
 }

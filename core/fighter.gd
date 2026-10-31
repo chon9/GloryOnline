@@ -70,6 +70,7 @@ var max_mp: float = 0.0
 var state: int = State.IDLE
 var anim_key: StringName = &"idle"
 var anim_speed: float = 1.0
+var anim_duration: float = 0.0      # unscaled cast animation segment; 0 = native clip timing
 var anim_seq: int = 0                # bumps whenever an animation must restart (same key re-trigger)
 var status_mask: int = 0
 var shield_hp: float = 0.0
@@ -201,6 +202,7 @@ var _rp_frame: int = -1
 var _vis_anim: StringName = &""
 var _vis_seq: int = -1
 var _vis_speed: float = -1.0
+var _vis_duration: float = -1.0
 var _vis_mask: int = -1
 var _vis_alpha: float = -1.0
 var _vis_hidden: bool = false
@@ -376,7 +378,7 @@ static func _script_has_method(scr: Script, method: String) -> bool:
 
 
 ## Position is replicated through `net_pos` (after facing_yaw, so each snapshot carries the matching yaw).
-const SYNC_ALWAYS: Array[String] = ["net_tick", "facing_yaw", "net_pos", "velocity", "anim_key", "anim_speed"]
+const SYNC_ALWAYS: Array[String] = ["net_tick", "facing_yaw", "net_pos", "velocity", "anim_key", "anim_speed", "anim_duration"]
 const SYNC_ON_CHANGE: Array[String] = ["hp", "max_hp", "mp", "max_mp", "state", "status_mask", "shield_hp",
 	"team", "combo_count", "target_uid", "cooldowns_packed", "charges_packed", "cast_slot", "dodge_cd", "is_stealthed",
 	"anim_seq", "weapon_form", "kit_counter", "kit_counter_max", "last_attacker_uid", "kills", "deaths",
@@ -752,6 +754,7 @@ func start_skill(s: SkillDef, slot: int = -1) -> SkillRunner:
 	runner = SkillRunner.new(self, s, actual_slot)
 	anim_key = s.anim
 	anim_speed = s.anim_speed * runner.rate
+	anim_duration = runner.animation_span()
 	anim_seq += 1
 	skill_velocity = Vector3.ZERO
 	skill_cast.emit(self, actual_slot)
@@ -1310,6 +1313,7 @@ func _select_anim() -> void:
 			k = &"block" if status.has(&"block") else &"idle"
 	anim_key = k
 	anim_speed = sp
+	anim_duration = 0.0
 
 
 # ================================================================== hits
@@ -1365,7 +1369,7 @@ func receive_hit(src: Fighter, hit_in: Dictionary, from_pos: Vector3) -> float:
 	var fx_name: StringName = &"hit_heavy" if (float(hit["launch"]) > 0.0 or bool(hit["knockdown"]) or bool(res["crit"])) else &"hit_spark"
 	if bool(res["blocked"]):
 		fx_name = &"block_spark"
-	CoreUtil.fx(&"play", [fx_name, center(), CoreUtil.flat_dir(global_position - from_pos), Color.WHITE, 1.0])
+	CoreUtil.fx(&"play", [fx_name, center(), CoreUtil.flat_dir(global_position - from_pos), Color.WHITE, 1.0, src.uid if src != null else 0])
 	# Finisher hits (skills tagged "finisher") get the heavy hit-stop / impact frame even when the hit fx is light.
 	if fx_name == &"hit_spark" and src != null and src.runner != null and src.runner.skill != null \
 			and src.runner.skill.has_tag("finisher"):
@@ -1954,11 +1958,15 @@ func latest_net_position() -> Vector3:
 func _update_visual() -> void:
 	if visual == null or not is_instance_valid(visual):
 		return
-	if anim_key != _vis_anim or anim_seq != _vis_seq or not is_equal_approx(anim_speed, _vis_speed):
+	var span := anim_duration if state == State.CAST else 0.0
+	if anim_key != _vis_anim or anim_seq != _vis_seq or not is_equal_approx(anim_speed, _vis_speed) or not is_equal_approx(span, _vis_duration):
 		_vis_anim = anim_key
 		_vis_seq = anim_seq
 		_vis_speed = anim_speed
-		if visual.has_method(&"play"):
+		_vis_duration = span
+		if visual is CharacterVisual:
+			(visual as CharacterVisual).play(anim_key, anim_speed, span)
+		elif visual.has_method(&"play"):
 			visual.call(&"play", anim_key, anim_speed)
 	if weapon_form != _vis_weapon_form:
 		_vis_weapon_form = weapon_form

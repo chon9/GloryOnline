@@ -4,7 +4,7 @@ extends SceneTree
 ## projectile visuals move/fall/home, and everything frees itself.
 ## Run: godot --headless --path . -s res://tests/test_assets_fx.gd
 
-const CONTRACT_EFFECTS: Array[StringName] = [&"hit_spark", &"hit_heavy", &"slash_arc", &"launch_burst", &"land_dust", &"cast_glow",
+const CONTRACT_EFFECTS: Array[StringName] = [&"hit_spark", &"hit_heavy", &"slash_arc", &"thrust_trail", &"launch_burst", &"land_dust", &"cast_glow",
 	&"heal_burst", &"buff_aura", &"debuff_puff", &"explosion", &"ice_burst", &"lightning_strike", &"fire_burst", &"holy_burst",
 	&"dark_burst", &"poison_cloud", &"smoke", &"blink", &"dash_trail", &"summon_circle", &"block_spark", &"death", &"ultimate_flash"]
 const CONTRACT_PROJ: Array[String] = ["orb", "bullet", "arrow", "grenade", "shuriken", "wave", "missile", "star", "blood", "qi",
@@ -214,17 +214,12 @@ func _run() -> void:
 	fx.play(&"hit_heavy", Vector3(30, 1, 0), Vector3(1, 0, 0), Color.WHITE, 1.0)
 	check(not vap.active and not aap.active, "hit_heavy freezes the victim and the attacker (hit-stop)")
 	check(Engine.time_scale == ts0, "hit-stop never touches Engine.time_scale")
-	for f in 4:
-		await process_frame
-	check(not vap.active, "heavy hit-stop still holds after 4 frames")
-	for f in 6:
-		await process_frame
-	check(vap.active and aap.active and victim.position.is_equal_approx(Vector3(30, 0, 0)), "hit-stop releases after 8 frames and restores the shake offset")
+	await create_timer(0.12).timeout
+	check(vap.active and aap.active and victim.position.is_equal_approx(Vector3(30, 0, 0)), "heavy hit-stop releases after 83 ms and restores the shake offset")
 	fx.play(&"hit_spark", Vector3(30, 1, 0), Vector3(1, 0, 0), Color.WHITE, 1.0)
 	check(not vap.active, "hit_spark: light hit-stop")
-	for f in 4:
-		await process_frame
-	check(vap.active, "light hit-stop lasts 3 frames")
+	await create_timer(0.07).timeout
+	check(vap.active, "light hit-stop releases after 33 ms")
 	fx.call("impact", Vector3(30, 1, 0), 4.0, Vector3.ZERO)
 	check(not vap.active and aap.active, "impact(strength 4) freezes the nearest visual only")
 	fx.set("hitstop_enabled", false)

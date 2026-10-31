@@ -171,7 +171,7 @@ func _build_player() -> void:
 	name_label = HudStyle.make_label("", 22, HudStyle.C_TEXT, true, 4)
 	name_label.clip_text = true
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_label.custom_minimum_size = Vector2(60, 0)
+	name_label.custom_minimum_size = Vector2(112, 0)
 	top.add_child(name_label)
 	class_label = HudStyle.make_label("", 13, HudStyle.C_TEXT_DIM, false, 3)
 	class_label.clip_text = true

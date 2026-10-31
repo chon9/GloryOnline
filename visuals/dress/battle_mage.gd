@@ -23,8 +23,13 @@ static func dress() -> Dictionary:
 			"HAIR": {"map": [Color("#0B090A"), Color("#211A1C"), Color("#584A4C")], "contrast": 1.0, "line": 1.7, "shade": Color(0.55, 0.5, 0.7)},
 			"EyeIris": {"iris": Color(0.78, 0.62, 0.55)},
 		},
-		"anims": {&"idle": ["Fighting Idle"], &"attack": ["Sword_Regular_A"], &"attack_stab": ["Sword_Regular_A"]},
-		"grips": {"battle_lance": {"kind": "pole", "tilt": 0.0, "two_hand": true}},
+		"anims": {&"idle": ["Fighting Idle"], &"attack": ["kk_Melee_2H_Attack_Stab"],
+			&"attack_stab": ["kk_Melee_2H_Attack_Stab"], &"attack_2h": ["kk_Melee_2H_Attack_Slice"],
+			&"attack_1h_2": ["kk_Melee_2H_Attack_Slice"],
+			&"attack_spin": ["kk_Melee_2H_Attack_Spin"]},
+		"grips": {"battle_lance": {"kind": "pole", "tilt": 0.0, "two_hand": true,
+			"clips": {"kk_Melee_2H_Attack_Stab": {"tilt": -110.0, "yaw": 80.0},
+				"kk_Melee_2H_Attack_Slice": {"tilt": 10.0, "yaw": -90.0}}}},
 	}
 
 

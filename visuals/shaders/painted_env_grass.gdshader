@@ -30,7 +30,7 @@ void fragment() {
 void light() {
 	if (LIGHT_IS_DIRECTIONAL) {
 		float sh = smoothstep(0.3, 0.7, ATTENUATION);
-		DIFFUSE_LIGHT += mix(shade_tint.rgb, vec3(1.0), sh) * LIGHT_COLOR / PI;
+		DIFFUSE_LIGHT += sh * LIGHT_COLOR / PI;
 	} else {
 		DIFFUSE_LIGHT += ATTENUATION * LIGHT_COLOR / PI * 0.7;
 	}

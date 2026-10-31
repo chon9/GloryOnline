@@ -1,5 +1,11 @@
 class_name CameraRig
 extends Node3D
+## Default presentation: fixed diagonal orthographic view. Perspective mode remains for tools.
+@export var isometric: bool = true
+@export var iso_size: float = 18.0
+@export var iso_yaw: float = PI / 4.0
+@export var iso_pitch: float = -PI / 3.6
+var _iso_zoom: float = 18.0
 ## Third-person action-MMO camera (purely local, never replicated).
 ## Framing: the arm pivots a little above the followed fighter's head (scaled by the visual's real height), with a
 ## right-shoulder offset and a default ~17 degree downward pitch, so the own character sits in the lower third,
@@ -78,6 +84,13 @@ func _ready() -> void:
 	camera.far = 400.0
 	spring.add_child(camera)
 	camera.current = true
+	if isometric:
+		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+		camera.size = iso_size
+		_iso_zoom = iso_size
+		yaw = iso_yaw
+		pitch = iso_pitch
+		spring.position = Vector3.ZERO
 	_rng.randomize()
 	var fx := CoreUtil.autoload("Fx")
 	if fx != null and fx.has_signal(&"impact_fired"):
@@ -104,6 +117,13 @@ func forward_flat() -> Vector3:
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	if isometric:
+		if e is InputEventMouseButton and e.pressed and camera.current:
+			if e.button_index == MOUSE_BUTTON_WHEEL_UP:
+				iso_size = clampf(iso_size - 1.0, 12.0, 26.0)
+			elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				iso_size = clampf(iso_size + 1.0, 12.0, 26.0)
+		return
 	if e is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var mm := e as InputEventMouseMotion
 		yaw -= mm.relative.x * mouse_sensitivity
@@ -133,6 +153,9 @@ func _height_scale() -> float:
 
 func _process(delta: float) -> void:
 	if spring == null:
+		return
+	if isometric:
+		_process_isometric(delta)
 		return
 	var hs := _height_scale()
 	var lock_dist_extra := 0.0
@@ -192,6 +215,44 @@ func _process(delta: float) -> void:
 	spring.spring_length = maxf(_arm, MIN_ARM)
 	_place_camera()
 	_tick_feedback(delta)
+	if camera.current:
+		RenderingServer.global_shader_parameter_set("iso_focus", Vector4.ZERO)
+
+
+func _process_isometric(delta: float) -> void:
+	yaw = iso_yaw
+	pitch = iso_pitch
+	rotation = Vector3(pitch, yaw, 0.0)
+	if is_instance_valid(target):
+		var pivot := target.render_position() + Vector3.UP * 0.6
+		global_position = global_position.lerp(pivot, 1.0 - exp(-follow_sharpness * delta)) if _snapped else pivot
+		_snapped = true
+	_iso_zoom = lerpf(_iso_zoom, iso_size, 1.0 - exp(-zoom_sharpness * delta))
+	camera.size = _iso_zoom
+	# A wall must not collapse the tactical view into an over-the-shoulder shot.
+	spring.spring_length = 32.0
+	_place_camera()
+	_tick_feedback(delta)
+	if camera.current:
+		var focus := target.render_position() + Vector3.UP * 0.85 if is_instance_valid(target) else global_position
+		RenderingServer.global_shader_parameter_set("iso_focus", Vector4(focus.x, focus.y, focus.z, 1.7))
+		RenderingServer.global_shader_parameter_set("iso_eye", camera.global_position)
+
+
+func _exit_tree() -> void:
+	if is_instance_valid(camera) and camera.current:
+		RenderingServer.global_shader_parameter_set("iso_focus", Vector4.ZERO)
+
+
+## Cursor ray for PC aiming; orthographic rays have different origins, parallel directions.
+func pointer_ray() -> Dictionary:
+	return screen_ray(get_viewport().get_mouse_position())
+
+
+func screen_ray(p: Vector2) -> Dictionary:
+	if camera == null or not camera.is_inside_tree():
+		return {"from": global_position, "dir": forward_flat()}
+	return {"from": camera.project_ray_origin(p), "dir": camera.project_ray_normal(p)}
 
 
 func _place_camera() -> void:

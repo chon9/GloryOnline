@@ -43,7 +43,7 @@ func _draw() -> void:
 	var ci := get_canvas_item()
 	var rad := size.x * 0.5 - 8.0
 	var c := Vector2(size.x * 0.5, size.x * 0.5)
-	GD.circle(ci, c, rad, Color(0.06, 0.12, 0.2, 0.88))
+	GD.circle(ci, c, rad, Color(0.065, 0.058, 0.045, 0.94))
 	GD.arc(ci, c, rad * 0.5, 0, TAU, Color(GD.CYAN, 0.12), 1.0, 40)
 	GD.line(ci, c - Vector2(rad, 0), c + Vector2(rad, 0), Color(GD.CYAN, 0.08))
 	GD.line(ci, c - Vector2(0, rad), c + Vector2(0, rad), Color(GD.CYAN, 0.08))
@@ -67,7 +67,7 @@ func _draw() -> void:
 		var corners := PackedVector2Array([to_map.call(Vector3(bb.position.x, 0, bb.position.z)), to_map.call(Vector3(bb.end.x, 0, bb.position.z)),
 			to_map.call(Vector3(bb.end.x, 0, bb.end.z)), to_map.call(Vector3(bb.position.x, 0, bb.end.z))])
 		for pl in Geometry2D.intersect_polygons(corners, disc):
-			GD.poly(ci, pl, Color(0.16, 0.3, 0.42, 0.45))
+			GD.poly(ci, pl, Color(0.3, 0.27, 0.2, 0.45))
 		for i in 4:
 			for seg in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([corners[i], corners[(i + 1) % 4]]), disc):
 				GD.polyline(ci, seg, Color(GD.CYAN, 0.75), 1.5)

@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://visuals/shaders/isometric_cutaway.gdshaderinc"
 // Painted leaf cards / blossom clumps for environment trees (bible 4.1 "vegetation"): alpha-cut painted atlas,
 // 2-band soft lighting with a TINTED core shadow (darker at the canopy core, lighter at the edges), a warm
 // back-light catch, and gentle wind sway. Double sided; normals are bent outward from the canopy centre by the
@@ -25,6 +26,7 @@ void vertex() {
 }
 
 void fragment() {
+	if (iso_occludes(wpos, CAMERA_POSITION_WORLD, FRAGCOORD.xy)) { discard; }
 	vec4 t = texture(albedo_tex, UV);
 	ALBEDO = t.rgb * albedo_mul.rgb;
 	ALPHA = t.a;
@@ -38,10 +40,10 @@ void light() {
 	float band = smoothstep(-0.15, 0.3, ndl);
 	if (LIGHT_IS_DIRECTIONAL) {
 		float sh = smoothstep(0.3, 0.7, ATTENUATION);
-		DIFFUSE_LIGHT += mix(shade_tint.rgb, vec3(1.0), band * sh) * LIGHT_COLOR / PI;
+		DIFFUSE_LIGHT += mix(shade_tint.rgb * 0.16, vec3(1.0), band) * sh * LIGHT_COLOR / PI;
 		// back-light catch: light coming through the canopy edge toward the viewer
 		float back = pow(clamp(dot(-VIEW, LIGHT), 0.0, 1.0), 3.0) * (1.0 - abs(dot(NORMAL, VIEW)));
-		SPECULAR_LIGHT += rim_col.rgb * back * rim_strength * LIGHT_COLOR / PI;
+		SPECULAR_LIGHT += rim_col.rgb * back * rim_strength * sh * LIGHT_COLOR / PI;
 	} else {
 		DIFFUSE_LIGHT += clamp(ndl * 0.5 + 0.5, 0.0, 1.0) * ATTENUATION * LIGHT_COLOR / PI;
 	}

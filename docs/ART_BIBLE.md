@@ -1,4 +1,46 @@
-# RONGYAO ARENA — Art Bible v1
+# RONGYAO ARENA — Art Direction
+
+## Current direction — 2026-10-31
+
+The owner's later screenshot is the presentation reference: a fixed diagonal,
+isometric dark-fantasy view, small readable characters, rough stone, restrained
+spell accents, charcoal UI and tarnished metal borders. PC movement remains WASD
+with a free aiming cursor. Mobile uses an on-screen movement stick and combat
+buttons. This supersedes the original third-person/shoulder-camera direction.
+Battle Mage's authored animation work follows this camera/control foundation.
+
+Implemented foundation: orthographic camera with bounded zoom, screen-relative
+movement, cursor ground/target aiming, multi-touch movement and drag-to-aim skills,
+foreground wall/canopy cutaway, quieter HUD panels and subdued spawn markers.
+The existing character models, environment geometry and icon illustrations are
+still reused; these changes do not complete the gritty material/asset conversion.
+
+The owner’s target is **Diablo II-like darkness and infernal atmosphere with Glory’s
+class identities and responsive combat**. This supersedes the bright lighting,
+constant bloom, large physical attack effects and decorative-mote targets in the
+original reference study below.
+
+- Light the world with restrained moonlight and localized fire, lanterns and magic.
+  Cast shadows must attenuate direct light on characters, faces, terrain and foliage.
+  Keep enough ambient light to read the floor, opponents and attack anticipation.
+- Use charcoal stone, worn iron, tarnished brass, ash and muted cloth. Preserve zone
+  differences: cold snow forests, ember-lit ruins, and lava caves. Darkness alone
+  cannot replace authored surface detail, silhouettes and environmental storytelling.
+- Physical attacks use short, narrow trails. Impacts and impact sounds happen on
+  contact. Thrusts, sweeps, upward launchers, palms and firearms need distinct poses
+  and motion; large magic effects are reserved for appropriate skills.
+- Each skill needs anticipation, contact and recovery aligned to its gameplay timeline.
+  The current clip-duration fitting is a foundation, not proof of frame-accurate contact
+  or faithful choreography. Bespoke class animation and weapon-tip trails remain required.
+- Sound should emphasize the primary weapon/contact transient. Supporting cloth,
+  body and bass layers sit underneath it, with restrained pitch variation. The current
+  sample library still needs listening-based selection and replacement where needed.
+
+The first implementation revises shared zone lighting, castle materials/practical
+lights, shadow response, physical VFX, hit-stop timing, cast animation timing and
+SFX layering. It reuses existing assets; it does not complete the 25-class art or canon audit.
+
+## Original reference study (v1)
 ### Look target: the in-game world of *Glory* (荣耀) as shown in the 全职高手 / *The King's Avatar* donghua (S1 2017 by 视美精典 / BCMAY; S2–S3 2019–2023 by 彩色铅笔 / Colored Pencil). The live-action version is out of scope.
 
 > **Legal note.** This is a fan project in a **public** repo. We **evoke** the show's design language with original assets. We do **not** trace, ship or texture-sample official art, logos (the winged 榮耀 crest, team emblems) or screenshots. Reference stills live only in `scratchpad/art/ref/` and must never be committed. Every shipped asset needs a CC0, CC-BY, MIT/OFL or redistribution-permitting license, recorded in `assets/CREDITS.md` and `assets/licenses/`.

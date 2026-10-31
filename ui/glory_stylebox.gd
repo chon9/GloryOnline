@@ -15,9 +15,9 @@ extends StyleBox
 const GD := preload("res://ui/glory_draw.gd")
 
 @export var kind: String = "panel"
-@export var gems: bool = true
-@export var accent: Color = Color("#4FD8FF")
-@export var fill: Color = Color(0.055, 0.1, 0.165, 0.88)
+@export var gems: bool = false
+@export var accent: Color = Color("#9EAA96")
+@export var fill: Color = Color(0.055, 0.047, 0.039, 0.94)
 
 
 func _draw(to_canvas_item: RID, r: Rect2) -> void:
