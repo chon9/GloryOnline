@@ -14,6 +14,10 @@ var pierce: bool = false
 var bounce: int = 0
 var homing: float = 0.0               # turn rate rad/s
 var homing_target: Fighter = null
+var manual_steer: float = 0.0         # maximum turn rate rad/s; host only, no enemy lookup
+var steer_window: float = 0.0        # seconds after release
+var _launch_direction := Vector3.FORWARD
+var _steer_sync := 0.0
 var hit: Dictionary = {}
 var explode: Dictionary = {}          # {radius, hit}
 var visual: String = "orb"
@@ -30,6 +34,7 @@ var _debug: MeshInstance3D = null
 
 
 func _ready() -> void:
+	_launch_direction = velocity.normalized()
 	var w := World.get_instance()
 	if w != null:
 		fx_id = w.next_fx_id()
@@ -67,6 +72,8 @@ func tick(delta: float) -> void:
 	if w == null:
 		finish()
 		return
+	if manual_steer > 0.0:
+		_tick_manual_steer(delta)
 	# Homing.
 	if homing > 0.0 and homing_target != null and is_instance_valid(homing_target) and homing_target.is_alive():
 		var want := (homing_target.center() - global_position).normalized()
@@ -102,6 +109,26 @@ func tick(delta: float) -> void:
 	global_position = to
 	if traveled >= max_range or _age >= max_lifetime or to.y < w.bounds.position.y:
 		_terminate()
+
+func _tick_manual_steer(delta: float) -> void:
+	# Spending the window without input keeps the original straight trajectory.
+	# Interruption/death immediately removes control; the released dragon continues.
+	var control_delta := minf(delta, maxf(0.0, steer_window - (_age - delta)))
+	if control_delta > 0.0 and _caster_valid() and caster.is_alive() and caster.runner == runner and caster.state == Fighter.State.CAST:
+		var intent := caster.input.steer.clamp(Vector2(-1, -1), Vector2.ONE)
+		if intent.length_squared() > 0.0001:
+			var flat := CoreUtil.flat_dir(_launch_direction).rotated(Vector3.UP, -intent.x * deg_to_rad(55.0))
+			var pitch := clampf(asin(_launch_direction.y) + intent.y * deg_to_rad(32.0), -0.25, 0.7)
+			var desired := (flat * cos(pitch) + Vector3.UP * sin(pitch)).normalized()
+			var current := velocity.normalized()
+			var angle := current.angle_to(desired)
+			var axis := current.cross(desired)
+			if angle > 0.0001 and axis.length_squared() > 0.000001:
+				velocity = velocity.rotated(axis.normalized(), minf(angle, manual_steer * control_delta))
+	_steer_sync -= delta
+	if _steer_sync <= 0.0:
+		_steer_sync = 0.05
+		CoreUtil.fx(&"move_projectile_visual", [fx_id, global_position, velocity])
 
 
 ## Returns true if the projectile terminated.

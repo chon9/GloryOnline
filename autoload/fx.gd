@@ -49,11 +49,11 @@ const POOL_BURST := 160
 const POOL_NUMBERS := 48
 const MAX_LIGHTS := 6
 
-const EFFECT_NAMES: Array[StringName] = [&"hit_spark", &"hit_heavy", &"slash_arc", &"thrust_trail", &"launch_burst", &"land_dust", &"cast_glow",
+const EFFECT_NAMES: Array[StringName] = [&"bm_chaser", &"bm_pierce", &"bm_palm", &"bm_dragon_burst", &"hit_spark", &"hit_heavy", &"slash_arc", &"thrust_trail", &"launch_burst", &"land_dust", &"cast_glow",
 	&"heal_burst", &"buff_aura", &"debuff_puff", &"explosion", &"ice_burst", &"lightning_strike", &"fire_burst", &"holy_burst",
 	&"dark_burst", &"poison_cloud", &"smoke", &"blink", &"dash_trail", &"summon_circle", &"block_spark", &"death", &"ultimate_flash"]
 const PROJECTILE_VISUALS: Array[String] = ["orb", "bullet", "arrow", "grenade", "shuriken", "wave", "missile", "star", "blood", "qi",
-	"dragon", "lightning", "cannonball", "flask", "scythe"]
+	"dragon", "spear_dragon", "lightning", "cannonball", "flask", "scythe"]
 const AREA_VISUALS: Array[String] = ["fire", "ice", "lightning", "holy", "dark", "poison", "wind", "earth", "blood", "rune", "thorn"]
 
 ## Default zone colours (bible 5.2 element mid colours).
@@ -620,6 +620,17 @@ func spawn_area_visual(id: int, visual: String, shape: String, pos: Vector3, yaw
 		_rpc_area.rpc(id, visual, shape, pos, yaw, radius, length, width, delay, duration, color, cu)
 	else:
 		_do_area(id, visual, shape, pos, yaw, radius, length, width, delay, duration, color, cu)
+
+## Authoritative corrections preserve the dragon's existing body and trail.
+func move_projectile_visual(id: int, pos: Vector3, vel: Vector3) -> void:
+	if _should_broadcast():
+		_rpc_move_projectile.rpc(id, pos, vel)
+	else:
+		_do_move_projectile(id, pos, vel)
+
+@rpc("authority", "call_local", "unreliable_ordered")
+func _rpc_move_projectile(id: int, pos: Vector3, vel: Vector3) -> void:
+	_do_move_projectile(id, pos, vel)
 
 
 ## Moves/turns a live area visual without restarting it (for follow_caster areas and beams).
@@ -1580,6 +1591,12 @@ func _do_move_area(id: int, pos: Vector3, yaw: float) -> void:
 	var a := n as AreaVis
 	a.global_position = pos + Vector3(0, 0.04, 0)
 	a.rotation.y = yaw
+
+func _do_move_projectile(id: int, pos: Vector3, vel: Vector3) -> void:
+	var n: Variant = _nodes.get(id)
+	if n is ProjVis and is_instance_valid(n):
+		(n as ProjVis).global_position = pos
+		(n as ProjVis).vel = vel
 
 
 func _area_start(a: AreaVis) -> void:

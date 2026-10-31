@@ -268,7 +268,7 @@ func _act_melee(p: Dictionary) -> void:
 	# Contact effects belong to Fighter.receive_hit. A missed swing must never
 	# produce a hit sound, screen flash or hit-stop at an empty point in space.
 	var effect := StringName(ps(p, "fx", "slash_arc"))
-	if effect in [&"hit_spark", &"hit_heavy", &"block_spark"]:
+	if effect in [&"none", &"hit_spark", &"hit_heavy", &"block_spark"]:
 		return
 	if effect == &"slash_arc" and caster.anim_key == &"attack_stab":
 		effect = &"thrust_trail"
@@ -375,6 +375,8 @@ func _act_projectile(p: Dictionary) -> void:
 		pr.pierce = pb(p, "pierce", false)
 		pr.bounce = pi(p, "bounce", 0)
 		pr.homing = pf(p, "homing", 0.0)
+		pr.manual_steer = pf(p, "manual_steer", 0.0)
+		pr.steer_window = pf(p, "steer_window", 0.0)
 		pr.homing_target = homing_target
 		pr.hit = phit(p)
 		pr.explode = pd(p, "explode")

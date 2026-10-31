@@ -77,11 +77,11 @@ func test_lance_grip() -> void:
 	var v := CharacterVisual.create_for_class("battle_mage", "battle_lance")
 	root.add_child(v)
 	await process_frame
-	v.pose_clip("kk_Melee_2H_Attack_Stab", 0.6, &"attack_stab")
+	v.pose_clip(v.resolve_key(&"bm_thrust"), 0.12, &"bm_thrust")
 	await process_frame
 	v.body._solve_two_hand()
 	var weapon: Node3D = v._mounts[0]["node"]
-	check(weapon.global_basis.y.normalized().dot(Vector3.FORWARD) > 0.5,
+	check(weapon.global_basis.y.normalized().dot(Vector3.FORWARD) > 0.95,
 		"Battle Mage thrust points the lance head toward the opponent", str(weapon.global_basis.y.normalized()))
 	v.queue_free()
 	await process_frame

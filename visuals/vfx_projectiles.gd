@@ -19,6 +19,31 @@ const DEFAULT_PAL: Dictionary = {
 static func build(fx: Node, p: Node3D, body: Node3D, visual: String, color: Color, s: float) -> void:
 	var pal: Array = Lib.pal(color, DEFAULT_PAL.get(visual, "arcane"))
 	match visual:
+		"spear_dragon":
+			# A long horned head, open lower jaw and tapered neck; no floating orb head.
+			var skull := _solid(body, Lib.sphere(0.5, 10), Color("#B69A60"), Color("#372B21"), Color("#E7D8AC"), 1.1)
+			skull.scale = Vector3(0.56, 0.47, 1.05)
+			var muzzle := _solid(body, Lib.cone(5), Color("#D1B980"), Color("#483B29"), Color("#E7D8AC"), 1.0)
+			muzzle.rotation.x = -PI / 2
+			muzzle.position = Vector3(0, 0.06, -0.53)
+			muzzle.scale = Vector3(0.36, 0.65, 0.23)
+			var jaw := _solid(body, Lib.cone(5), Color("#A68C58"), Color("#30251C"), Color("#E7D8AC"), 0.8)
+			jaw.position = Vector3(0, -0.22, -0.37)
+			jaw.rotation.x = -1.15
+			jaw.scale = Vector3(0.27, 0.65, 0.12)
+			for side: float in [-1.0, 1.0]:
+				var horn := _solid(body, Lib.cone(5), Color("#D8C998"), Color("#54412D"), Color("#EEE0B2"), 0.8)
+				horn.position = Vector3(side * 0.24, 0.34, 0.20)
+				horn.rotation = Vector3(0.7, 0, -side * 0.45)
+				horn.scale = Vector3(0.10, 0.8, 0.10)
+				var eye := _energy(body, Lib.sphere(0.045, 8), [Color("#F5DBB1"), Color("#B64B26"), Color("#531D14")], 1.7)
+				eye.position = Vector3(side * 0.24, 0.11, -0.32)
+			for i in 9:
+				var neck := _solid(body, Lib.sphere(0.5, 10), Color("#AC905C"), Color("#372B21"), Color("#D8C998"), 0.8)
+				var taper := 1.0 - i / 10.0
+				neck.position = Vector3(sin(i * 0.65) * 0.18 * taper, -sin(i * 0.5) * 0.12, 0.30 + i * 0.35)
+				neck.scale = Vector3(0.48 * taper, 0.42 * taper, 0.66)
+			_ribbon(p, pal, 0.20 * s, 18, 1.3)
 		"orb":
 			_energy(body, Lib.sphere(0.2, 14), pal, 3.5)
 			_halo(body, pal, 0.95, Lib.K_GLOW, 2.2)

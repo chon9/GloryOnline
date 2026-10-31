@@ -5,6 +5,7 @@ const Style := preload("res://ui/hud_style.gd")
 const Icons := preload("res://ui/hud_icons.gd")
 var controller: PlayerController
 var fingers: Dictionary = {}
+var dragon_fingers: Dictionary = {} # ownership persists even if the cast ends before release
 var stick := Vector2.ZERO
 var _repeat := 0.0
 var _plate := Style.panel(Style.UI_PANEL, Style.UI_GOLD, 3)
@@ -48,6 +49,8 @@ func _input(e: InputEvent) -> void:
 			for slot in 8:
 				if button_rect(slot).has_point(p) and not fingers.values().has(slot):
 					fingers[index] = slot
+					if slot == 7 and _steering_dragon():
+						dragon_fingers[index] = true
 					controller.touch_held |= 1 << slot
 					if slot == 0:
 						controller.touch_pressed |= 1
@@ -75,6 +78,8 @@ func _input(e: InputEvent) -> void:
 			_update_stick(p)
 		elif action >= 0:
 			var d := p - button_rect(action).get_center()
+			if dragon_fingers.has(index):
+				controller.touch_steer = Vector2(d.x, -d.y).limit_length(96 * unit()) / (96 * unit())
 			if d.length() > 16 * unit():
 				controller.touch_aim = d.normalized()
 	elif e is InputEventScreenTouch and not e.pressed:
@@ -83,10 +88,17 @@ func _input(e: InputEvent) -> void:
 			controller.touch_move = Vector2.ZERO
 		elif action >= 0:
 			controller.touch_held &= ~(1 << action)
-			if action > 0 and not e.canceled:
+			if action == 7:
+				controller.touch_steer = Vector2.ZERO
+			if action > 0 and not e.canceled and not dragon_fingers.has(index):
 				controller.touch_pressed |= 1 << action
+		dragon_fingers.erase(index)
 		fingers.erase(index)
 	get_viewport().set_input_as_handled()
+
+func _steering_dragon() -> bool:
+	var f := controller.fighter
+	return is_instance_valid(f) and f.anim_key == &"bm_dragon" and f.state == Fighter.State.CAST
 
 func _update_stick(p: Vector2) -> void:
 	stick = ((p - stick_center()) / (62.0 * unit())).limit_length()
@@ -97,6 +109,7 @@ func _update_stick(p: Vector2) -> void:
 
 func release_all() -> void:
 	fingers.clear()
+	dragon_fingers.clear()
 	stick = Vector2.ZERO
 	_repeat = 0.0
 
@@ -125,7 +138,10 @@ func _draw() -> void:
 			draw_texture_rect(texture, r.grow(-3 * u), false)
 		else:
 			Icons.draw_skill_icon(self, r.grow(-3 * u), skill, Style.UI_GOLD)
-		if is_instance_valid(f) and i < f.cooldowns_packed.size() and f.cooldowns_packed[i] > 0:
+		if i == 7 and _steering_dragon():
+			draw_rect(r, Style.UI_GOLD_HI, false, 2 * u)
+			_label(Rect2(r.position + Vector2(0, r.size.y - 24 * u), Vector2(r.size.x, 24 * u)), "控龙", 16 * u)
+		elif is_instance_valid(f) and i < f.cooldowns_packed.size() and f.cooldowns_packed[i] > 0:
 			draw_rect(r, Color(0, 0, 0, 0.65))
 			_label(r, str(ceili(f.cooldowns_packed[i])), 24 * u)
 		elif skill != null:

@@ -182,6 +182,7 @@ var motion_override: bool = false
 ## Set by SkillRunner (dash through enemies) – disables soft separation.
 var ghost: bool = false
 var _grabbed_by: Fighter = null
+var _grab_duration: float = 0.0
 var _grab_final: Dictionary = {}
 var _wall_fx_t: float = -10.0
 var _grab_throw: Dictionary = {}
@@ -841,6 +842,7 @@ func apply_input(inp: FighterInput) -> void:
 	input.move = inp.move
 	input.aim_point = inp.aim_point
 	input.aim_dir = inp.aim_dir
+	input.steer = inp.steer.clamp(Vector2(-1, -1), Vector2.ONE) if inp.steer.is_finite() else Vector2.ZERO
 	input.held = inp.held
 	input.sprint = inp.sprint
 	input.target_uid = inp.target_uid
@@ -1533,6 +1535,10 @@ func _begin_grabbed(src: Fighter, hit: Dictionary) -> void:
 	status.remove(&"block")
 	_set_state(State.GRABBED)
 	var gt := float(hit["grab_time"])
+	var throw_data: Variant = hit.get("throw", {})
+	if throw_data is Dictionary and throw_data.get("swing", false) and src.runner != null:
+		gt /= src.runner.rate
+	_grab_duration = gt
 	_timer = gt
 	_grabbed_by = src
 	var fin := Hit.with(hit, {"grab": false, "grab_time": 0.0, "armor_break": true, "no_recover": true})
@@ -1552,7 +1558,14 @@ func _tick_grabbed(delta: float) -> void:
 		_grabbed_by = null
 		_to_neutral()
 		return
-	global_position = g.global_position + g.forward() * (g.radius() + radius() + 0.3) + _grab_side_offset(g)
+	if _grab_throw.get("swing", false):
+		var progress := clampf(1.0 - maxf(0.0, _timer - delta) / maxf(_grab_duration, 0.001), 0.0, 1.0)
+		var arc := g.forward().rotated(Vector3.UP, -progress * PI * 1.4)
+		var destination := g.global_position + arc * 1.6 + Vector3.UP * sin(progress * PI) * 1.8
+		# A forced throw still respects arena walls and ceilings.
+		move_and_collide(destination - global_position)
+	else:
+		global_position = g.global_position + g.forward() * (g.radius() + radius() + 0.3) + _grab_side_offset(g)
 	face_towards(g.global_position)
 	_timer -= delta
 	if _timer > 0.0:
@@ -1562,6 +1575,11 @@ func _tick_grabbed(delta: float) -> void:
 	var fin := _grab_final
 	var throw_d := _grab_throw
 	receive_hit(g, fin, g.global_position)
+	if is_alive() and str(throw_d.get("dir", "")) == "slam":
+		velocity = Vector3.ZERO
+		_knock_vel = Vector3.ZERO
+		CoreUtil.fx(&"play", [&"land_dust", global_position, Vector3.UP, Color("#8A795B"), 0.65, g.uid])
+		return
 	if is_alive() and not throw_d.is_empty():
 		var force := float(throw_d.get("force", 8.0))
 		match str(throw_d.get("dir", "forward")):

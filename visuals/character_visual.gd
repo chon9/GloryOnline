@@ -18,6 +18,8 @@ extends Node3D
 const MODEL_SCALE := 0.75
 const BLEND_TIME := 0.12
 const SPRING_CULL_DIST := 25.0
+const BattleMotion := preload("res://visuals/battle_mage_motion.gd")
+static var _battle_library: AnimationLibrary
 
 ## KayKit models (mobs, bosses, summons). Player classes are anime bodies (see ClassDress).
 const MODELS: Dictionary = {
@@ -317,6 +319,9 @@ var _morph: Array = []        # umbrella form transition: [node, from Transform3
 var _morph_t := 1.0
 const MORPH_TIME := 0.2
 var _mounts: Array[Dictionary] = []   # anime weapon mounts: {node, id, left, kind, units, bone, grip, two, cur, from?, to?}
+var _lance_trail: VfxRibbon
+var _trail_clip := ""
+var _trail_time := -1.0
 var _grip_t := 1.0
 
 
@@ -540,6 +545,10 @@ static func resolve_clip(p_rig: String, key: StringName, stance: String = "", ex
 
 ## The clip this visual plays for `key` (dress overrides > weapon stance > rig map).
 func resolve_key(key: StringName) -> String:
+	if model_id == "battle_mage" and weapon_type == "battle_lance" and anim_player != null:
+		var authored := "battle/" + ("bm_guard" if key == &"idle" else String(key))
+		if anim_player.has_animation(authored):
+			return authored
 	var extra: Dictionary = dress.get("anims", {})
 	var wa: Dictionary = dress.get("weapon_anims", {})
 	if wa.has(weapon_type):
@@ -584,6 +593,7 @@ func play(anim_key: StringName, speed := 1.0, duration := 0.0) -> void:
 		anim_player.play(StringName(clip), minf(0.045, duration * 0.15) if duration > 0.0 else BLEND_TIME)
 	if not (anim_key in LOOP_KEYS) or anim_key == &"launched":
 		anim_player.seek(0.0, true)
+	_update_battle_weapon()
 
 
 ## Tools / screenshots: hold `clip` at time `t` (paused) with its weapon grips snapped in and the cloth settled.
@@ -597,6 +607,7 @@ func pose_clip(clip: String, t: float, key: StringName = &"") -> void:
 	if key != &"":
 		current_key = key
 	_update_clip_grips(clip, current_key)
+	_update_battle_weapon()
 	if _grip_t < 1.0:
 		_update_grip_blend(BLEND_TIME * 2.0)
 	settle_cloth()
@@ -620,6 +631,11 @@ func replay(anim_key: StringName, speed := 1.0) -> void:
 
 
 func set_weapon(p_weapon_type: String, p_offhand := "") -> void:
+	if _lance_trail != null:
+		_lance_trail.queue_free()
+		_lance_trail = null
+	_trail_clip = ""
+	_trail_time = -1.0
 	# 千机伞 form switch: remember where the old canopy panels are so the new form's panels fold / snap out of them
 	var old_panels: Dictionary = {}
 	if weapon_type != p_weapon_type and weapon_type in WeaponFactory.UMBRELLA_FORMS and p_weapon_type in WeaponFactory.UMBRELLA_FORMS and is_inside_tree():
@@ -663,6 +679,11 @@ func set_weapon(p_weapon_type: String, p_offhand := "") -> void:
 		var a := _alpha
 		_alpha = 1.0
 		set_alpha(a)
+	if model_id == "battle_mage" and p_weapon_type == "battle_lance" and not _mounts.is_empty():
+		if _battle_library == null:
+			_battle_library = BattleMotion.new().build(skeleton)
+		if not anim_player.has_animation_library(&"battle"):
+			anim_player.add_animation_library(&"battle", _battle_library)
 	if current_key != &"":
 		var k := current_key
 		current_key = &""
@@ -805,12 +826,23 @@ func _clip_grip(m: Dictionary, clip: String, key: StringName) -> Dictionary:
 func _update_clip_grips(clip: String, key: StringName) -> void:
 	if rig != "anime" or body == null:
 		return
+	if clip.begins_with("battle/"):
+		body.disable_two_hand()
+		_grip_t = 1.0
+		for m: Dictionary in _mounts:
+			m.erase("cur")
+			m.erase("from")
+			m.erase("to")
+		return
 	var any := false
 	for m: Dictionary in _mounts:
 		if not is_instance_valid(m["node"]):
 			continue
 		var w: Node3D = m["node"]
 		var g := _clip_grip(m, clip, key)
+		if bool(m["two"]) and not body.is_two_hand(w):
+			w.transform = _mount_local_xf(m, g)
+			body.enable_two_hand(w)
 		if g == m.get("cur"):
 			continue
 		m["cur"] = g
@@ -1078,7 +1110,7 @@ func get_head_position() -> Vector3:
 
 
 func has_clip_for(key: StringName) -> bool:
-	return get_library(rig).has_animation(StringName(resolve_key(key)))
+	return anim_player != null and anim_player.has_animation(StringName(resolve_key(key)))
 
 
 # --------------------------------------------------------------------------------------------
@@ -1086,6 +1118,8 @@ func has_clip_for(key: StringName) -> bool:
 
 func _process(delta: float) -> void:
 	_time += delta
+	_update_battle_weapon()
+	_update_lance_trail(delta)
 	if _morph_t < 1.0:
 		_update_morph(delta)
 	if _grip_t < 1.0:
@@ -1107,6 +1141,50 @@ func _process(delta: float) -> void:
 		if _cull_t <= 0.0:
 			_cull_t = 0.5 + randf() * 0.1
 			_update_lod()
+
+func _update_battle_weapon() -> void:
+	if not current_clip.begins_with("battle/") or _mounts.is_empty() or anim_player == null:
+		return
+	var samples: Array = anim_player.get_animation(current_clip).get_meta("weapon_samples", [])
+	if samples.is_empty():
+		return
+	var frame := anim_player.current_animation_position * 120.0
+	var index := mini(int(frame), samples.size() - 1)
+	var xf: Transform3D = samples[index]
+	(_mounts[0]["node"] as Node3D).transform = xf.interpolate_with(samples[mini(index + 1, samples.size() - 1)], frame - floorf(frame))
+
+func _update_lance_trail(delta: float) -> void:
+	if model_id != "battle_mage" or _mounts.is_empty() or anim_player == null or not is_inside_tree():
+		return
+	var key := current_clip.trim_prefix("battle/")
+	var t := anim_player.current_animation_position
+	var window: Vector2 = BattleMotion.ACTIVE.get(key, Vector2(-1, -1))
+	var active := weapon_type == "battle_lance" and current_clip.begins_with("battle/") and t >= window.x and t <= window.y and visible
+	var restarted := current_clip != _trail_clip or t < _trail_time
+	if _lance_trail != null and not _lance_trail.dying and (restarted or not active):
+		_lance_trail.detach()
+	if active and (_lance_trail == null or _lance_trail.dying):
+		if _lance_trail != null:
+			_lance_trail.queue_free()
+		_lance_trail = VfxRibbon.new()
+		add_child(_lance_trail)
+		_lance_trail.setup([Color("#DFD2AD"), Color("#A68C58"), Color("#342B20")], 0.065, 14, 1.1)
+		_lance_trail.min_step = 0.035
+		_lance_trail.linger = 0.10
+		var fx := CoreUtil.autoload("Fx")
+		var owner_fighter := get_parent() as Fighter
+		if fx != null and owner_fighter != null:
+			var intensity: float = fx.intensity_for(fx._rel_of(owner_fighter.uid))
+			_lance_trail.set_instance_shader_parameter(&"energy", 1.1 * intensity)
+	if _lance_trail != null:
+		if active and not _lance_trail.dying:
+			var lance: Node3D = _mounts[0]["node"]
+			_lance_trail.push(lance.to_global(Vector3(0, 2.156, 0)))
+		if not _lance_trail.tick(delta, get_viewport().get_camera_3d()):
+			_lance_trail.queue_free()
+			_lance_trail = null
+	_trail_clip = current_clip
+	_trail_time = t
 
 
 ## Spring bones and cloth only simulate within SPRING_CULL_DIST of the active camera.

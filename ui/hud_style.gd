@@ -281,6 +281,15 @@ static func _tex(path: String) -> Texture2D:
 static func skill_icon(s: SkillDef) -> Texture2D:
 	if s == null:
 		return null
+	# Original painted overrides live apart from the procedural icon bake outputs.
+	# Keep the legacy set as fallback for unmapped chain steps / other classes.
+	if str(s.id).begins_with("battle_mage."):
+		var short := str(s.id).get_slice(".", 1)
+		if short in ["lance_2", "lance_3"]:
+			short = "lance_1" # the basic-attack button stays recognizable through the combo
+		var painted := ICON_SKILLS + "battle_mage_painted/" + short + ".png"
+		if ResourceLoader.exists(painted) or FileAccess.file_exists(painted):
+			return _tex(painted)
 	return _tex(ICON_SKILLS + str(s.id).replace(".", "__") + ".png")
 
 

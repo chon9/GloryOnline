@@ -103,6 +103,9 @@ func _host(mp: MultiplayerAPI) -> void:
 	check(pf.global_position.z < start_z - 1.0, "host: remote input moved fighter")
 	check(casts.has(2), "host: remote skill press cast skill 2")
 	check(dummy.hp < dummy.max_hp, "host: remote projectile damaged dummy")
+	check(pf.input.steer.is_equal_approx(Vector2(0.25, 0.5)), "host: remote manual steering input arrived")
+	var fx := root.get_node("Fx")
+	fx.spawn_projectile_visual(90001, "spear_dragon", Vector3(10, 1, 0), Vector3.ZERO, 0.0, Color.WHITE, 1.0)
 	# Spoof check: input from the host's own id must not drive the client's fighter.
 	var z_before := pf.global_position.z
 	pf.submit_input({"m": Vector2(0, 1), "p": 0, "i": 999})
@@ -111,6 +114,8 @@ func _host(mp: MultiplayerAPI) -> void:
 	check(absf(pf.global_position.z - z_before) < 0.5, "host: submit_input from wrong sender ignored")
 	# Let the client observe the replicated state before quitting.
 	for i in 150:
+		if i % 3 == 0:
+			fx.move_projectile_visual(90001, Vector3(10, 2, -3), Vector3.ZERO)
 		await physics_frame
 
 
@@ -146,6 +151,7 @@ func _client(mp: MultiplayerAPI) -> void:
 		await physics_frame
 		frames += 1
 		var inp := FighterInput.new()
+		inp.steer = Vector2(0.25, 0.5)
 		inp.aim_point = Vector3(0, 1, -8)
 		if frames < 60:
 			inp.move = Vector3(0, 0, -1)
@@ -173,3 +179,6 @@ func _client(mp: MultiplayerAPI) -> void:
 		await physics_frame
 	check(dummy.last_attacker_uid == me.uid, "client: replicated last_attacker_uid")
 	check(me.damage_dealt > 0.0 and me.net_damage_dealt > 0, "client: replicated damage_dealt mirror (%.0f)" % me.damage_dealt)
+	var fx := root.get_node("Fx")
+	var dragon: Node3D = fx._nodes.get(90001)
+	check(dragon != null and dragon.position.distance_to(Vector3(10, 2, -3)) < 0.01, "client: authoritative dragon trajectory correction arrived")

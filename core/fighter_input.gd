@@ -13,6 +13,7 @@ const SPRINT_BIT: int = 1 << 16
 var move: Vector3 = Vector3.ZERO        # world-space XZ, length <= 1
 var aim_point: Vector3 = Vector3.ZERO   # world-space point being aimed at (ZERO = none)
 var aim_dir: Vector3 = Vector3.ZERO     # world-space aim direction (camera forward), optional
+var steer: Vector2 = Vector2.ZERO      # manual projectile yaw / lift, normalized; never target tracking
 var jump: bool = false                  # edge
 var dodge: bool = false                 # edge (Shift tapped)
 var sprint: bool = false                # held (Shift held)
@@ -45,6 +46,7 @@ func copy_from(o: FighterInput) -> void:
 	move = o.move
 	aim_point = o.aim_point
 	aim_dir = o.aim_dir
+	steer = o.steer
 	jump = o.jump
 	dodge = o.dodge
 	sprint = o.sprint
@@ -72,6 +74,7 @@ func to_dict() -> Dictionary:
 		"h": h,
 		"t": target_uid,
 		"i": press_id,
+		"s": steer,
 	}
 
 
@@ -80,6 +83,9 @@ static func from_dict(d: Variant) -> FighterInput:
 	var inp := FighterInput.new()
 	if not (d is Dictionary):
 		return inp
+	var steering: Variant = d.get("s", Vector2.ZERO)
+	if steering is Vector2 and (steering as Vector2).is_finite():
+		inp.steer = (steering as Vector2).clamp(Vector2(-1, -1), Vector2.ONE)
 	var m: Variant = d.get("m", Vector2.ZERO)
 	if m is Vector2:
 		inp.move = Vector3((m as Vector2).x, 0.0, (m as Vector2).y).limit_length(1.0)

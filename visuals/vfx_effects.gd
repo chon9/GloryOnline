@@ -10,6 +10,7 @@ const Lib := preload("res://visuals/vfx_lib.gd")
 
 ## Default palette per effect (Color.WHITE from the caller = this one).
 const DEFAULT_PAL: Dictionary = {
+	&"bm_pierce": "blood", &"bm_palm": "blood", &"bm_dragon_burst": "phys", &"bm_chaser": "arcane",
 	&"thrust_trail": "phys",
 	&"hit_spark": "phys", &"hit_heavy": "impact", &"slash_arc": "phys", &"launch_burst": "phys", &"land_dust": "dust",
 	&"cast_glow": "arcane", &"heal_burst": "heal", &"buff_aura": "buff", &"debuff_puff": "dark", &"explosion": "gun",
@@ -28,6 +29,24 @@ static func play(fx: Node, name: StringName, pos: Vector3, d: Vector3, color: Co
 	var full := budget == 0
 	var core_only := budget >= 2
 	match name:
+		&"bm_chaser":
+			_glow(fx, pos, pal, 0.6, 0.4 * s, 0.16 * s, 1.3)
+		&"bm_pierce":
+			# Centered on the actual forward hitbox; no remote ground spell.
+			var streak := _energy_mesh(fx, Lib.cylinder(), pos, pal, 0.16, 1.6)
+			streak.rot = Basis(Quaternion(Vector3.UP, d.normalized()))
+			streak.s0 = Vector3(0.085, 2.5 * s, 0.085)
+			streak.s1 = Vector3(0.012, 2.5 * s, 0.012)
+		&"bm_palm":
+			_shock_ring(fx, pos + d * 0.25, d, pal, 0.18, 1.15 * s)
+			fx.burst(pos, {"kind": Lib.K_STREAK, "amount": 5 if full else 2, "life": 0.15,
+				"speed": [8.0, 12.0], "dir": d, "spread": 15.0, "size": 0.28,
+				"pal": pal, "energy": 1.2, "align": true, "quad": Vector2(0.04, 1.0)})
+		&"bm_dragon_burst":
+			_shock_ring(fx, pos, Vector3.UP, pal, 0.25, 2.0 * s)
+			_ray_burst(fx, pos, pal, 0.18, 2.3 * s, 0.15, 0.8, 1.5)
+			if full:
+				_dust(fx, Vector3(pos.x, fx.ground_y(pos), pos.z), Lib.PAL["dust"], 7, 0.7 * s)
 		&"hit_spark":
 			_star(fx, pos, pal, 0.13, 0.35 * s, 1.25 * s, 3.2)
 			if not core_only:

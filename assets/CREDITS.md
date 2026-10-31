@@ -1,5 +1,14 @@
 # Rongyao Arena - Asset Credits 素材致谢
 
+## Original Battle Mage icons (2026-10-31)
+
+The eight illustrations in `icons/skills/battle_mage_painted/` were generated with OpenAI's
+built-in imagegen at the project owner's request. They are original dark-fantasy skill
+illustrations, not official 全职高手 artwork and not third-party CC0 assets. Exact prompts
+and source image filenames are recorded in `provenance.json` beside the PNGs. Godot resizes
+the masters to 128 px and 256 px; the original generated masters are preserved. The new
+Battle Mage spear animation poses in `visuals/battle_mage_motion.gd` are authored in code.
+
 Every third-party asset in `res://assets/` is free to redistribute and modify: most are **CC0 1.0**, six VRoid sample
 bases use the **VRoid Hub licence** (redistribution and modification allowed, credit unnecessary), the fonts are
 **SIL OFL 1.1**, and some sounds and music are **CC BY 3.0 / 4.0** (attribution required; the exact credit lines are

@@ -73,6 +73,19 @@ release to cast, or hold the basic attack to repeat. Jump/recovery, dodge and me
 their own touch buttons. Touch input can be previewed on PC with `-- --touch-controls`.
 This adds touch controls to the Godot game; browser export and WebRTC remain separate work.
 
+Battle Mage's current source build has original spear choreography and eight dark painted
+hotbar icons. 天击 lifts from below; 龙牙 is a short stab; 落花掌 releases the front hand;
+圆舞棍 catches one opponent and swings them into the ground; 怒龙穿心 pierces the forward line.
+Chasers require a confirmed hit and are limited to one generated orb per cast.
+
+**龙抬头 Dragon Raises Its Head** is manual control during **伏龙翔天**, not another skill
+or an auto-homing attack. While casting, move the cursor right/left to turn and upward to lift;
+on touch, press the ultimate button again and drag while the cast is active (the button shows
+控龙). Release stops further input without casting again. The host allows 0.36 seconds of
+control after the dragon leaves the spear, at a limited turn rate; interruption ends control.
+These timings and the isometric gesture are this project's gameplay adaptation, not claimed
+novel statistics. The existing character meshes remain; this pass changes motion, effects and icons.
+
 Settings: volume per bus (Master, Music, SFX, UI, Ambience), mouse sensitivity, bot difficulty,
 own / ally / enemy effect intensity and camera shake.
 

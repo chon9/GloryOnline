@@ -1,5 +1,17 @@
 # Rongyao icon pipeline (`tools/icons/`)
 
+Battle Mage now uses eight **imagegen illustrations** in
+`assets/icons/skills/battle_mage_painted/`, overriding the legacy bake through `HudStyle.skill_icon`.
+The basic attack retains its icon across all three chain steps. `bake.py` does not write this
+override directory. Its SSIM baseline applies to the legacy procedural set, not these illustrations.
+The generated set was inspected in the HUD and at 48 px. Prompts and source filenames are in
+the override directory's `provenance.json`; the originals remain in the imagegen output folder.
+To rebuild the 128/256 px copies from those masters:
+
+```
+godot --headless --path . -s tools/icons/import_battle_mage.gd -- <absolute-master-directory>
+```
+
 Production port of the look-dev icon painter (`lookdev/tools/icon_painter.py`). It renders every skill icon, status
 icon and class emblem as **original painted art drawn in code**: Python 3 + numpy + Pillow, nothing else. Read
 `lookdev/ICON_STYLE.md` (the rules every icon must pass) and `docs/ART_BIBLE.md` section 7 first.

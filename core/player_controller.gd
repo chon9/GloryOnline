@@ -22,6 +22,9 @@ var touch_held: int = 0
 var touch_pressed: int = 0
 var touch_jump := false
 var touch_dodge := false
+var touch_steer := Vector2.ZERO
+var _dragon_aiming := false
+var _dragon_anchor := Vector2.ZERO
 var _focused := true
 
 static func uses_touch() -> bool:
@@ -162,6 +165,14 @@ func build_input() -> FighterInput:
 				_lock_uid = _best_target(0)
 	_validate_lock()
 	inp.target_uid = _lock_uid
+	# Dragon Raises Its Head is a cast-time mouse gesture, not a second ability.
+	var dragon := fighter.anim_key == &"bm_dragon" and fighter.state == Fighter.State.CAST
+	if dragon and not _dragon_aiming:
+		_dragon_anchor = get_viewport().get_mouse_position()
+	_dragon_aiming = dragon
+	if dragon:
+		var gesture := (get_viewport().get_mouse_position() - _dragon_anchor) / 240.0
+		inp.steer = touch_steer if uses_touch() else Vector2(gesture.x, -gesture.y).clamp(Vector2(-1, -1), Vector2.ONE)
 	# Edges and holds.
 	var bits := touch_pressed
 	if (bits & ~1) != 0:
@@ -210,6 +221,8 @@ func build_input() -> FighterInput:
 
 
 func clear_pending_input() -> void:
+	_dragon_aiming = false
+	touch_steer = Vector2.ZERO
 	touch_move = Vector2.ZERO
 	touch_aim = Vector2.ZERO
 	touch_held = 0
